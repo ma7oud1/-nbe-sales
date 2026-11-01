@@ -54,6 +54,20 @@ input[readonly]{opacity:.85;border-style:dashed}
 .stat.gold strong{color:var(--gold)}
 .stat.navy strong{color:#4b8299}
 .stat.red strong{color:#d16b58}
+.followup-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0 20px}
+.followup-stat{border:1px solid var(--border);background:var(--bg);border-radius:11px;padding:13px}
+.followup-stat small{display:block;color:var(--muted);font-size:12px}
+.followup-stat strong{display:block;color:var(--green);font-size:23px;margin-top:7px}
+.followup-subtitle{font-size:14px;color:var(--green);margin:10px 0 14px}
+.followup-list-title{margin-top:24px}
+.follow-filter{max-width:180px}
+.followup-table{min-width:950px}
+.followup-table td{white-space:normal;max-width:190px}
+.followup-table .btn{margin:2px}
+.follow-status{display:inline-block;padding:5px 8px;border-radius:18px;background:#e4f4eb;color:#087443;font-size:11px}
+.follow-status.late{background:#fbe8e6;color:#b43d31}
+.follow-status.done{background:#e8eef5;color:#345b78}
+@media(max-width:520px){.followup-stats{grid-template-columns:1fr 1fr}.followup-stat:last-child{grid-column:1/-1}.follow-filter{max-width:100%}}
 .target-controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:10px;align-items:end}
 .target-save{height:43px;white-space:nowrap}
 .performance-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-top:16px}
@@ -219,6 +233,36 @@ tr:hover td{background:rgba(8,116,67,.035)}
   <div class="target-box"><div class="target-label">صافي قيمة القروض</div><strong id="perfLoanAmount">0 / 0 جنيه</strong><div class="progress-track"><div class="progress-fill" id="barLoanAmount"></div></div><small id="pctLoanAmount">0% من المستهدف</small></div>
  </div>
  <div class="note">يتم احتساب الإنجاز من العمليات المسجلة في تقارير الشهر المختار. المستهدفات محفوظة على هذا الجهاز بشكل مستقل عن بيانات التقارير.</div>
+</div>
+
+<div class="section followup-section">
+ <div class="section-title">
+  <h2>سجل متابعة العملاء</h2>
+  <span class="badge">CUSTOMER FOLLOW-UP</span>
+ </div>
+ <div class="followup-stats">
+  <div class="followup-stat"><small>إجمالي المتابعات</small><strong id="followTotal">0</strong></div>
+  <div class="followup-stat"><small>مطلوب اليوم</small><strong id="followToday">0</strong></div>
+  <div class="followup-stat"><small>متابعات متأخرة</small><strong id="followOverdue">0</strong></div>
+ </div>
+ <h3 class="followup-subtitle">إضافة متابعة جديدة</h3>
+ <div class="form-grid">
+  <div class="field"><label>اسم العميل</label><input id="fName" maxlength="100" placeholder="اسم العميل"></div>
+  <div class="field"><label>المنتج</label><select id="fProduct"><option value="كارت ائتمان">كارت ائتمان</option><option value="قرض شخصي">قرض شخصي</option><option value="أخرى">أخرى</option></select></div>
+  <div class="field"><label>وسيلة التواصل</label><select id="fChannel"><option value="مكالمة هاتفية">مكالمة هاتفية</option><option value="واتساب">واتساب</option><option value="مقابلة">مقابلة</option><option value="أخرى">أخرى</option></select></div>
+  <div class="field"><label>نتيجة التواصل</label><select id="fStatus"><option value="لم يتم التواصل">لم يتم التواصل</option><option value="مهتم">مهتم</option><option value="بانتظار مستندات">بانتظار مستندات</option><option value="تم التقديم">تم التقديم</option><option value="مكتمل">مكتمل</option><option value="غير مهتم">غير مهتم</option></select></div>
+  <div class="field"><label>موعد المتابعة القادمة</label><input id="fNextDate" type="date"></div>
+  <div class="field"><label>ملاحظات المتابعة</label><input id="fNotes" maxlength="300" placeholder="ملخص مختصر للمتابعة"></div>
+ </div>
+ <div class="actions"><button class="btn primary" onclick="addFollowup()">إضافة إلى سجل المتابعة</button><button class="btn light-btn" onclick="clearFollowupForm()">مسح الحقول</button></div>
+ <div class="section-title followup-list-title"><h2>المتابعات المسجلة</h2>
+  <select id="followFilter" class="follow-filter" onchange="renderFollowups()"><option value="all">كل المتابعات</option><option value="today">مطلوب اليوم</option><option value="overdue">متأخرة</option><option value="open">غير مكتملة</option><option value="done">مكتملة</option></select>
+ </div>
+ <div class="table-wrap"><table class="followup-table">
+  <thead><tr><th>م</th><th>اسم العميل</th><th>المنتج</th><th>آخر نتيجة</th><th>وسيلة التواصل</th><th>المتابعة القادمة</th><th>ملاحظات</th><th>الحالة</th><th class="no-print">إجراء</th></tr></thead>
+  <tbody id="followupList"><tr><td colspan="9" class="empty">لا توجد متابعات مسجلة</td></tr></tbody>
+ </table></div>
+ <div class="note">سجل المتابعة مستقل عن تقارير المبيعات اليومية، ويتم حفظه على هذا الجهاز. استخدم بيانات غير حساسة والتزم بسياسات البنك بشأن بيانات العملاء.</div>
 </div>
 
 <div class="section entry-section">
@@ -389,6 +433,8 @@ const EMPLOYEE="محمود محمد رزق";
 const SALES_NO="479511";
 const STORAGE_KEY="NBE_SALES_REPORTS_V1";
 const TARGETS_KEY="NBE_SALES_TARGETS_V1";
+const FOLLOWUPS_KEY="NBE_SALES_FOLLOWUPS_V1";
+let followups=[];
 let targets={cards:0,loans:0,loanAmount:0};
 let reports={};
 let currentDate="";
@@ -416,6 +462,78 @@ function loadTargets(){
  $("targetCards").value=targets.cards||"";
  $("targetLoans").value=targets.loans||"";
  $("targetLoanAmount").value=targets.loanAmount||"";
+}
+function loadFollowups(){
+ try{
+  const saved=JSON.parse(localStorage.getItem(FOLLOWUPS_KEY)||"[]");
+  followups=Array.isArray(saved)?saved:[];
+ }catch(e){followups=[];}
+}
+function saveFollowups(){
+ try{localStorage.setItem(FOLLOWUPS_KEY,JSON.stringify(followups));}
+ catch(e){alert("تعذر حفظ سجل المتابعة على هذا الجهاز.");}
+}
+function clearFollowupForm(){
+ ["fName","fNotes","fNextDate"].forEach(id=>$(id).value="");
+ $("fProduct").value="كارت ائتمان";
+ $("fChannel").value="مكالمة هاتفية";
+ $("fStatus").value="لم يتم التواصل";
+}
+function addFollowup(){
+ const name=$("fName").value.trim();
+ if(!name){alert("اكتب اسم العميل أولاً.");$("fName").focus();return;}
+ const item={
+  id:Date.now()+Math.random(),
+  name,
+  product:$("fProduct").value,
+  channel:$("fChannel").value,
+  status:$("fStatus").value,
+  nextDate:$("fNextDate").value,
+  notes:$("fNotes").value.trim(),
+  createdAt:today(),
+  completed:$("fStatus").value==="مكتمل"
+ };
+ followups.unshift(item);
+ saveFollowups();
+ clearFollowupForm();
+ renderFollowups();
+ alert("تمت إضافة المتابعة بنجاح.");
+}
+function completeFollowup(id){
+ const item=followups.find(x=>String(x.id)===String(id));
+ if(!item)return;
+ item.completed=true;
+ item.status="مكتمل";
+ saveFollowups();
+ renderFollowups();
+}
+function deleteFollowup(id){
+ if(!confirm("هل تريد حذف سجل المتابعة؟"))return;
+ followups=followups.filter(x=>String(x.id)!==String(id));
+ saveFollowups();
+ renderFollowups();
+}
+function renderFollowups(){
+ const now=today();
+ const open=followups.filter(x=>!x.completed&&x.status!=="مكتمل");
+ const todayCount=open.filter(x=>x.nextDate===now).length;
+ const lateCount=open.filter(x=>x.nextDate&&x.nextDate<now).length;
+ $("followTotal").textContent=followups.length;
+ $("followToday").textContent=todayCount;
+ $("followOverdue").textContent=lateCount;
+ const filter=$("followFilter").value;
+ let rows=followups.slice();
+ if(filter==="today")rows=rows.filter(x=>!x.completed&&x.nextDate===now);
+ if(filter==="overdue")rows=rows.filter(x=>!x.completed&&x.nextDate&&x.nextDate<now);
+ if(filter==="open")rows=rows.filter(x=>!x.completed&&x.status!=="مكتمل");
+ if(filter==="done")rows=rows.filter(x=>x.completed||x.status==="مكتمل");
+ rows.sort((a,b)=>(a.nextDate||"9999-99-99").localeCompare(b.nextDate||"9999-99-99"));
+ $("followupList").innerHTML=rows.length?rows.map((x,i)=>{
+  const isDone=x.completed||x.status==="مكتمل";
+  const isLate=!isDone&&x.nextDate&&x.nextDate<now;
+  const badge=isDone?'<span class="follow-status done">مكتملة</span>':isLate?'<span class="follow-status late">متأخرة</span>':'<span class="follow-status">قيد المتابعة</span>';
+  return `<tr><td>${i+1}</td><td>${esc(x.name)}</td><td>${esc(x.product)}</td><td>${esc(x.status)}</td><td>${esc(x.channel)}</td><td>${esc(x.nextDate||"غير محدد")}</td><td>${esc(x.notes||"—")}</td><td>${badge}</td><td class="no-print">${!isDone?'<button class="btn primary small-btn" onclick="completeFollowup(\''+x.id+'\')">تمت</button>':""}<button class="btn danger small-btn" onclick="deleteFollowup(\''+x.id+'\')">حذف</button></td></tr>`;
+ }).join(""):'<tr><td colspan="9" class="empty">لا توجد نتائج في هذا التصنيف</td></tr>';
 }
 function saveTargets(){
  targets={cards:Math.max(0,Number($("targetCards").value)||0),loans:Math.max(0,Number($("targetLoans").value)||0),loanAmount:Math.max(0,Number($("targetLoanAmount").value)||0)};
@@ -596,7 +714,7 @@ function deleteArchive(date){
  }
  renderAll();
 }
-function renderAll(){renderSummaries();renderLedger();renderArchive();renderPerformance();}
+function renderAll(){renderSummaries();renderLedger();renderArchive();renderPerformance();renderFollowups();}
 function toggleTheme(){
  document.body.classList.toggle("dark");
  localStorage.setItem("nbe_sales_theme",document.body.classList.contains("dark")?"dark":"light");
@@ -652,6 +770,7 @@ function importBackup(event){
 }
 loadStorage();
 loadTargets();
+loadFollowups();
 $("performanceMonth").value=today().slice(0,7);
 currentDate=today();
 if(!reports[currentDate])reports[currentDate]=blank(currentDate);
