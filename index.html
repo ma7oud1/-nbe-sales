@@ -1,0 +1,588 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NBE | Daily Sales Report</title>
+<style>
+:root{
+ --green:#087443;--green2:#0b9860;--navy:#102d3c;
+ --gold:#c6a45b;--bg:#f2f5f3;--card:#fff;
+ --text:#1d3038;--muted:#718087;--border:#e0e8e3;
+ --danger:#c0392b;--shadow:0 8px 25px rgba(20,50,40,.07);
+}
+body.dark{
+ --bg:#101b20;--card:#1a292f;--text:#edf5f0;
+ --muted:#a5b5b8;--border:#33464b;--shadow:0 8px 25px rgba(0,0,0,.2);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif;transition:.2s}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.container{max-width:1250px;margin:auto;padding:20px}
+.header{
+ background:linear-gradient(120deg,#073c2a,#087443,#0c6245);
+ color:white;border-radius:18px;padding:25px;
+ display:flex;align-items:center;justify-content:space-between;
+ gap:20px;flex-wrap:wrap;box-shadow:var(--shadow)
+}
+.brand{display:flex;align-items:center;gap:15px}
+.logo{width:70px;height:70px;background:white;border-radius:15px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:5px;flex-shrink:0}
+.logo img{width:100%;height:100%;object-fit:contain}
+.brand h1{font-size:23px;margin:0 0 7px}
+.brand p{margin:0;color:#d5e9df;font-size:13px}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap}
+.header-actions button{background:rgba(255,255,255,.13);color:white;border:1px solid rgba(255,255,255,.3);padding:10px 14px;border-radius:9px}
+.section{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:20px;margin-top:18px;box-shadow:var(--shadow)}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:17px;flex-wrap:wrap}
+.section-title h2{font-size:17px;margin:0;color:var(--green)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field label{font-size:13px;color:var(--muted);font-weight:bold}
+input,select{width:100%;padding:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:9px;outline:none;min-width:0}
+input:focus,select:focus{border-color:var(--green)}
+input[readonly]{opacity:.85;border-style:dashed}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:18px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+.stat small{color:var(--muted);font-size:12px}
+.stat strong{display:block;font-size:25px;margin-top:9px;color:var(--green)}
+.stat.gold strong{color:var(--gold)}
+.stat.navy strong{color:#4b8299}
+.stat.red strong{color:#d16b58}
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.btn{border:0;border-radius:9px;padding:11px 17px;font-weight:bold;transition:.2s}
+.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.primary{background:var(--green);color:white}
+.secondary{background:var(--navy);color:white}
+.gold-btn{background:var(--gold);color:#172b25}
+.danger{background:var(--danger);color:white}
+.light-btn{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+.small-btn{padding:7px 10px;font-size:12px}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{padding:10px 17px;border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:9px}
+.tab.active{background:var(--green);color:white;border-color:var(--green)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:750px}
+th,td{padding:12px 10px;text-align:right;border-bottom:1px solid var(--border);font-size:13px;white-space:nowrap}
+th{background:var(--bg);color:var(--green);font-weight:bold}
+tr:hover td{background:rgba(8,116,67,.035)}
+.empty{text-align:center;color:var(--muted);padding:30px}
+.badge{display:inline-block;padding:5px 9px;border-radius:20px;font-size:11px;background:#e4f4eb;color:#087443}
+.badge.pending{background:#fff3d9;color:#946a16}
+.badge.rejected{background:#fbe8e6;color:#b43d31}
+.archive-list{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.archive-item{border:1px solid var(--border);padding:13px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.archive-item strong{font-size:13px}
+.note{font-size:12px;color:var(--muted);line-height:1.8;background:var(--bg);border-radius:9px;padding:12px;margin-top:15px}
+.hidden{display:none!important}
+.footer{text-align:center;color:var(--muted);font-size:11px;padding:25px 10px}
+.print-heading{display:none}
+@media(max-width:800px){
+ .grid,.form-grid{grid-template-columns:repeat(2,1fr)}
+ .stats{grid-template-columns:repeat(2,1fr)}
+ .archive-list{grid-template-columns:1fr 1fr}
+}
+@media(max-width:520px){
+ .container{padding:10px}.header{padding:17px}
+ .brand h1{font-size:17px}.logo{width:55px;height:55px}
+ .grid,.form-grid{grid-template-columns:1fr}
+ .stats{gap:8px}.stat{padding:13px}
+ .stat strong{font-size:21px}
+ .section{padding:14px}
+ .archive-list{grid-template-columns:1fr}
+}
+
+/* طباعة التقرير الكامل */
+@media print{
+ @page{size:A4 landscape;margin:12mm}
+ body{background:white!important;color:#172b32!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+ .container{max-width:none;padding:0}
+ .no-print,.header-actions,.entry-section,.archive-section,.note,.footer{display:none!important}
+ .header{background:#087443!important;color:white!important}
+ .section,.stat{box-shadow:none}
+}
+
+/* طباعة سجل المبيعات الاحترافي فقط */
+@media print{
+ body.print-ledger .header,
+ body.print-ledger .info-section,
+ body.print-ledger .stats,
+ body.print-ledger .entry-section,
+ body.print-ledger .cards-section,
+ body.print-ledger .loans-section,
+ body.print-ledger .archive-section,
+ body.print-ledger .footer,
+ body.print-ledger .note{display:none!important}
+
+ body.print-ledger .ledger-section{
+  display:block!important;background:white!important;color:#172b32!important;
+  border:none!important;box-shadow:none!important;padding:0!important;margin:0!important
+ }
+ body.print-ledger .ledger-section>.section-title,
+ body.print-ledger .ledger-section>.tabs,
+ body.print-ledger .delete-col{display:none!important}
+ body.print-ledger .print-heading{display:block!important}
+ body.print-ledger .ledger-section .table-wrap{overflow:visible!important}
+ body.print-ledger .ledger-section table{width:100%!important;min-width:0!important;border-collapse:collapse!important}
+ body.print-ledger .ledger-section th{
+  background:#087443!important;color:white!important;
+  border:1px solid #087443!important;padding:9px 5px!important;font-size:9px!important
+ }
+ body.print-ledger .ledger-section td{
+  color:#172b32!important;border:1px solid #dce5df!important;
+  padding:8px 5px!important;font-size:9px!important;white-space:normal!important
+ }
+ body.print-ledger .ledger-section tr:nth-child(even) td{background:#f1f7f3!important}
+ body.print-ledger .ledger-section .badge{
+  background:#edf5ef!important;color:#087443!important;border:1px solid #ddd!important
+ }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header class="header">
+ <div class="brand">
+  <div class="logo">
+   <img src="https://commons.wikimedia.org/wiki/Special:FilePath/National_Bank_of_Egypt.svg"
+    alt="NBE Logo"
+    onerror="this.style.display='none';this.parentElement.innerHTML='<b style=&quot;color:#087443;font-size:20px&quot;>NBE</b>'">
+  </div>
+  <div>
+   <h1>البنك الأهلي المصري</h1>
+   <p>NATIONAL BANK OF EGYPT | SALES MANAGEMENT</p>
+   <p style="margin-top:6px">نظام التقارير اليومية للمبيعات</p>
+  </div>
+ </div>
+ <div class="header-actions no-print">
+  <button onclick="toggleTheme()">◐ الوضع الليلي</button>
+  <button onclick="exportBackup()">⬇ نسخة احتياطية</button>
+  <button onclick="$('importFile').click()">⬆ استعادة نسخة</button>
+  <input id="importFile" type="file" accept=".json,application/json" class="hidden" onchange="importBackup(event)">
+ </div>
+</header>
+
+<div class="section info-section">
+ <div class="section-title">
+  <h2>بيانات التقرير اليومي</h2>
+  <span class="badge">DAILY SALES REPORT</span>
+ </div>
+ <div class="grid">
+  <div class="field"><label>تاريخ التقرير</label><input type="date" id="reportDate" onchange="changeDate()"></div>
+  <div class="field"><label>اسم موظف المبيعات</label><input id="employee" value="محمود محمد رزق" readonly></div>
+  <div class="field"><label>رقم السيلز</label><input id="salesNo" value="479511" readonly></div>
+ </div>
+ <div class="actions no-print">
+  <button class="btn primary" onclick="saveReport()">حفظ التقرير</button>
+  <button class="btn secondary" onclick="printReport()">طباعة التقرير كامل</button>
+  <button class="btn gold-btn" onclick="printLedger()">طباعة سجل المبيعات فقط</button>
+ </div>
+</div>
+
+<div class="stats">
+ <div class="stat"><small>إجمالي الكروت</small><strong id="cardsCount">0</strong></div>
+ <div class="stat navy"><small>إجمالي القروض</small><strong id="loansCount">0</strong></div>
+ <div class="stat gold"><small>صافي قيمة القروض</small><strong id="loansTotal">0.00</strong></div>
+ <div class="stat red"><small>إجمالي العملاء</small><strong id="customersCount">0</strong></div>
+</div>
+
+<div class="section entry-section">
+ <div class="section-title"><h2>إضافة عملية مبيعات جديدة</h2></div>
+ <div class="tabs no-print">
+  <button class="tab active" id="cardTab" onclick="showForm('card')">+ تسجيل كارت</button>
+  <button class="tab" id="loanTab" onclick="showForm('loan')">+ تسجيل قرض</button>
+ </div>
+
+ <div id="cardForm" style="margin-top:18px">
+  <h3 style="font-size:15px;color:var(--green)">بيانات بطاقة الائتمان</h3>
+  <div class="form-grid">
+   <div class="field"><label>اسم العميل</label><input id="cName" placeholder="اسم العميل"></div>
+   <div class="field"><label>الرقم القومي</label><input id="cNational" maxlength="14" inputmode="numeric" placeholder="14 رقم"></div>
+   <div class="field"><label>رقم الموبايل</label><input id="cMobile" inputmode="tel" placeholder="رقم الهاتف"></div>
+   <div class="field"><label>جهة العمل</label><input id="cEmployer" placeholder="جهة العمل"></div>
+   <div class="field"><label>نوع الكارت</label>
+    <select id="cType">
+     <option value="">اختر نوع الكارت</option>
+     <option>Classic</option><option>Gold</option><option>Platinum</option>
+     <option>Titanium</option><option>World</option><option>Other</option>
+    </select>
+   </div>
+   <div class="field"><label>حالة الطلب</label>
+    <select id="cStatus">
+     <option>جديد</option><option>تم التقديم</option><option>مقبول</option>
+     <option>مرفوض</option><option>قيد المراجعة</option>
+    </select>
+   </div>
+   <div class="field"><label>كود العميل</label><input id="cCode" placeholder="كود العميل"></div>
+  </div>
+  <div class="actions">
+   <button class="btn primary" onclick="addCard()">إضافة الكارت للسجل</button>
+   <button class="btn light-btn" onclick="clearForm('card')">مسح البيانات</button>
+  </div>
+ </div>
+
+ <div id="loanForm" class="hidden" style="margin-top:18px">
+  <h3 style="font-size:15px;color:var(--green)">بيانات القرض الشخصي</h3>
+  <div class="form-grid">
+   <div class="field"><label>اسم العميل</label><input id="lName" placeholder="اسم العميل"></div>
+   <div class="field"><label>الرقم القومي</label><input id="lNational" maxlength="14" inputmode="numeric" placeholder="14 رقم"></div>
+   <div class="field"><label>رقم الموبايل</label><input id="lMobile" inputmode="tel" placeholder="رقم الهاتف"></div>
+   <div class="field"><label>جهة العمل</label><input id="lEmployer" placeholder="جهة العمل"></div>
+   <div class="field"><label>نوع القرض</label>
+    <select id="lType">
+     <option value="">اختر نوع القرض</option>
+     <option>قرض شخصي بضمان الراتب</option>
+     <option>قرض بضمان وعاء ادخاري</option>
+     <option>قرض موظفين</option>
+     <option>قرض أصحاب المعاشات</option>
+     <option>أخرى</option>
+    </select>
+   </div>
+   <div class="field"><label>قيمة القرض الصافي بالجنيه</label><input id="lAmount" type="number" min="0" step="0.01" placeholder="0.00"></div>
+   <div class="field"><label>كود العميل</label><input id="lCode" placeholder="كود العميل"></div>
+  </div>
+  <div class="actions">
+   <button class="btn primary" onclick="addLoan()">إضافة القرض للسجل</button>
+   <button class="btn light-btn" onclick="clearForm('loan')">مسح البيانات</button>
+  </div>
+ </div>
+</div>
+
+<div class="section ledger-section">
+ <div class="print-heading">
+  <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #087443;padding-bottom:13px">
+   <div style="display:flex;align-items:center;gap:12px">
+    <img src="https://commons.wikimedia.org/wiki/Special:FilePath/National_Bank_of_Egypt.svg"
+     alt="NBE Logo" style="width:72px;height:65px;object-fit:contain"
+     onerror="this.style.display='none'">
+    <div>
+     <div style="font-size:19px;font-weight:bold;color:#087443">البنك الأهلي المصري</div>
+     <div style="font-size:10px;color:#64756c;margin-top:5px">NATIONAL BANK OF EGYPT</div>
+    </div>
+   </div>
+   <div style="text-align:left">
+    <div style="font-size:15px;font-weight:bold;color:#102d3c">DAILY SALES REGISTER</div>
+    <div style="font-size:12px;color:#9b7a36;margin-top:5px">تقرير سجل المبيعات اليومي</div>
+   </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px">
+   <div style="border:1px solid #dce5df;padding:10px;border-radius:6px">
+    <div style="font-size:10px;color:#718087">اسم الموظف</div>
+    <strong style="font-size:13px">محمود محمد رزق</strong>
+   </div>
+   <div style="border:1px solid #dce5df;padding:10px;border-radius:6px">
+    <div style="font-size:10px;color:#718087">رقم السيلز</div>
+    <strong style="font-size:13px">479511</strong>
+   </div>
+   <div style="border:1px solid #dce5df;padding:10px;border-radius:6px">
+    <div style="font-size:10px;color:#718087">تاريخ التقرير</div>
+    <strong id="printDate" style="font-size:13px"></strong>
+   </div>
+  </div>
+
+  <div style="display:flex;justify-content:space-around;gap:8px;margin-top:14px;padding:12px;background:#f1f7f3;border-right:4px solid #087443">
+   <div>عدد الكروت: <strong id="printCards">0</strong></div>
+   <div>عدد القروض: <strong id="printLoans">0</strong></div>
+   <div>صافي القروض: <strong id="printAmount">0.00</strong> جنيه</div>
+  </div>
+ </div>
+
+ <div class="section-title"><h2>سجل المبيعات اليومي</h2><span class="badge">SALES LEDGER</span></div>
+ <div class="tabs no-print">
+  <button class="tab active" id="allTab" onclick="showLedger('all')">كل العمليات</button>
+  <button class="tab" id="cardsLedgerTab" onclick="showLedger('cards')">الكروت</button>
+  <button class="tab" id="loansLedgerTab" onclick="showLedger('loans')">القروض</button>
+ </div>
+ <div class="table-wrap" style="margin-top:14px">
+  <table>
+   <thead><tr>
+    <th>م</th><th>نوع العملية</th><th>اسم العميل</th><th>الرقم القومي</th>
+    <th>الموبايل</th><th>جهة العمل</th><th>التفاصيل</th>
+    <th>القيمة / الحالة</th><th>كود العميل</th><th class="delete-col no-print">إجراء</th>
+   </tr></thead>
+   <tbody id="ledgerBody"><tr><td colspan="10" class="empty">لا توجد عمليات مسجلة لهذا اليوم</td></tr></tbody>
+  </table>
+ </div>
+ <div class="print-heading" style="margin-top:28px;padding-top:12px;border-top:1px solid #c6a45b;text-align:center;font-size:11px;color:#53666b">
+  إعداد: محمود محمد رزق | رقم السيلز: 479511
+  <div style="margin-top:25px;display:flex;justify-content:space-between">
+   <span>توقيع موظف المبيعات: ............................</span>
+   <span>مراجعة المسؤول: ............................</span>
+  </div>
+  <div style="margin-top:15px;font-size:9px;color:#888">
+   سجل شخصي لتنظيم المبيعات - ليس مستندًا رسميًا صادرًا عن البنك
+  </div>
+ </div>
+</div>
+
+<div class="section cards-section">
+ <div class="section-title"><h2>ملخص الكروت</h2></div>
+ <div class="table-wrap"><table>
+  <thead><tr><th>م</th><th>اسم العميل</th><th>نوع الكارت</th><th>حالة الطلب</th><th>كود العميل</th></tr></thead>
+  <tbody id="cardsBody"><tr><td colspan="5" class="empty">لا توجد كروت</td></tr></tbody>
+ </table></div>
+</div>
+
+<div class="section loans-section">
+ <div class="section-title"><h2>ملخص القروض</h2></div>
+ <div class="table-wrap"><table>
+  <thead><tr><th>م</th><th>اسم العميل</th><th>نوع القرض</th><th>صافي القرض</th><th>كود العميل</th></tr></thead>
+  <tbody id="loansBody"><tr><td colspan="5" class="empty">لا توجد قروض</td></tr></tbody>
+ </table></div>
+</div>
+
+<div class="section archive-section no-print">
+ <div class="section-title">
+  <h2>أرشيف التقارير اليومية</h2>
+  <button class="btn light-btn small-btn" onclick="renderArchive()">تحديث الأرشيف</button>
+ </div>
+ <div id="archiveList" class="archive-list"><div class="empty">لا توجد تقارير محفوظة</div></div>
+</div>
+
+<div class="note">
+ <strong>تنبيه:</strong> هذا البرنامج أداة تنظيم شخصية وليس نظامًا رسميًا تابعًا للبنك الأهلي المصري.
+ يتم حفظ البيانات على المتصفح والجهاز المستخدم فقط، والتخزين المحلي غير مشفر.
+ لا تُدخل بيانات عملاء حقيقية أو معلومات مصرفية إلا وفق سياسات البنك وعلى جهاز مؤمّن ومعتمد.
+</div>
+
+<div class="footer">NATIONAL BANK OF EGYPT | DAILY SALES REPORT<br>Personal Sales Organizer</div>
+</div>
+
+<script>
+const EMPLOYEE="محمود محمد رزق";
+const SALES_NO="479511";
+const STORAGE_KEY="NBE_SALES_REPORTS_V1";
+let reports={};
+let currentDate="";
+let ledgerMode="all";
+const $=id=>document.getElementById(id);
+
+function today(){
+ const d=new Date();
+ return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+}
+function blank(date){
+ return {date,employee:EMPLOYEE,salesNo:SALES_NO,cards:[],loans:[]};
+}
+function loadStorage(){
+ try{
+  reports=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+  if(!reports||typeof reports!=="object")reports={};
+ }catch(e){reports={};}
+}
+function persist(){
+ try{localStorage.setItem(STORAGE_KEY,JSON.stringify(reports));}
+ catch(e){alert("تعذر حفظ البيانات. قد تكون مساحة التخزين ممتلئة.");}
+}
+function getReport(){
+ if(!reports[currentDate])reports[currentDate]=blank(currentDate);
+ const r=reports[currentDate];
+ r.employee=EMPLOYEE;r.salesNo=SALES_NO;
+ if(!Array.isArray(r.cards))r.cards=[];
+ if(!Array.isArray(r.loans))r.loans=[];
+ return r;
+}
+function saveReport(silent=false){
+ getReport();persist();renderAll();
+ if(!silent)alert("تم حفظ تقرير يوم "+currentDate+" بنجاح");
+}
+function changeDate(){
+ const selected=$("reportDate").value;
+ if(!selected)return;
+ saveReport(true);
+ currentDate=selected;
+ if(!reports[currentDate])reports[currentDate]=blank(currentDate);
+ fillInfo();renderAll();
+}
+function fillInfo(){
+ $("reportDate").value=currentDate;
+ $("employee").value=EMPLOYEE;
+ $("salesNo").value=SALES_NO;
+}
+function showForm(type){
+ $("cardForm").classList.toggle("hidden",type!=="card");
+ $("loanForm").classList.toggle("hidden",type!=="loan");
+ $("cardTab").classList.toggle("active",type==="card");
+ $("loanTab").classList.toggle("active",type==="loan");
+}
+function clearForm(type){
+ const ids=type==="card"
+ ?["cName","cNational","cMobile","cEmployer","cType","cStatus","cCode"]
+ :["lName","lNational","lMobile","lEmployer","lType","lAmount","lCode"];
+ ids.forEach(id=>$(id).value="");
+ if(type==="card")$("cStatus").value="جديد";
+}
+function values(prefix){
+ const get=s=>$(prefix+s).value.trim();
+ return {name:get("Name"),national:get("National"),mobile:get("Mobile"),employer:get("Employer"),code:get("Code")};
+}
+function validCustomer(data){
+ if(!data.name){alert("من فضلك أدخل اسم العميل");return false;}
+ return true;
+}
+function addCard(){
+ const data=values("c");
+ if(!validCustomer(data))return;
+ const type=$("cType").value;
+ if(!type){alert("اختر نوع الكارت");return;}
+ getReport().cards.push({id:Date.now()+Math.random(),...data,type,status:$("cStatus").value});
+ saveReport(true);clearForm("card");renderAll();
+ alert("تمت إضافة الكارت بنجاح");
+}
+function addLoan(){
+ const data=values("l");
+ if(!validCustomer(data))return;
+ const type=$("lType").value;
+ const amount=Number($("lAmount").value);
+ if(!type){alert("اختر نوع القرض");return;}
+ if(!Number.isFinite(amount)||amount<=0){alert("أدخل قيمة قرض صحيحة");return;}
+ getReport().loans.push({id:Date.now()+Math.random(),...data,type,amount});
+ saveReport(true);clearForm("loan");renderAll();
+ alert("تمت إضافة القرض بنجاح");
+}
+function esc(value){
+ return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function money(n){
+ return Number(n||0).toLocaleString("en-EG",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function statusBadge(status){
+ let cls="";
+ if(status==="مرفوض")cls="rejected";
+ else if(status==="جديد"||status==="قيد المراجعة")cls="pending";
+ return `<span class="badge ${cls}">${esc(status)}</span>`;
+}
+function allRows(r){
+ const cards=r.cards.map(x=>({kind:"كارت",name:x.name,national:x.national,mobile:x.mobile,employer:x.employer,detail:x.type,value:statusBadge(x.status),code:x.code,id:x.id,source:"card"}));
+ const loans=r.loans.map(x=>({kind:"قرض",name:x.name,national:x.national,mobile:x.mobile,employer:x.employer,detail:x.type,value:money(x.amount)+" جنيه",code:x.code,id:x.id,source:"loan"}));
+ return [...cards,...loans];
+}
+function renderLedger(){
+ const r=getReport();
+ let rows=allRows(r);
+ if(ledgerMode==="cards")rows=rows.filter(x=>x.source==="card");
+ if(ledgerMode==="loans")rows=rows.filter(x=>x.source==="loan");
+ $("ledgerBody").innerHTML=rows.length?rows.map((x,i)=>`
+ <tr><td>${i+1}</td><td>${x.kind}</td><td>${esc(x.name)}</td>
+ <td>${esc(x.national)}</td><td>${esc(x.mobile)}</td><td>${esc(x.employer)}</td>
+ <td>${esc(x.detail)}</td><td>${x.value}</td><td>${esc(x.code)}</td>
+ <td class="delete-col no-print"><button class="btn danger small-btn" onclick="deleteItem('${x.source}','${x.id}')">حذف</button></td></tr>`).join("")
+ :`<tr><td colspan="10" class="empty">لا توجد عمليات مسجلة</td></tr>`;
+ $("allTab").classList.toggle("active",ledgerMode==="all");
+ $("cardsLedgerTab").classList.toggle("active",ledgerMode==="cards");
+ $("loansLedgerTab").classList.toggle("active",ledgerMode==="loans");
+}
+function showLedger(mode){ledgerMode=mode;renderLedger();}
+function deleteItem(type,id){
+ if(!confirm("هل أنت متأكد من حذف هذه العملية؟"))return;
+ const r=getReport(),key=type==="card"?"cards":"loans";
+ r[key]=r[key].filter(x=>String(x.id)!==String(id));
+ saveReport(true);renderAll();
+}
+function renderSummaries(){
+ const r=getReport();
+ const total=r.loans.reduce((sum,x)=>sum+Number(x.amount||0),0);
+ $("cardsCount").textContent=r.cards.length;
+ $("loansCount").textContent=r.loans.length;
+ $("loansTotal").textContent=money(total);
+ $("customersCount").textContent=r.cards.length+r.loans.length;
+ $("cardsBody").innerHTML=r.cards.length?r.cards.map((x,i)=>`
+ <tr><td>${i+1}</td><td>${esc(x.name)}</td><td>${esc(x.type)}</td><td>${statusBadge(x.status)}</td><td>${esc(x.code)}</td></tr>`).join("")
+ :`<tr><td colspan="5" class="empty">لا توجد كروت</td></tr>`;
+ $("loansBody").innerHTML=r.loans.length?r.loans.map((x,i)=>`
+ <tr><td>${i+1}</td><td>${esc(x.name)}</td><td>${esc(x.type)}</td><td>${money(x.amount)} جنيه</td><td>${esc(x.code)}</td></tr>`).join("")
+ :`<tr><td colspan="5" class="empty">لا توجد قروض</td></tr>`;
+}
+function renderArchive(){
+ const dates=Object.keys(reports).sort().reverse();
+ $("archiveList").innerHTML=dates.length?dates.map(date=>{
+  const r=reports[date],cards=(r.cards||[]).length,loans=(r.loans||[]).length;
+  return `<div class="archive-item"><div><strong>${esc(date)}</strong>
+  <div style="font-size:11px;color:var(--muted);margin-top:5px">${cards} كارت · ${loans} قرض</div></div>
+  <div style="display:flex;gap:5px">
+  <button class="btn primary small-btn" onclick="openArchive('${date}')">فتح</button>
+  <button class="btn danger small-btn" onclick="deleteArchive('${date}')">حذف</button>
+  </div></div>`;
+ }).join(""):`<div class="empty">لا توجد تقارير محفوظة حتى الآن</div>`;
+}
+function openArchive(date){
+ saveReport(true);currentDate=date;
+ if(!reports[date])reports[date]=blank(date);
+ fillInfo();renderAll();window.scrollTo({top:0,behavior:"smooth"});
+}
+function deleteArchive(date){
+ if(!confirm("هل تريد حذف تقرير "+date+" نهائيًا؟"))return;
+ delete reports[date];persist();
+ if(date===currentDate){
+  currentDate=today();
+  if(!reports[currentDate])reports[currentDate]=blank(currentDate);
+  fillInfo();
+ }
+ renderAll();
+}
+function renderAll(){renderSummaries();renderLedger();renderArchive();}
+function toggleTheme(){
+ document.body.classList.toggle("dark");
+ localStorage.setItem("nbe_sales_theme",document.body.classList.contains("dark")?"dark":"light");
+}
+function printReport(){
+ saveReport(true);
+ document.body.classList.remove("print-ledger");
+ window.print();
+}
+function printLedger(){
+ saveReport(true);
+ const r=getReport();
+ const total=r.loans.reduce((sum,x)=>sum+Number(x.amount||0),0);
+ $("printDate").textContent=currentDate;
+ $("printCards").textContent=r.cards.length;
+ $("printLoans").textContent=r.loans.length;
+ $("printAmount").textContent=money(total);
+ document.body.classList.add("print-ledger");
+ window.print();
+}
+window.addEventListener("afterprint",()=>document.body.classList.remove("print-ledger"));
+function exportBackup(){
+ saveReport(true);
+ const blob=new Blob([JSON.stringify({app:"NBE Sales Daily Report",version:1,exportedAt:new Date().toISOString(),reports},null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");
+ a.href=url;a.download="NBE-Sales-Backup-"+today()+".json";a.click();
+ URL.revokeObjectURL(url);
+}
+function importBackup(event){
+ const file=event.target.files[0];if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+  try{
+   const data=JSON.parse(reader.result),incoming=data.reports||data;
+   if(!incoming||typeof incoming!=="object"||Array.isArray(incoming))throw new Error("Invalid backup");
+   if(!confirm("سيتم دمج التقارير الموجودة مع النسخة الاحتياطية. هل تريد المتابعة؟"))return;
+   Object.keys(incoming).forEach(date=>{
+    const r=incoming[date];
+    if(r&&typeof r==="object"){
+     if(!Array.isArray(r.cards))r.cards=[];
+     if(!Array.isArray(r.loans))r.loans=[];
+     r.employee=EMPLOYEE;r.salesNo=SALES_NO;reports[date]=r;
+    }
+   });
+   persist();
+   if(!reports[currentDate])reports[currentDate]=blank(currentDate);
+   renderAll();alert("تم استيراد النسخة الاحتياطية بنجاح");
+  }catch(e){alert("ملف النسخة الاحتياطية غير صالح");}
+  event.target.value="";
+ };
+ reader.readAsText(file);
+}
+loadStorage();
+currentDate=today();
+if(!reports[currentDate])reports[currentDate]=blank(currentDate);
+fillInfo();renderAll();
+if(localStorage.getItem("nbe_sales_theme")==="dark")document.body.classList.add("dark");
+</script>
+</body>
+</html>
