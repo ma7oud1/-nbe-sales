@@ -168,6 +168,48 @@ tr:hover td{background:rgba(8,116,67,.035)}
   background:#edf5ef!important;color:#087443!important;border:1px solid #ddd!important
  }
 }
+
+/* تقسيم التطبيق إلى صفحات مع شريط تنقل سفلي */
+body{padding-bottom:86px}
+#mainNav{
+ position:fixed;z-index:1000;bottom:0;left:0;right:0;
+ display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;
+ padding:8px max(10px,calc((100vw - 1250px)/2)) calc(8px + env(safe-area-inset-bottom));
+ background:var(--card);border-top:1px solid var(--border);
+ box-shadow:0 -5px 22px rgba(20,50,40,.09)
+}
+.nav-btn{
+ border:0;background:transparent;color:var(--muted);border-radius:11px;
+ padding:7px 3px;display:flex;flex-direction:column;align-items:center;
+ justify-content:center;gap:3px;font-size:10px;font-weight:bold;min-width:0
+}
+.nav-btn .nav-icon{font-size:19px;line-height:1.2}
+.nav-btn.active{background:rgba(8,116,67,.11);color:var(--green)}
+.app-page{display:none;animation:pageIn .18s ease}
+.app-page.active{display:block}
+.page-heading{padding:14px 4px 2px}
+.page-heading h2{margin:0;color:var(--green);font-size:19px}
+.page-heading p{margin:6px 0 0;color:var(--muted);font-size:12px}
+.settings-panel{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:20px;margin-top:18px;box-shadow:var(--shadow)}
+.settings-panel h2{margin:0 0 9px;color:var(--green);font-size:17px}
+.settings-panel p{margin:0;color:var(--muted);font-size:13px;line-height:1.9}
+.settings-page .header-actions{margin-top:16px}
+.settings-page .header-actions button{background:var(--green);color:#fff;border:0;padding:11px 14px;border-radius:9px}
+@keyframes pageIn{from{opacity:.75;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(min-width:900px){
+ #mainNav{left:50%;right:auto;transform:translateX(-50%);width:min(100%,850px);border:1px solid var(--border);border-bottom:0;border-radius:16px 16px 0 0}
+ .nav-btn{font-size:12px;padding:9px}
+}
+@media(max-width:390px){.nav-btn{font-size:9px}.nav-btn .nav-icon{font-size:17px}}
+@media print{
+ body{padding-bottom:0!important}
+ #mainNav{display:none!important}
+ .app-page{display:block!important}
+ .customers-page,.targets-page,.settings-page,.archive-page{display:none!important}
+ body.print-ledger .app-page{display:none!important}
+ body.print-ledger .sales-page{display:block!important}
+}
+
 </style>
 </head>
 <body>
@@ -193,6 +235,14 @@ tr:hover td{background:rgba(8,116,67,.035)}
   <input id="importFile" type="file" accept=".json,application/json" class="hidden" onchange="importBackup(event)">
  </div>
 </header>
+<nav id="mainNav" aria-label="التنقل الرئيسي">
+ <button class="nav-btn active" data-page="home" onclick="showPage('home')"><span class="nav-icon">🏠</span><span>الرئيسية</span></button>
+ <button class="nav-btn" data-page="sales" onclick="showPage('sales')"><span class="nav-icon">💳</span><span>المبيعات</span></button>
+ <button class="nav-btn" data-page="customers" onclick="showPage('customers')"><span class="nav-icon">👥</span><span>العملاء</span></button>
+ <button class="nav-btn" data-page="targets" onclick="showPage('targets')"><span class="nav-icon">🎯</span><span>الأهداف</span></button>
+ <button class="nav-btn" data-page="archive" onclick="showPage('archive')"><span class="nav-icon">🗂️</span><span>الأرشيف</span></button>
+ <button class="nav-btn" data-page="settings" onclick="showPage('settings')"><span class="nav-icon">⚙️</span><span>الإعدادات</span></button>
+</nav>
 
 <div class="section info-section">
  <div class="section-title">
@@ -429,6 +479,59 @@ tr:hover td{background:rgba(8,116,67,.035)}
 </div>
 
 <script>
+
+function buildAppPages(){
+ const container=document.querySelector(".container");
+ const nav=document.getElementById("mainNav");
+ const host=document.createElement("div");
+ host.id="pageHost";
+ nav.after(host);
+ const config=[
+  ["home","الرئيسية","نظرة عامة على تقرير اليوم وأداء المبيعات"],
+  ["sales","المبيعات","تسجيل الكروت والقروض ومراجعة سجل العمليات"],
+  ["customers","العملاء","تنظيم مواعيد التواصل ومتابعة العملاء"],
+  ["targets","الأهداف","متابعة المستهدف الشهري ونسب الإنجاز"],
+  ["archive","الأرشيف","التقارير اليومية المحفوظة"],
+  ["settings","الإعدادات","إدارة النسخ الاحتياطية وإعدادات التطبيق"]
+ ];
+ const pages={};
+ config.forEach(([id,title,description])=>{
+  const page=document.createElement("section");
+  page.className="app-page "+id+"-page";
+  page.dataset.page=id;
+  page.innerHTML='<div class="page-heading"><h2>'+title+'</h2><p>'+description+'</p></div>';
+  host.append(page);pages[id]=page;
+ });
+ const move=(selector,id)=>{
+  const el=container.querySelector(selector);
+  if(el)pages[id].append(el);
+ };
+ move(".info-section","home");
+ move(".stats","home");
+ move(".entry-section","sales");
+ move(".ledger-section","sales");
+ move(".cards-section","sales");
+ move(".loans-section","sales");
+ move(".followup-section","customers");
+ move(".performance-section","targets");
+ move(".archive-section","archive");
+ const settings=document.createElement("div");
+ settings.className="settings-panel";
+ settings.innerHTML='<h2>إدارة التطبيق والبيانات</h2><p>من هنا تقدر تعمل نسخة احتياطية من تقارير المبيعات والمستهدفات وسجل المتابعة أو تستعيد نسخة محفوظة. احتفظ بالنسخة في مكان آمن.</p>';
+ pages.settings.append(settings);
+ const headerActions=container.querySelector(".header-actions");
+ if(headerActions)settings.append(headerActions);
+ const globalNote=container.querySelector(":scope > .note");
+ if(globalNote)pages.settings.append(globalNote);
+ const footer=container.querySelector(":scope > .footer");
+ if(footer)pages.settings.append(footer);
+}
+function showPage(id){
+ document.querySelectorAll(".app-page").forEach(page=>page.classList.toggle("active",page.dataset.page===id));
+ document.querySelectorAll("#mainNav .nav-btn").forEach(btn=>btn.classList.toggle("active",btn.dataset.page===id));
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
 const EMPLOYEE="محمود محمد رزق";
 const SALES_NO="479511";
 const STORAGE_KEY="NBE_SALES_REPORTS_V1";
@@ -793,6 +896,8 @@ function importBackup(event){
  };
  reader.readAsText(file);
 }
+buildAppPages();
+showPage("home");
 loadStorage();
 loadTargets();
 loadFollowups();
