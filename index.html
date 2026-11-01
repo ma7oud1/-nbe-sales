@@ -599,4 +599,14 @@ if ("serviceWorker" in navigator) {
 </script>
 }
 </body>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js")
+      .then(() => console.log("NBE App Ready"))
+      .catch(error => console.error("SW Error:", error));
+  });
+}
+</script>
+
 </html>
