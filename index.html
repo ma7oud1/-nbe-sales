@@ -585,5 +585,14 @@ if(!reports[currentDate])reports[currentDate]=blank(currentDate);
 fillInfo();renderAll();
 if(localStorage.getItem("nbe_sales_theme")==="dark")document.body.classList.add("dark");
 </script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js")
+      .catch(error => console.error("SW Error:", error));
+  });
+}
+</script>
+}
 </body>
 </html>
