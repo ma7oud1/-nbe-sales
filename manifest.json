@@ -21,3 +21,30 @@
     }
   ]
 }
+
+{
+  "id": "/-nbe-sales/",
+  "name": "NBE | MY SALES PORTFOLIO",
+  "short_name": "NBE Sales",
+  "description": "NBE Sales and Customer Management",
+  "start_url": "/-nbe-sales/",
+  "scope": "/-nbe-sales/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f7f5",
+  "theme_color": "#006341",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
