@@ -738,7 +738,10 @@ function printLedger(){
 window.addEventListener("afterprint",()=>document.body.classList.remove("print-ledger"));
 function exportBackup(){
  saveReport(true);
- const blob=new Blob([JSON.stringify({app:"NBE Sales Daily Report",version:1,exportedAt:new Date().toISOString(),reports},null,2)],{type:"application/json"});
+ saveFollowups();
+ localStorage.setItem(TARGETS_KEY,JSON.stringify(targets));
+ const backup={app:"NBE Sales Daily Report",version:2,exportedAt:new Date().toISOString(),reports,targets,followups};
+ const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
  const url=URL.createObjectURL(blob);
  const a=document.createElement("a");
  a.href=url;a.download="NBE-Sales-Backup-"+today()+".json";a.click();
@@ -749,9 +752,11 @@ function importBackup(event){
  const reader=new FileReader();
  reader.onload=()=>{
   try{
-   const data=JSON.parse(reader.result),incoming=data.reports||data;
+   const data=JSON.parse(reader.result);
+   const incoming=data.reports||data;
    if(!incoming||typeof incoming!=="object"||Array.isArray(incoming))throw new Error("Invalid backup");
-   if(!confirm("سيتم دمج التقارير الموجودة مع النسخة الاحتياطية. هل تريد المتابعة؟"))return;
+   if(!confirm("سيتم دمج التقارير والمتابعات من النسخة الاحتياطية مع البيانات الموجودة. هل تريد المتابعة؟"))return;
+
    Object.keys(incoming).forEach(date=>{
     const r=incoming[date];
     if(r&&typeof r==="object"){
@@ -761,9 +766,29 @@ function importBackup(event){
     }
    });
    persist();
+
+   if(data.targets&&typeof data.targets==="object"&&!Array.isArray(data.targets)){
+    targets={cards:Math.max(0,Number(data.targets.cards)||0),loans:Math.max(0,Number(data.targets.loans)||0),loanAmount:Math.max(0,Number(data.targets.loanAmount)||0)};
+    localStorage.setItem(TARGETS_KEY,JSON.stringify(targets));
+    $("targetCards").value=targets.cards||"";
+    $("targetLoans").value=targets.loans||"";
+    $("targetLoanAmount").value=targets.loanAmount||"";
+   }
+
+   if(Array.isArray(data.followups)){
+    const merged=new Map();
+    followups.forEach((item,index)=>merged.set(String(item.id??("existing-"+index)),item));
+    data.followups.forEach((item,index)=>{
+     if(item&&typeof item==="object")merged.set(String(item.id??("backup-"+index)),item);
+    });
+    followups=Array.from(merged.values());
+    saveFollowups();
+   }
+
    if(!reports[currentDate])reports[currentDate]=blank(currentDate);
-   renderAll();alert("تم استيراد النسخة الاحتياطية بنجاح");
-  }catch(e){alert("ملف النسخة الاحتياطية غير صالح");}
+   fillInfo();renderAll();
+   alert("تم استيراد النسخة الاحتياطية بنجاح");
+  }catch(e){alert("ملف النسخة الاحتياطية غير صالح أو تعذر قراءته");}
   event.target.value="";
  };
  reader.readAsText(file);
