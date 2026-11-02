@@ -33,8 +33,8 @@ jobs:
           import re
           from pathlib import Path
           html = Path("index.html").read_text(encoding="utf-8")
-          scripts = re.findall(r'<script\\b(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)</script>', html, re.I)
-          Path("/tmp/nbe-inline.js").write_text("\\n;\\n".join(scripts), encoding="utf-8")
+          scripts = re.findall(r'<script\b(?![^>]*\bsrc=)[^>]*>([\s\S]*?)</script>', html, re.I)
+          Path("/tmp/nbe-inline.js").write_text("\n;\n".join(scripts), encoding="utf-8")
           PY
           node --check /tmp/nbe-inline.js
       - name: Build debug APK
