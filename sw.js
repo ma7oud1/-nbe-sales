@@ -1,10 +1,12 @@
 
-const CACHE_NAME = "nbe-sales-v4";
+const CACHE_NAME = "nbe-sales-v5";
 
 const FILES_TO_CACHE = [
   "/-nbe-sales/",
   "/-nbe-sales/index.html",
-  "/-nbe-sales/manifest.json"
+  "/-nbe-sales/manifest.json",
+  "/-nbe-sales/crm.js",
+  "/-nbe-sales/security.js"
 ];
 
 self.addEventListener("install", event => {
