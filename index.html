@@ -395,6 +395,22 @@ body.dark .light-btn{background:#203238}
  #pageHost .home-page .home-top-layout>.info-section{width:100%!important;}
 }
 
+
+/* الترتيب النهائي للرئيسية: بيانات التقرير يسار والاختصارات رأسياً بجانبها */
+#pageHost .home-page .home-top-layout{
+ direction:ltr!important;
+ grid-template-columns:minmax(290px,350px) minmax(220px,1fr)!important;
+}
+#pageHost .home-page .home-top-layout>.info-section,
+#pageHost .home-page .home-top-layout>.nbe-dashboard{direction:rtl!important}
+#pageHost .home-page .home-top-layout .dash-quick-grid{
+ grid-template-columns:minmax(0,1fr)!important;
+}
+#pageHost .home-page>.page-heading{display:none!important}
+@media(max-width:800px){
+ #pageHost .home-page .home-top-layout{grid-template-columns:1fr!important}
+}
+
 </style>
 </head>
 <body>
@@ -444,12 +460,7 @@ body.dark .light-btn{background:#203238}
  </div>
 </div>
 
-<div class="stats">
- <div class="stat"><small>إجمالي الكروت</small><strong id="cardsCount">0</strong></div>
- <div class="stat navy"><small>إجمالي القروض</small><strong id="loansCount">0</strong></div>
- <div class="stat gold"><small>صافي قيمة القروض</small><strong id="loansTotal">0.00</strong></div>
- <div class="stat red"><small>إجمالي العملاء</small><strong id="customersCount">0</strong></div>
-</div>
+
 
 <div class="section followup-section">
  <div class="section-title">
@@ -646,7 +657,7 @@ function buildAppPages(){
  host.id="pageHost";
  nav.after(host);
  const config=[
-  ["home","الرئيسية","نظرة عامة على تقرير اليوم وأداء المبيعات"],
+  ["home","",""],
   ["sales","المبيعات","تسجيل الكروت والقروض ومراجعة سجل العمليات"],
   ["calculator","حاسبة فوائد الكارت","حساب فائدة المديونية الشهرية بنسبة قابلة للتعديل"],
   ["customers","إدارة العملاء CRM","ملفات العملاء وبياناتهم وسجلهم"],
