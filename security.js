@@ -136,6 +136,10 @@ async function init(){
  try{
   if(!crypto.subtle||!location.protocol.startsWith("https"))throw new Error("يلزم فتح البرنامج عبر HTTPS لتشغيل التشفير والبصمة.");
   meta=JSON.parse(localStorage.getItem(META)||"null");
+  // Recover automatically if an old security record exists without its encrypted vault.
+  if(meta&&!localStorage.getItem(VAULT)){
+   localStorage.removeItem(META);sessionStorage.removeItem(SESSION);meta=null;
+  }
   if(!meta){
    title.textContent="إنشاء كلمة مرور رئيسية";
    message.textContent="أنشئ كلمة مرور قوية لحماية بيانات هذا الجهاز. لن نستطيع استعادتها إذا نسيتها.";
