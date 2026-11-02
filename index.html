@@ -519,6 +519,7 @@ body.dark .light-btn{background:#203238}
   <button class="btn primary" onclick="saveReport()">حفظ التقرير</button>
   <button class="btn secondary" onclick="printReport()">طباعة التقرير كامل</button>
   <button class="btn gold-btn" onclick="printLedger()">طباعة سجل المبيعات فقط</button>
+  <button class="btn light-btn" onclick="exportLedgerImage()">تصدير صورة لسجل المبيعات</button>
  </div>
 </div>
 
@@ -1328,6 +1329,117 @@ function printLedger(){
  $("printAmount").textContent=money(total);
  document.body.classList.add("print-ledger");
  window.print();
+}
+function exportLedgerImage(){
+ saveReport(true);
+ const r=getReport();
+ const rows=allRows(r);
+ const columns=[
+  {title:"م",key:"index",width:58},
+  {title:"نوع العملية",key:"kind",width:145},
+  {title:"اسم العميل",key:"name",width:230},
+  {title:"الرقم القومي",key:"national",width:190},
+  {title:"الموبايل",key:"mobile",width:155},
+  {title:"جهة العمل",key:"employer",width:190},
+  {title:"التفاصيل",key:"detail",width:220},
+  {title:"القيمة / الحالة",key:"value",width:190},
+  {title:"كود العميل",key:"code",width:150}
+ ];
+ const margin=65,tableWidth=columns.reduce((sum,c)=>sum+c.width,0);
+ const canvas=document.createElement("canvas");
+ const ctx=canvas.getContext("2d");
+ const scale=2;
+ const font='Tahoma, Arial, sans-serif';
+ const lineHeight=34,pad=16,headerHeight=62;
+ const wrap=(value,maxWidth,fontSize=25)=>{
+  ctx.font="bold "+fontSize+"px "+font;
+  const words=String(value??"—").split(/\s+/);
+  const lines=[];let line="";
+  words.forEach(word=>{
+   const test=line?line+" "+word:word;
+   if(line&&ctx.measureText(test).width>maxWidth){lines.push(line);line=word;}
+   else line=test;
+  });
+  if(line)lines.push(line);
+  return lines.length?lines:["—"];
+ };
+ const prepared=rows.map((row,index)=>{
+  const cells=columns.map(c=>c.key==="index"?String(index+1):String(row[c.key]??"—"));
+  const wrapped=cells.map((value,i)=>wrap(value,columns[i].width-pad*2,23));
+  return {cells,wrapped,height:Math.max(58,...wrapped.map(lines=>lines.length*lineHeight+pad*2))};
+ });
+ const summaryHeight=250,footerHeight=95;
+ const tableHeight=headerHeight+prepared.reduce((sum,row)=>sum+row.height,0);
+ const height=margin+summaryHeight+tableHeight+footerHeight+margin;
+ canvas.width=(tableWidth+margin*2)*scale;
+ canvas.height=height*scale;
+ ctx.scale(scale,scale);
+ ctx.fillStyle="#f4f7f5";ctx.fillRect(0,0,tableWidth+margin*2,height);
+ ctx.fillStyle="#ffffff";ctx.fillRect(margin,margin,tableWidth,summaryHeight-18);
+ ctx.fillStyle="#087443";ctx.fillRect(margin,margin,tableWidth,12);
+ ctx.direction="rtl";ctx.textAlign="right";
+ ctx.fillStyle="#087443";ctx.font="bold 38px "+font;
+ ctx.fillText("البنك الأهلي المصري",tableWidth+margin-28,margin+68);
+ ctx.fillStyle="#64756c";ctx.font="20px "+font;
+ ctx.fillText("سجل المبيعات اليومي",tableWidth+margin-28,margin+105);
+ ctx.direction="ltr";ctx.textAlign="left";ctx.fillStyle="#102d3c";ctx.font="bold 22px "+font;
+ ctx.fillText("DAILY SALES REGISTER",margin+28,margin+105);
+ const metaY=margin+145,boxGap=16,boxWidth=(tableWidth-boxGap*2)/3;
+ const meta=[
+  ["اسم الموظف",EMPLOYEE||"—"],
+  ["رقم السيلز",SALES_NO||"—"],
+  ["تاريخ التقرير",currentDate||"—"]
+ ];
+ meta.forEach((item,i)=>{
+  const x=margin+i*(boxWidth+boxGap);
+  ctx.fillStyle="#f2f7f4";ctx.fillRect(x,metaY,boxWidth,76);
+  ctx.strokeStyle="#dce7e0";ctx.strokeRect(x,metaY,boxWidth,76);
+  ctx.direction="rtl";ctx.textAlign="right";ctx.fillStyle="#718087";ctx.font="18px "+font;
+  ctx.fillText(item[0],x+boxWidth-16,metaY+27);
+  ctx.fillStyle="#18382c";ctx.font="bold 22px "+font;
+  ctx.fillText(item[1],x+boxWidth-16,metaY+58);
+ });
+ const statsY=margin+summaryHeight-2;
+ ctx.fillStyle="#eaf4ee";ctx.fillRect(margin,statsY,tableWidth,58);
+ ctx.direction="rtl";ctx.textAlign="right";ctx.fillStyle="#174a35";ctx.font="bold 20px "+font;
+ ctx.fillText("عدد الكروت: "+r.cards.length+"     |     عدد القروض: "+r.loans.length+"     |     إجمالي العمليات: "+rows.length,margin+tableWidth-22,statsY+37);
+ let y=margin+summaryHeight;
+ let x=margin;
+ columns.forEach(col=>{
+  ctx.fillStyle="#087443";ctx.fillRect(x,y,col.width,headerHeight);
+  ctx.strokeStyle="#ffffff";ctx.strokeRect(x,y,col.width,headerHeight);
+  ctx.direction="rtl";ctx.textAlign="center";ctx.fillStyle="#ffffff";ctx.font="bold 20px "+font;
+  ctx.fillText(col.title,x+col.width/2,y+38);
+  x+=col.width;
+ });
+ y+=headerHeight;
+ prepared.forEach((row,rowIndex)=>{
+  x=margin;
+  row.wrapped.forEach((lines,i)=>{
+   const col=columns[i];
+   ctx.fillStyle=rowIndex%2===0?"#ffffff":"#edf4ef";
+   ctx.fillRect(x,y,col.width,row.height);
+   ctx.strokeStyle="#dce7e0";ctx.strokeRect(x,y,col.width,row.height);
+   ctx.direction="rtl";ctx.textAlign=i===0?"center":"right";
+   ctx.fillStyle="#243b32";ctx.font="22px "+font;
+   lines.forEach((line,lineIndex)=>{
+    const tx=i===0?x+col.width/2:x+col.width-pad;
+    ctx.fillText(line,tx,y+pad+24+lineIndex*lineHeight,col.width-pad*2);
+   });
+   x+=col.width;
+  });
+  y+=row.height;
+ });
+ ctx.direction="rtl";ctx.textAlign="center";ctx.fillStyle="#718087";ctx.font="17px "+font;
+ ctx.fillText("تم إنشاء التقرير من تطبيق NBE Sales",margin+tableWidth/2,y+48);
+ canvas.toBlob(blob=>{
+  if(!blob){alert("تعذر إنشاء صورة سجل المبيعات.");return;}
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download="NBE-Sales-Ledger-"+currentDate+".png";
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+ },"image/png");
 }
 window.addEventListener("afterprint",()=>document.body.classList.remove("print-ledger"));
 function exportBackup(){
