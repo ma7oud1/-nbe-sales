@@ -556,7 +556,7 @@ function buildAppPages(){
  pages.calculator.append(calculator);
  const settings=document.createElement("div");
  settings.className="settings-panel";
- settings.innerHTML='<h2>إدارة التطبيق والبيانات</h2><p>من هنا تقدر تعمل نسخة احتياطية من تقارير المبيعات والمستهدفات وسجل المتابعة أو تستعيد نسخة محفوظة. احتفظ بالنسخة في مكان آمن.</p>';
+ settings.innerHTML='<h2>إدارة التطبيق والبيانات</h2><p>من هنا تقدر تعمل نسخة احتياطية من تقارير المبيعات والمستهدفات وسجل المتابعة أو تستعيد نسخة محفوظة. احتفظ بالنسخة في مكان آمن.</p><div style="margin-top:16px"><h3 style="font-size:15px;color:var(--green)">حماية الدخول</h3><p id="nbeBioStatus" style="margin:8px 0">البصمة غير مفعّلة على هذا الجهاز.</p><button class="btn primary" id="nbeBiometricSettingsBtn" type="button" onclick="window.NBESecurity&&window.NBESecurity.registerBiometric()">👆 تفعيل البصمة على هذا الجهاز</button><p style="margin-top:9px">قد يطلب الهاتف بصمة الإصبع أو رمز قفل الشاشة حسب إعدادات الجهاز.</p></div>';
  pages.settings.append(settings);
  const headerActions=container.querySelector(".header-actions");
  if(headerActions)settings.append(headerActions);
