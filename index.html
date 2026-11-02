@@ -564,7 +564,7 @@ function buildAppPages(){
  const dashboard=document.createElement("section");
  dashboard.className="nbe-dashboard";
  dashboard.innerHTML=`
-  <div class="dash-head"><div><h2>لوحة التحكم الذكية</h2><p>ملخص أداء المبيعات ومتابعة الإنجاز</p></div><div class="dash-month"><label for="dashMonth">عرض شهر</label><input id="dashMonth" type="month" onchange="renderDashboard()"></div></div>
+  <div class="dash-head"><div><h2>لوحة التحكم الذكية</h2><p>ملخص أداء المبيعات ومتابعة الإنجاز</p></div><div class="dash-month"><label for="dashMonth">عرض شهر</label><input id="dashMonth" type="month" onchange="renderDashboard()"><button class="btn primary small-btn" type="button" onclick="exportMonthlyReport()">⬇ تصدير Excel</button></div></div>
   <div class="dash-kpis">
    <div class="dash-kpi"><span>إجمالي الكروت</span><strong id="dashCards">0</strong><small id="dashCardsHint">خلال الشهر المحدد</small></div>
    <div class="dash-kpi"><span>إجمالي القروض</span><strong id="dashLoans">0</strong><small id="dashLoansHint">خلال الشهر المحدد</small></div>
@@ -955,6 +955,31 @@ function renderDashboard(){
  $("dashTrend").innerHTML=totals.map(x=>'<div class="dash-bar-group"><div class="dash-bar-pair"><div class="dash-bar" title="كروت: '+x.c+'" style="height:'+Math.max(2,x.c/max*100)+'%"></div><div class="dash-bar loan" title="قروض: '+x.l+'" style="height:'+Math.max(2,x.l/max*100)+'%"></div></div><small>'+x.m.slice(5)+'</small></div>').join("");
  recent.sort((a,b)=>b.date.localeCompare(a.date)||b.sort-a.sort);
  $("dashRecent").innerHTML=recent.slice(0,8).map(x=>'<tr><td>'+esc(x.date)+'</td><td>'+esc(x.kind)+'</td><td>'+esc(x.name)+'</td><td>'+esc(x.detail)+'</td><td>'+esc(x.value)+'</td></tr>').join("")||'<tr><td colspan="5" class="empty">لا توجد عمليات مسجلة حتى الآن</td></tr>';
+}
+
+
+function exportMonthlyReport(){
+ const month=$("dashMonth").value||today().slice(0,7);
+ const rows=[["التاريخ","نوع العملية","اسم العميل","الرقم القومي","رقم الموبايل","جهة العمل","نوع المنتج","صافي قيمة القرض","حالة الطلب","كود العميل"]];
+ const dates=Object.keys(reports).filter(date=>date.startsWith(month)).sort();
+ dates.forEach(date=>{
+  const r=reports[date]||{};
+  (Array.isArray(r.cards)?r.cards:[]).forEach(x=>rows.push([date,"كارت",x.name||"",x.national||"",x.mobile||"",x.employer||"",x.type||"","",x.status||"",x.code||""]));
+  (Array.isArray(r.loans)?r.loans:[]).forEach(x=>rows.push([date,"قرض",x.name||"",x.national||"",x.mobile||"",x.employer||"",x.type||"",Number(x.amount)||0,"",x.code||""]));
+ });
+ if(rows.length===1){alert("لا توجد عمليات مسجلة في الشهر المحدد.");return;}
+ const safeCell=value=>{
+  let s=String(value??"");
+  if(/^[=+@\-\t\r]/.test(s))s="'"+s;
+  return '"'+s.replace(/"/g,'""')+'"';
+ };
+ const csv="\uFEFF"+rows.map(row=>row.map(safeCell).join(",")).join("\r\n");
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+ const url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="NBE-Sales-"+month+".csv";
+ document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+ alert("تم تجهيز تقرير "+month+" بعدد "+(rows.length-1)+" عملية. افتح الملف باستخدام Excel.");
 }
 
 function renderAll(){renderSummaries();renderLedger();renderArchive();renderPerformance();renderFollowups();renderDashboard();}
