@@ -364,7 +364,6 @@ body.dark .light-btn{background:#203238}
 <nav id="mainNav" aria-label="التنقل الرئيسي">
  <button class="nav-btn active" data-page="home" onclick="showPage('home')"><span class="nav-icon">🏠</span><span>الرئيسية</span></button>
  <button class="nav-btn" data-page="calculator" onclick="showPage('calculator')"><span class="nav-icon">🧮</span><span>الحاسبة</span></button>
- <button class="nav-btn" data-page="targets" onclick="showPage('targets')"><span class="nav-icon">🎯</span><span>الأهداف</span></button>
  <button class="nav-btn" data-page="archive" onclick="showPage('archive')"><span class="nav-icon">🗂️</span><span>الأرشيف</span></button>
  <button class="nav-btn" data-page="settings" onclick="showPage('settings')"><span class="nav-icon">⚙️</span><span>الإعدادات</span></button>
 </nav>
@@ -391,23 +390,6 @@ body.dark .light-btn{background:#203238}
  <div class="stat navy"><small>إجمالي القروض</small><strong id="loansCount">0</strong></div>
  <div class="stat gold"><small>صافي قيمة القروض</small><strong id="loansTotal">0.00</strong></div>
  <div class="stat red"><small>إجمالي العملاء</small><strong id="customersCount">0</strong></div>
-</div>
-
-<div class="section performance-section">
- <div class="section-title"><h2>لوحة متابعة المستهدف الشهري</h2><span class="badge">MONTHLY PERFORMANCE</span></div>
- <div class="target-controls">
-  <div class="field"><label>الشهر</label><input id="performanceMonth" type="month" onchange="renderPerformance()"></div>
-  <div class="field"><label>مستهدف الكروت</label><input id="targetCards" type="number" min="0" step="1" placeholder="مثال: 30"></div>
-  <div class="field"><label>مستهدف القروض</label><input id="targetLoans" type="number" min="0" step="1" placeholder="مثال: 15"></div>
-  <div class="field"><label>مستهدف صافي القروض بالجنيه</label><input id="targetLoanAmount" type="number" min="0" step="1000" placeholder="مثال: 500000"></div>
-  <button class="btn primary target-save" onclick="saveTargets()">حفظ المستهدفات</button>
- </div>
- <div class="performance-grid">
-  <div class="target-box"><div class="target-label">إنجاز الكروت</div><strong id="perfCards">0 / 0</strong><div class="progress-track"><div class="progress-fill" id="barCards"></div></div><small id="pctCards">0% من المستهدف</small></div>
-  <div class="target-box"><div class="target-label">إنجاز القروض</div><strong id="perfLoans">0 / 0</strong><div class="progress-track"><div class="progress-fill" id="barLoans"></div></div><small id="pctLoans">0% من المستهدف</small></div>
-  <div class="target-box"><div class="target-label">صافي قيمة القروض</div><strong id="perfLoanAmount">0 / 0 جنيه</strong><div class="progress-track"><div class="progress-fill" id="barLoanAmount"></div></div><small id="pctLoanAmount">0% من المستهدف</small></div>
- </div>
- <div class="note">يتم احتساب الإنجاز من العمليات المسجلة في تقارير الشهر المختار. المستهدفات محفوظة على هذا الجهاز بشكل مستقل عن بيانات التقارير.</div>
 </div>
 
 <div class="section followup-section">
@@ -610,7 +592,6 @@ function buildAppPages(){
   ["calculator","حاسبة فوائد الكارت","حساب فائدة المديونية الشهرية بنسبة قابلة للتعديل"],
   ["customers","إدارة العملاء CRM","ملفات العملاء وبياناتهم وسجلهم"],
   ["followups","متابعة العملاء","إضافة ومراجعة مواعيد ونتائج التواصل مع العملاء"],
-  ["targets","الأهداف","متابعة المستهدف الشهري ونسب الإنجاز"],
   ["archive","الأرشيف","التقارير اليومية المحفوظة"],
   ["settings","الإعدادات","إدارة النسخ الاحتياطية وإعدادات التطبيق"]
  ];
@@ -654,7 +635,6 @@ function buildAppPages(){
  move(".cards-section","sales");
  move(".loans-section","sales");
  move(".followup-section","followups");
- move(".performance-section","targets");
  move(".archive-section","archive");
  const calculator=document.createElement("div");
  calculator.className="section calculator-section";
@@ -681,7 +661,7 @@ function buildAppPages(){
  pages.calculator.append(calculator);
  const settings=document.createElement("div");
  settings.className="settings-panel";
- settings.innerHTML='<h2>إدارة التطبيق والبيانات</h2><p>من هنا تقدر تعمل نسخة احتياطية من تقارير المبيعات والمستهدفات وسجل المتابعة أو تستعيد نسخة محفوظة. النسخ الاحتياطية غير مشفرة؛ احتفظ بها في مكان آمن.</p>';
+ settings.innerHTML='<h2>إدارة التطبيق والبيانات</h2><p>من هنا تقدر تعمل نسخة احتياطية من تقارير المبيعات وسجل المتابعة أو تستعيد نسخة محفوظة. النسخ الاحتياطية غير مشفرة؛ احتفظ بها في مكان آمن.</p>';
  pages.settings.append(settings);
  const headerActions=container.querySelector(".header-actions");
  if(headerActions)settings.append(headerActions);
@@ -704,10 +684,8 @@ function showPage(id){
 const EMPLOYEE="محمود محمد رزق";
 const SALES_NO="479511";
 const STORAGE_KEY="NBE_SALES_REPORTS_V1";
-const TARGETS_KEY="NBE_SALES_TARGETS_V1";
 const FOLLOWUPS_KEY="NBE_SALES_FOLLOWUPS_V1";
 let followups=[];
-let targets={cards:0,loans:0,loanAmount:0};
 let reports={};
 let currentDate="";
 let ledgerMode="all";
@@ -725,15 +703,6 @@ function loadStorage(){
   reports=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
   if(!reports||typeof reports!=="object")reports={};
  }catch(e){reports={};}
-}
-function loadTargets(){
- try{
-  const saved=JSON.parse(localStorage.getItem(TARGETS_KEY)||"{}");
-  targets={cards:Math.max(0,Number(saved.cards)||0),loans:Math.max(0,Number(saved.loans)||0),loanAmount:Math.max(0,Number(saved.loanAmount)||0)};
- }catch(e){targets={cards:0,loans:0,loanAmount:0};}
- $("targetCards").value=targets.cards||"";
- $("targetLoans").value=targets.loans||"";
- $("targetLoanAmount").value=targets.loanAmount||"";
 }
 function loadFollowups(){
  try{
@@ -806,35 +775,6 @@ function renderFollowups(){
   const badge=isDone?'<span class="follow-status done">مكتملة</span>':isLate?'<span class="follow-status late">متأخرة</span>':'<span class="follow-status">قيد المتابعة</span>';
   return `<tr><td>${i+1}</td><td>${esc(x.name)}</td><td>${esc(x.product)}</td><td>${esc(x.status)}</td><td>${esc(x.channel)}</td><td>${esc(x.nextDate||"غير محدد")}</td><td>${esc(x.notes||"—")}</td><td>${badge}</td><td class="no-print">${!isDone?'<button class="btn primary small-btn" onclick="completeFollowup(\''+x.id+'\')">تمت</button>':""}<button class="btn danger small-btn" onclick="deleteFollowup(\''+x.id+'\')">حذف</button></td></tr>`;
  }).join(""):'<tr><td colspan="9" class="empty">لا توجد نتائج في هذا التصنيف</td></tr>';
-}
-function saveTargets(){
- targets={cards:Math.max(0,Number($("targetCards").value)||0),loans:Math.max(0,Number($("targetLoans").value)||0),loanAmount:Math.max(0,Number($("targetLoanAmount").value)||0)};
- localStorage.setItem(TARGETS_KEY,JSON.stringify(targets));
- renderPerformance();
- alert("تم حفظ المستهدفات الشهرية");
-}
-function updateProgress(barId,pctId,actual,target){
- const pct=target>0?(actual/target)*100:0;
- $(barId).style.width=Math.min(100,pct)+"%";
- $(pctId).textContent=(target>0?Math.round(pct):0)+"% من المستهدف";
-}
-function renderPerformance(){
- const month=$("performanceMonth").value||today().slice(0,7);
- let cards=0,loans=0,amount=0;
- Object.keys(reports).forEach(date=>{
-  if(!date.startsWith(month))return;
-  const r=reports[date]||{};
-  cards+=(Array.isArray(r.cards)?r.cards.length:0);
-  const rows=Array.isArray(r.loans)?r.loans:[];
-  loans+=rows.length;
-  amount+=rows.reduce((sum,x)=>sum+Number(x.amount||0),0);
- });
- $("perfCards").textContent=cards+" / "+targets.cards;
- $("perfLoans").textContent=loans+" / "+targets.loans;
- $("perfLoanAmount").textContent=money(amount)+" / "+money(targets.loanAmount)+" جنيه";
- updateProgress("barCards","pctCards",cards,targets.cards);
- updateProgress("barLoans","pctLoans",loans,targets.loans);
- updateProgress("barLoanAmount","pctLoanAmount",amount,targets.loanAmount);
 }
 function persist(){
  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(reports));}
@@ -1060,7 +1000,6 @@ function exportMonthlyReport(){
  alert("تم تجهيز تقرير "+month+" بعدد "+(rows.length-1)+" عملية. افتح الملف باستخدام Excel.");
 }
 
-function renderAll(){renderSummaries();renderLedger();renderArchive();renderPerformance();renderFollowups();renderDashboard();}
 let cardPaymentRowCounter=0;
 function addCardPaymentRow(amount="",day=""){
  const host=$("ciPayments");
@@ -1156,10 +1095,8 @@ function printLedger(){
 }
 window.addEventListener("afterprint",()=>document.body.classList.remove("print-ledger"));
 function exportBackup(){
- saveReport(true);saveFollowups();localStorage.setItem(TARGETS_KEY,JSON.stringify(targets));
  if(!confirm("سيتم تنزيل نسخة احتياطية غير مشفرة. أي شخص يحصل على الملف قد يطّلع على بياناته. هل تريد المتابعة؟"))return;
  try{
-  const backup={app:"NBE Sales Daily Report",version:2,exportedAt:new Date().toISOString(),reports,targets,followups};
   const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
   const url=URL.createObjectURL(blob),a=document.createElement("a");
   a.href=url;a.download="NBE-Sales-Backup-"+today()+".json";a.click();URL.revokeObjectURL(url);
@@ -1188,14 +1125,6 @@ function importBackup(event){
    });
    persist();
 
-   if(data.targets&&typeof data.targets==="object"&&!Array.isArray(data.targets)){
-    targets={cards:Math.max(0,Number(data.targets.cards)||0),loans:Math.max(0,Number(data.targets.loans)||0),loanAmount:Math.max(0,Number(data.targets.loanAmount)||0)};
-    localStorage.setItem(TARGETS_KEY,JSON.stringify(targets));
-    $("targetCards").value=targets.cards||"";
-    $("targetLoans").value=targets.loans||"";
-    $("targetLoanAmount").value=targets.loanAmount||"";
-   }
-
    if(Array.isArray(data.followups)){
     const merged=new Map();
     followups.forEach((item,index)=>merged.set(String(item.id??("existing-"+index)),item));
@@ -1218,7 +1147,6 @@ buildAppPages();
 showPage("home");
 resetCardInterest();
 loadStorage();
-loadTargets();
 loadFollowups();
 $("performanceMonth").value=today().slice(0,7);
 currentDate=today();
