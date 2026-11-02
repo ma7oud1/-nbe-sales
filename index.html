@@ -370,6 +370,31 @@ body.dark .light-btn{background:#203238}
 @media(max-width:800px){.dash-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.dash-quick-grid{grid-template-columns:1fr 1fr}.dash-quick-grid .btn{padding:11px 9px;font-size:12px}.ledger-tools{align-items:stretch;flex-direction:column}.ledger-tools span{align-self:flex-start}}
 
+
+/* ترتيب الصفحة الرئيسية: بيانات التقرير والاختصارات بالأعلى، وباقي الملخصات أسفلها */
+#pageHost .home-page .home-top-layout{
+ display:grid!important;
+ grid-template-columns:minmax(290px,350px) minmax(0,1fr)!important;
+ align-items:start!important;
+ gap:16px!important;
+ margin-top:18px!important;
+}
+#pageHost .home-page .home-top-layout>.info-section{
+ float:none!important;clear:none!important;width:100%!important;max-width:none!important;
+ margin:0!important;min-width:0!important;
+}
+#pageHost .home-page .home-top-layout>.nbe-dashboard{
+ min-width:0!important;margin:0!important;
+}
+#pageHost .home-page .home-top-layout>.nbe-dashboard .dash-panel{height:100%;}
+#pageHost .home-page>.stats{
+ clear:both!important;width:100%!important;margin-top:18px!important;
+}
+@media(max-width:800px){
+ #pageHost .home-page .home-top-layout{grid-template-columns:1fr!important;}
+ #pageHost .home-page .home-top-layout>.info-section{width:100%!important;}
+}
+
 </style>
 </head>
 <body>
@@ -649,7 +674,14 @@ function buildAppPages(){
  dashboard.innerHTML=`
   <div class="dash-panel dash-quick-actions"><h3>اختصارات سريعة</h3><div class="dash-quick-grid"><button class="btn primary" type="button" onclick="quickAdd('card')">＋ تسجيل كارت جديد</button><button class="btn secondary" type="button" onclick="quickAdd('loan')">＋ تسجيل قرض جديد</button><button class="btn gold-btn" type="button" onclick="quickAdd('followup')">＋ إضافة متابعة عميل</button><button class="btn light-btn" type="button" onclick="showPage('customers')">إدارة العملاء CRM</button></div></div>
  `;
- pages.home.append(dashboard);
+ // وضع بيانات التقرير والاختصارات جنب بعض في الصف العلوي
+ const homeTop=document.createElement("div");
+ homeTop.className="home-top-layout";
+ const reportInfo=pages.home.querySelector(".info-section");
+ const homeStats=pages.home.querySelector(".stats");
+ if(reportInfo)homeTop.append(reportInfo);
+ homeTop.append(dashboard);
+ pages.home.insertBefore(homeTop,homeStats||null);
 
  move(".entry-section","sales");
  move(".ledger-section","sales");
