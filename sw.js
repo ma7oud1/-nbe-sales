@@ -1,11 +1,12 @@
 
-const CACHE_NAME = "nbe-sales-v20";
+const CACHE_NAME = "nbe-sales-v22";
 
 const FILES_TO_CACHE = [
   "/-nbe-sales/",
   "/-nbe-sales/index.html",
   "/-nbe-sales/manifest.json",
   "/-nbe-sales/crm.js",
+  "/-nbe-sales/firebase-sync.js",
 ];
 
 self.addEventListener("install", event => {
