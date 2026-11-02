@@ -270,8 +270,6 @@ body{padding-bottom:86px}
 </style>
 </head>
 <body>
-<div id="nbeSecurityOverlay" role="dialog" aria-modal="true" aria-label="حماية البرنامج"><div class="nbe-security-card"><div class="nbe-security-logo">🔐</div><h2 id="nbeSecurityTitle">حماية NBE Sales</h2><p id="nbeSecurityText">أدخل كلمة المرور لفتح بياناتك المشفرة</p><form id="nbeSecurityForm"><label for="nbePassword">كلمة المرور</label><input id="nbePassword" type="password" minlength="10" autocomplete="current-password" required placeholder="10 أحرف على الأقل"><div id="nbeConfirmWrap" hidden><label for="nbePasswordConfirm">تأكيد كلمة المرور</label><input id="nbePasswordConfirm" type="password" minlength="10" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور"></div><p id="nbeSecurityError" role="alert"></p><button class="btn primary" id="nbeUnlockBtn" type="submit">فتح البرنامج</button></form><button class="btn light-btn nbe-bio-btn" id="nbeBiometricBtn" type="button" hidden>تفعيل البصمة على هذا الجهاز</button>
-<button class="btn light-btn" id="nbeResetSecurityBtn" type="button" onclick="if(confirm(&quot;سيتم حذف الخزنة المشفرة القديمة نهائيًا. وبما أنك أكدت عدم وجود بيانات مهمة، هل تريد إنشاء كلمة مرور جديدة؟&quot;)){localStorage.removeItem(&quot;nbe_security_meta_v1&quot;);localStorage.removeItem(&quot;nbe_security_vault_v1&quot;);sessionStorage.removeItem(&quot;nbe_security_session_key&quot;);location.reload();}" style="width:100%;margin-top:10px;background:#fff1f0;color:#a52822;border:1px solid #efc3c0">إعادة تهيئة الحماية و إنشاء كلمة مرور جديدة</button><small>بياناتك تُشفّر على هذا الجهاز عند قفل البرنامج. احتفظ بكلمة المرور؛ لا توجد طريقة لاستعادتها.</small></div></div>
 <div class="container">
 
 <header class="header">
@@ -289,7 +287,6 @@ body{padding-bottom:86px}
  </div>
  <div class="header-actions no-print">
   <button onclick="toggleTheme()">◐ الوضع الليلي</button>
-  <button onclick="window.NBESecurity&&window.NBESecurity.lock()">🔒 قفل البرنامج</button>
   <button onclick="exportBackup()">⬇ نسخة احتياطية</button>
   <button onclick="$('importFile').click()">⬆ استعادة نسخة</button>
   <input id="importFile" type="file" accept=".json,application/json" class="hidden" onchange="importBackup(event)">
@@ -1055,17 +1052,15 @@ function printLedger(){
  window.print();
 }
 window.addEventListener("afterprint",()=>document.body.classList.remove("print-ledger"));
-async function exportBackup(){
+function exportBackup(){
  saveReport(true);saveFollowups();localStorage.setItem(TARGETS_KEY,JSON.stringify(targets));
- const pass=prompt("أنشئ كلمة مرور لملف النسخة الاحتياطية (10 أحرف على الأقل) (10 أحرف على الأقل)");
- if(!pass)return;
+ if(!confirm("سيتم تنزيل نسخة احتياطية غير مشفرة. أي شخص يحصل على الملف قد يطّلع على بياناته. هل تريد المتابعة؟"))return;
  try{
   const backup={app:"NBE Sales Daily Report",version:2,exportedAt:new Date().toISOString(),reports,targets,followups};
-  const encrypted=await window.NBESecurity.encryptBackup(backup,pass);
-  const blob=new Blob([JSON.stringify(encrypted,null,2)],{type:"application/json"});
+  const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
   const url=URL.createObjectURL(blob),a=document.createElement("a");
-  a.href=url;a.download="NBE-Sales-Encrypted-Backup-"+today()+".json";a.click();URL.revokeObjectURL(url);
- }catch(e){alert(e.message||"تعذر إنشاء النسخة المشفرة.");}
+  a.href=url;a.download="NBE-Sales-Backup-"+today()+".json";a.click();URL.revokeObjectURL(url);
+ }catch(e){alert(e.message||"تعذر إنشاء النسخة الاحتياطية.");}
 }
 function importBackup(event){
  const file=event.target.files[0];if(!file)return;
@@ -1074,10 +1069,8 @@ function importBackup(event){
   try{
    let data=JSON.parse(reader.result);
    if(data.app==="NBE Sales Encrypted Backup"){
-    const backupPassword=prompt("أدخل كلمة مرور ملف النسخة الاحتياطية");
-    if(!backupPassword)return;
-    data=await window.NBESecurity.decryptBackup(data,backupPassword);
-   }else if(!confirm("هذه نسخة قديمة غير مشفرة. قد تحتوي بيانات ظاهرة داخل الملف. هل تريد استيرادها؟"))return;
+    throw new Error("هذه نسخة احتياطية مشفرة من إصدار الحماية السابق. يلزم فك تشفيرها من الإصدار السابق قبل استيرادها هنا.");
+   }else if(!confirm("سيتم استيراد نسخة احتياطية غير مشفرة. هل تريد المتابعة؟"))return;
    const incoming=data.reports||data;
    if(!incoming||typeof incoming!=="object"||Array.isArray(incoming))throw new Error("Invalid backup");
    if(!confirm("سيتم دمج التقارير والمتابعات من النسخة الاحتياطية مع البيانات الموجودة. هل تريد المتابعة؟"))return;
@@ -1131,7 +1124,6 @@ fillInfo();renderAll();
 if(localStorage.getItem("nbe_sales_theme")==="dark")document.body.classList.add("dark");
 </script>
 <script src="./crm.js"></script>
-<script src="./security.js"></script>
 <script>
 if ("serviceWorker" in navigator) {
  window.addEventListener("load", () => {
