@@ -955,11 +955,6 @@ function deleteItem(type,id){
 }
 function renderSummaries(){
  const r=getReport();
- const total=r.loans.reduce((sum,x)=>sum+Number(x.amount||0),0);
- $("cardsCount").textContent=r.cards.length;
- $("loansCount").textContent=r.loans.length;
- $("loansTotal").textContent=money(total);
- $("customersCount").textContent=r.cards.length+r.loans.length;
  $("cardsBody").innerHTML=r.cards.length?r.cards.map((x,i)=>`
  <tr><td>${i+1}</td><td>${esc(x.name)}</td><td>${esc(x.type)}</td><td>${statusBadge(x.status)}</td><td>${esc(x.code)}</td></tr>`).join("")
  :`<tr><td colspan="5" class="empty">لا توجد كروت</td></tr>`;
