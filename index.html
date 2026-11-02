@@ -608,7 +608,8 @@ function buildAppPages(){
   ["home","الرئيسية","نظرة عامة على تقرير اليوم وأداء المبيعات"],
   ["sales","المبيعات","تسجيل الكروت والقروض ومراجعة سجل العمليات"],
   ["calculator","حاسبة فوائد الكارت","حساب فائدة المديونية الشهرية بنسبة قابلة للتعديل"],
-  ["customers","إدارة العملاء CRM","ملفات العملاء ومتابعة التواصل والفرص البيعية"],
+  ["customers","إدارة العملاء CRM","ملفات العملاء وبياناتهم وسجلهم"],
+  ["followups","متابعة العملاء","إضافة ومراجعة مواعيد ونتائج التواصل مع العملاء"],
   ["targets","الأهداف","متابعة المستهدف الشهري ونسب الإنجاز"],
   ["archive","الأرشيف","التقارير اليومية المحفوظة"],
   ["settings","الإعدادات","إدارة النسخ الاحتياطية وإعدادات التطبيق"]
@@ -652,7 +653,7 @@ function buildAppPages(){
  move(".ledger-section","sales");
  move(".cards-section","sales");
  move(".loans-section","sales");
- move(".followup-section","customers");
+ move(".followup-section","followups");
  move(".performance-section","targets");
  move(".archive-section","archive");
  const calculator=document.createElement("div");
@@ -690,7 +691,7 @@ function buildAppPages(){
  if(footer)pages.settings.append(footer);
 }
 function quickAdd(type){
- if(type==="followup"){showPage("customers");setTimeout(()=>document.getElementById("fName")?.focus(),80);return;}
+ if(type==="followup"){showPage("followups");setTimeout(()=>document.getElementById("fName")?.focus(),80);return;}
  showPage("sales");showForm(type);
  setTimeout(()=>{const target=document.getElementById(type==="card"?"cName":"lName");target?.focus();target?.scrollIntoView({behavior:"smooth",block:"center"});},80);
 }
