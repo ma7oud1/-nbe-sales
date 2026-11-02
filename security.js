@@ -108,6 +108,11 @@ form.addEventListener("submit",async function(e){
  }catch(e){fail(e.message==="OperationError"?"كلمة المرور غير صحيحة أو تعذر فك تشفير البيانات.":(e.message||"تعذر فتح الخزنة."));}
 });
 bioButton.addEventListener("click",registerBiometric);
+const resetButton=document.getElementById("nbeResetSecurityBtn");
+if(resetButton)resetButton.addEventListener("click",function(){
+ if(!confirm("سيتم حذف كلمة المرور القديمة والخزنة المشفرة نهائيًا، ولن يمكن استعادة أي بيانات بداخلها. هل تريد إعادة تهيئة الحماية؟"))return;
+ localStorage.removeItem(META);localStorage.removeItem(VAULT);sessionStorage.removeItem(SESSION);location.reload();
+});
 async function encryptBackup(payload,pass){
  if(!pass||pass.length<10)throw new Error("كلمة مرور النسخة يجب ألا تقل عن 10 أحرف.");
  const salt=random(16),key=await derive(pass,salt),blob=await encrypt(payload,key);
