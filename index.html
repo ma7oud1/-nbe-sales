@@ -1553,52 +1553,78 @@ function exportLedgerImage(){
  },"image/png");
 }
 window.addEventListener("afterprint",()=>document.body.classList.remove("print-ledger"));
+function readStoredJson(key,fallback){
+ try{const value=localStorage.getItem(key);return value?JSON.parse(value):fallback;}
+ catch(_){return fallback;}
+}
 function exportBackup(){
- if(!confirm("سيتم تنزيل نسخة احتياطية غير مشفرة. أي شخص يحصل على الملف قد يطّلع على بياناته. هل تريد المتابعة؟"))return;
+ if(!confirm("سيتم تنزيل نسخة احتياطية غير مشفرة تشمل التقارير والمتابعات والعملاء وإعدادات الموظف. أي شخص يحصل على الملف قد يطّلع على بياناته. هل تريد المتابعة؟"))return;
  try{
-  const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
+  const payload={
+   app:"NBE Sales Backup",
+   version:2,
+   createdAt:new Date().toISOString(),
+   reports:reports,
+   followups:followups,
+   customers:readStoredJson("nbe_crm_demo_customers_v1",[]),
+   employeeSettings:{employee:EMPLOYEE,salesNo:SALES_NO},
+   theme:localStorage.getItem("nbe_sales_theme")||"light"
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
   const url=URL.createObjectURL(blob),a=document.createElement("a");
-  a.href=url;a.download="NBE-Sales-Backup-"+today()+".json";a.click();URL.revokeObjectURL(url);
- }catch(e){alert(e.message||"تعذر إنشاء النسخة الاحتياطية.");}
+  a.href=url;a.download="NBE-Sales-Backup-"+today()+".json";
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+ }catch(e){alert("تعذر إنشاء النسخة الاحتياطية: "+(e.message||"خطأ غير معروف"));}
 }
 function importBackup(event){
- const file=event.target.files[0];if(!file)return;
+ const input=event&&event.target;
+ const file=input&&input.files&&input.files[0];
+ if(!file)return;
  const reader=new FileReader();
- reader.onload=async()=>{
+ reader.onerror=()=>{alert("تعذر قراءة الملف. تأكد أن الملف متاح على الجهاز.");input.value="";};
+ reader.onload=()=>{
   try{
-   let data=JSON.parse(reader.result);
-   if(data.app==="NBE Sales Encrypted Backup"){
-    throw new Error("هذه نسخة احتياطية مشفرة من إصدار الحماية السابق. يلزم فك تشفيرها من الإصدار السابق قبل استيرادها هنا.");
-   }else if(!confirm("سيتم استيراد نسخة احتياطية غير مشفرة. هل تريد المتابعة؟"))return;
-   const incoming=data.reports||data;
-   if(!incoming||typeof incoming!=="object"||Array.isArray(incoming))throw new Error("Invalid backup");
-   if(!confirm("سيتم دمج التقارير والمتابعات من النسخة الاحتياطية مع البيانات الموجودة. هل تريد المتابعة؟"))return;
-
+   const data=JSON.parse(String(reader.result||""));
+   if(data.app==="NBE Sales Encrypted Backup")throw new Error("هذه نسخة احتياطية مشفرة. افتحها من إصدار التطبيق الذي أنشأها أو فك تشفيرها أولاً.");
+   if(!data||typeof data!=="object"||Array.isArray(data))throw new Error("محتوى الملف غير صحيح.");
+   const incoming=data.reports||(data.app==="NBE Sales Backup"?null:data);
+   if(!incoming||typeof incoming!=="object"||Array.isArray(incoming))throw new Error("الملف لا يحتوي على تقارير صالحة.");
+   if(!confirm("سيتم دمج بيانات النسخة الاحتياطية مع البيانات الموجودة حاليًا، ولن يتم حذف البيانات الحالية. هل تريد المتابعة؟"))return;
+   let importedReports=0;
    Object.keys(incoming).forEach(date=>{
-    const r=incoming[date];
-    if(r&&typeof r==="object"){
-     if(!Array.isArray(r.cards))r.cards=[];
-     if(!Array.isArray(r.loans))r.loans=[];
-     r.employee=EMPLOYEE;r.salesNo=SALES_NO;reports[date]=r;
-    }
+    const source=incoming[date];
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!source||typeof source!=="object"||Array.isArray(source))return;
+    reports[date]={...source,cards:Array.isArray(source.cards)?source.cards:[],loans:Array.isArray(source.loans)?source.loans:[]};
+    importedReports++;
    });
    persist();
-
    if(Array.isArray(data.followups)){
     const merged=new Map();
     followups.forEach((item,index)=>merged.set(String(item.id??("existing-"+index)),item));
-    data.followups.forEach((item,index)=>{
-     if(item&&typeof item==="object")merged.set(String(item.id??("backup-"+index)),item);
-    });
-    followups=Array.from(merged.values());
-    saveFollowups();
+    data.followups.forEach((item,index)=>{if(item&&typeof item==="object")merged.set(String(item.id??("backup-"+index)),item);});
+    followups=Array.from(merged.values());saveFollowups();
    }
-
+   if(Array.isArray(data.customers)){
+    const current=readStoredJson("nbe_crm_demo_customers_v1",[]);
+    const merged=new Map();
+    (Array.isArray(current)?current:[]).forEach((item,index)=>merged.set(String(item.id??item.national??("existing-"+index)),item));
+    data.customers.forEach((item,index)=>{if(item&&typeof item==="object")merged.set(String(item.id??item.national??("backup-"+index)),item);});
+    localStorage.setItem("nbe_crm_demo_customers_v1",JSON.stringify(Array.from(merged.values())));
+   }
+   if(data.employeeSettings&&typeof data.employeeSettings==="object"){
+    EMPLOYEE=String(data.employeeSettings.employee||"");SALES_NO=String(data.employeeSettings.salesNo||"");
+    localStorage.setItem(EMPLOYEE_SETTINGS_KEY,JSON.stringify({employee:EMPLOYEE,salesNo:SALES_NO}));
+   }
+   if(data.theme==="dark"||data.theme==="light"){
+    localStorage.setItem("nbe_sales_theme",data.theme);document.body.classList.toggle("dark",data.theme==="dark");
+   }
    if(!reports[currentDate])reports[currentDate]=blank(currentDate);
-   fillInfo();renderAll();
-   alert("تم استيراد النسخة الاحتياطية بنجاح");
-  }catch(e){alert("ملف النسخة الاحتياطية غير صالح أو تعذر قراءته");}
-  event.target.value="";
+   persist();fillInfo();renderAll();
+   if(typeof window.refreshNbeCrm==="function")window.refreshNbeCrm();
+   alert("تم استيراد النسخة بنجاح. التقارير المستوردة: "+importedReports+"، والمتابعات والعملاء تم دمجها إن وُجدت.");
+  }catch(e){alert("تعذر استيراد النسخة: "+(e.message||"ملف غير صالح"));}
+  finally{input.value="";}
  };
  reader.readAsText(file);
 }
