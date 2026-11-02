@@ -25,6 +25,18 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
+      - name: Validate JavaScript syntax
+        run: |
+          node --check crm.js
+          node --check security.js
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          html = Path("index.html").read_text(encoding="utf-8")
+          scripts = re.findall(r'<script\\b(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)</script>', html, re.I)
+          Path("/tmp/nbe-inline.js").write_text("\\n;\\n".join(scripts), encoding="utf-8")
+          PY
+          node --check /tmp/nbe-inline.js
       - name: Build debug APK
         working-directory: android
         run: gradle --no-daemon assembleDebug
