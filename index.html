@@ -190,7 +190,7 @@ tr:hover td{background:rgba(8,116,67,.035)}
 body{padding-bottom:86px}
 #mainNav{
  position:fixed;z-index:1000;bottom:0;left:0;right:0;
- display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px;
+ display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;
  padding:8px max(10px,calc((100vw - 1250px)/2)) calc(8px + env(safe-area-inset-bottom));
  background:var(--card);border-top:1px solid var(--border);
  box-shadow:0 -5px 22px rgba(20,50,40,.09)
@@ -324,6 +324,17 @@ body.dark{background:radial-gradient(ellipse at 90% 0%,rgba(16,130,85,.12),trans
 body.dark #mainNav{background:rgba(26,41,47,.94);border-color:#33464b}
 body.dark th{background:#22363a}
 body.dark .light-btn{background:#203238}
+
+
+/* Dashboard quick actions and ledger search */
+.dash-quick-actions{padding:18px}
+.dash-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.dash-quick-grid .btn{min-height:48px;white-space:normal}
+.ledger-tools{display:flex;align-items:center;gap:12px;margin:14px 0 4px}
+.ledger-tools input{flex:1;min-width:0}
+.ledger-tools span{font-size:12px;color:var(--muted);white-space:nowrap}
+@media(max-width:800px){.dash-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.dash-quick-grid{grid-template-columns:1fr 1fr}.dash-quick-grid .btn{padding:11px 9px;font-size:12px}.ledger-tools{align-items:stretch;flex-direction:column}.ledger-tools span{align-self:flex-start}}
 
 </style>
 </head>
@@ -539,6 +550,7 @@ body.dark .light-btn{background:#203238}
   <button class="tab" id="cardsLedgerTab" onclick="showLedger('cards')">الكروت</button>
   <button class="tab" id="loansLedgerTab" onclick="showLedger('loans')">القروض</button>
  </div>
+ <div class="ledger-tools no-print"><input id="ledgerSearch" type="search" placeholder="ابحث بالاسم أو الرقم أو الهاتف أو جهة العمل أو كود العميل" aria-label="بحث في سجل المبيعات"><span id="ledgerSearchCount">كل العمليات</span></div>
  <div class="table-wrap" style="margin-top:14px">
   <table>
    <thead><tr>
@@ -628,6 +640,7 @@ function buildAppPages(){
    <div class="dash-kpi"><span>صافي القروض</span><strong id="dashAmount">0 ج</strong><small>إجمالي قيمة القروض المسجلة</small></div>
    <div class="dash-kpi"><span>متوسط القرض</span><strong id="dashAverage">0 ج</strong><small>متوسط قيمة القرض الواحد</small></div>
   </div>
+  <div class="dash-panel dash-quick-actions"><h3>اختصارات سريعة</h3><div class="dash-quick-grid"><button class="btn primary" type="button" onclick="quickAdd('card')">＋ تسجيل كارت جديد</button><button class="btn secondary" type="button" onclick="quickAdd('loan')">＋ تسجيل قرض جديد</button><button class="btn gold-btn" type="button" onclick="quickAdd('followup')">＋ إضافة متابعة عميل</button><button class="btn light-btn" type="button" onclick="showPage('customers')">إدارة العملاء CRM</button></div></div>
   <div class="dash-columns">
    <div class="dash-panel"><h3>حالة طلبات الكروت</h3><div id="dashStatuses" class="dash-statuses"></div></div>
    <div class="dash-panel"><h3>مؤشرات المتابعة</h3><div class="dash-follow-grid"><div><span>إجمالي المتابعات</span><strong id="dashFollowTotal">0</strong></div><div><span>مطلوب اليوم</span><strong id="dashFollowToday">0</strong></div><div><span>متأخرة</span><strong id="dashFollowLate">0</strong></div><div><span>مكتملة</span><strong id="dashFollowDone">0</strong></div></div></div>
@@ -677,6 +690,11 @@ function buildAppPages(){
  if(globalNote)pages.settings.append(globalNote);
  const footer=container.querySelector(":scope > .footer");
  if(footer)pages.settings.append(footer);
+}
+function quickAdd(type){
+ if(type==="followup"){showPage("customers");setTimeout(()=>document.getElementById("fName")?.focus(),80);return;}
+ showPage("sales");showForm(type);
+ setTimeout(()=>{const target=document.getElementById(type==="card"?"cName":"lName");target?.focus();target?.scrollIntoView({behavior:"smooth",block:"center"});},80);
 }
 function showPage(id){
  document.querySelectorAll(".app-page").forEach(page=>page.classList.toggle("active",page.dataset.page===id));
@@ -909,8 +927,11 @@ function allRows(r){
 function renderLedger(){
  const r=getReport();
  let rows=allRows(r);
+ const search=(document.getElementById("ledgerSearch")?.value||"").trim().toLowerCase();
+ if(search)rows=rows.filter(x=>[x.kind,x.name,x.national,x.mobile,x.employer,x.detail,x.code].some(v=>String(v??"").toLowerCase().includes(search)));
  if(ledgerMode==="cards")rows=rows.filter(x=>x.source==="card");
  if(ledgerMode==="loans")rows=rows.filter(x=>x.source==="loan");
+ $("ledgerSearchCount").textContent=search?(rows.length+" نتيجة"):"كل العمليات";
  $("ledgerBody").innerHTML=rows.length?rows.map((x,i)=>`
  <tr><td>${i+1}</td><td>${x.kind}</td><td>${esc(x.name)}</td>
  <td>${esc(x.national)}</td><td>${esc(x.mobile)}</td><td>${esc(x.employer)}</td>
@@ -922,6 +943,7 @@ function renderLedger(){
  $("loansLedgerTab").classList.toggle("active",ledgerMode==="loans");
 }
 function showLedger(mode){ledgerMode=mode;renderLedger();}
+document.addEventListener("input",event=>{if(event.target?.id==="ledgerSearch")renderLedger();});
 function deleteItem(type,id){
  if(!confirm("هل أنت متأكد من حذف هذه العملية؟"))return;
  const r=getReport(),key=type==="card"?"cards":"loans";
