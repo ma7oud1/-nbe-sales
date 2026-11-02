@@ -190,7 +190,7 @@ tr:hover td{background:rgba(8,116,67,.035)}
 body{padding-bottom:86px}
 #mainNav{
  position:fixed;z-index:1000;bottom:0;left:0;right:0;
- display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;
+ display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px;
  padding:8px max(10px,calc((100vw - 1250px)/2)) calc(8px + env(safe-area-inset-bottom));
  background:var(--card);border-top:1px solid var(--border);
  box-shadow:0 -5px 22px rgba(20,50,40,.09)
@@ -256,6 +256,7 @@ body{padding-bottom:86px}
  <button class="nav-btn active" data-page="home" onclick="showPage('home')"><span class="nav-icon">🏠</span><span>الرئيسية</span></button>
  <button class="nav-btn" data-page="sales" onclick="showPage('sales')"><span class="nav-icon">💳</span><span>المبيعات</span></button>
  <button class="nav-btn" data-page="calculator" onclick="showPage('calculator')"><span class="nav-icon">🧮</span><span>الحاسبة</span></button>
+ <button class="nav-btn" data-page="crm" onclick="showPage('crm')"><span class="nav-icon">🗃️</span><span>CRM</span></button>
  <button class="nav-btn" data-page="customers" onclick="showPage('customers')"><span class="nav-icon">👥</span><span>العملاء</span></button>
  <button class="nav-btn" data-page="targets" onclick="showPage('targets')"><span class="nav-icon">🎯</span><span>الأهداف</span></button>
  <button class="nav-btn" data-page="archive" onclick="showPage('archive')"><span class="nav-icon">🗂️</span><span>الأرشيف</span></button>
@@ -1015,6 +1016,7 @@ if(!reports[currentDate])reports[currentDate]=blank(currentDate);
 fillInfo();renderAll();
 if(localStorage.getItem("nbe_sales_theme")==="dark")document.body.classList.add("dark");
 </script>
+<script src="./crm.js"></script>
 <script>
 if ("serviceWorker" in navigator) {
  window.addEventListener("load", () => {
