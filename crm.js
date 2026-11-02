@@ -14,7 +14,7 @@ if(!host)return;
 const page=host.querySelector('.app-page[data-page="customers"]');
 if(!page)return;
 page.insertAdjacentHTML("beforeend",''+
-'<div class="section crm-section"><div class="crm-warning"><strong>تنبيه أمان:</strong> هذه نسخة تجريبية فقط. لا تدخل بيانات عملاء حقيقية أو أرقامًا قومية أو بيانات بنكية، ولا ترفعها إلى Google Drive شخصي. استخدم أرقامًا وهمية للاختبار.</div>'+
+'<div class="section crm-section">'+
 '<div class="section-title"><h2 id="crmFormTitle">إضافة عميل جديد</h2><span class="badge">CUSTOMER CRM</span></div>'+
 '<form id="crmForm" class="crm-form">'+
 '<div class="field"><label>اسم العميل بالكامل *</label><input id="crmName" required maxlength="120"></div>'+
