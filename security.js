@@ -57,7 +57,7 @@ async function doUnlock(pass){
  const blob=JSON.parse(localStorage.getItem(VAULT)||"null");if(!blob)throw new Error("لا توجد خزنة مشفرة. قد تكون النسخة الاحتياطية غير مكتملة.");
  const key=await derive(pass,un64(meta.salt));
  const data=await decrypt(blob,key);
- if(meta.biometricId)await verifyBiometric(meta.biometricId);
+ if(meta.biometricId){try{await verifyBiometric(meta.biometricId);}catch(bioError){if(confirm("تعذر التحقق بالبصمة. هل تريد المتابعة بكلمة المرور فقط وتعطيل البصمة لهذا الجهاز؟")){meta.biometricId=null;localStorage.setItem(META,JSON.stringify(meta));}else throw bioError;}}
  rawKey=key;sessionStorage.setItem(SESSION,b64(await crypto.subtle.exportKey("raw",key)));
  restore(data);hide();refreshApp();bioButton.hidden=!!meta.biometricId;
 }
