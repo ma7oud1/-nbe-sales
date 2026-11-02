@@ -799,7 +799,7 @@ function buildAppPages(){
    <div class="field" id="loanPrincipalField"><label for="loanPrincipal">قيمة القرض (جنيه)</label><input id="loanPrincipal" type="number" min="1" step="0.01" placeholder="مثال: 100000"></div>
    <div class="field" id="loanMonthlyField"><label for="loanMonthly">القسط الشهري (جنيه)</label><input id="loanMonthly" type="number" min="1" step="0.01" placeholder="مثال: 3000"></div>
    <div class="field"><label for="loanAnnualRate">سعر العائد السنوي (%)</label><input id="loanAnnualRate" type="number" min="0" step="0.01" value="21"></div>
-   <div class="field"><label for="loanMonths">مدة القرض (بالشهور)</label><input id="loanMonths" type="number" min="1" max="600" step="1" value="60"></div>
+   <div class="field"><label>مدة القرض</label><div class="grid" style="grid-template-columns:1fr 1fr;gap:8px"><div><label for="loanYears">السنين</label><input id="loanYears" type="number" min="0" max="50" step="1" value="5" placeholder="سنين"></div><div><label for="loanMonthsPart">الشهور</label><input id="loanMonthsPart" type="number" min="0" max="11" step="1" value="0" placeholder="شهور"></div></div></div>
   </div>
   <div class="section-title" style="margin-top:22px"><h2>السداد الإضافي</h2><span class="badge">اختياري ومتعدد</span></div>
   <p class="muted">أضف دفعة أو أكثر، وحدد أول تاريخ لها وتكرارها. عند إضافة سداد إضافي تُستخدم طريقة الأيام الفعلية / 360 في الحساب التقديري.</p>
@@ -1262,8 +1262,8 @@ function simulateLoan(principal,monthly,term,annualRate,extras){
 }
 function calculateLoan(){
  try{
-  const term=Number($("loanMonths").value),rate=Number($("loanAnnualRate").value);
-  if(!Number.isInteger(term)||term<1||term>600||!Number.isFinite(rate)||rate<0||rate>100)throw new Error("أدخل مدة من شهر إلى 600 شهر، وسعر عائد صحيح.");
+  const years=Number($("loanYears").value),months=Number($("loanMonthsPart").value),term=years*12+months,rate=Number($("loanAnnualRate").value);
+  if(!Number.isInteger(years)||years<0||years>50||!Number.isInteger(months)||months<0||months>11||term<1||term>600||!Number.isFinite(rate)||rate<0||rate>100)throw new Error("أدخل مدة صحيحة بالسنين والشهور، بحد أقصى 50 سنة.");
   const extras=getLoanExtras(term);
   if(loanMode==="principal"){
    const monthly=Number($("loanMonthly").value);
@@ -1297,7 +1297,8 @@ function resetLoanCalculator(){
  $("loanPrincipal").value="";
  $("loanMonthly").value="";
  $("loanAnnualRate").value="21";
- $("loanMonths").value="60";
+ $("loanYears").value="5";
+ $("loanMonthsPart").value="0";
  $("loanExtraRows").innerHTML="";
  $("loanResults").style.display="none";
  $("loanResultNote").textContent="اختر نوع الحساب وأدخل البيانات ثم اضغط «احسب الآن».";
