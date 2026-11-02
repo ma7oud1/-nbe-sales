@@ -227,9 +227,12 @@ body{padding-bottom:86px}
  body.print-ledger .sales-page{display:block!important}
 }
 
+
+#nbeSecurityOverlay{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(5,24,18,.94);font-family:Tahoma,Arial,sans-serif}#nbeSecurityOverlay[hidden]{display:none}.nbe-security-card{width:min(100%,420px);background:var(--card,#fff);color:var(--text,#1d3038);border:1px solid var(--border,#dce5df);border-radius:20px;padding:25px;box-shadow:0 20px 70px #0005;text-align:right}.nbe-security-logo{font-size:38px;text-align:center}.nbe-security-card h2{text-align:center;color:var(--green,#087443);margin:12px 0}.nbe-security-card p{line-height:1.7;color:var(--muted,#718087);font-size:13px}.nbe-security-card label{display:block;margin:12px 0 6px;font-size:13px;font-weight:bold}.nbe-security-card input{width:100%;padding:12px;border:1px solid var(--border,#dce5df);border-radius:9px;background:var(--bg,#f2f5f3);color:var(--text,#1d3038)}.nbe-security-card form .btn{width:100%;margin-top:16px}.nbe-security-card small{display:block;margin-top:16px;line-height:1.7;color:var(--muted,#718087)}.nbe-bio-btn{width:100%;margin-top:10px}.nbe-security-card #nbeSecurityError{color:#c0392b;min-height:18px;margin:8px 0 0}body.nbe-locked{overflow:hidden}
 </style>
 </head>
 <body>
+<div id="nbeSecurityOverlay" role="dialog" aria-modal="true" aria-label="حماية البرنامج"><div class="nbe-security-card"><div class="nbe-security-logo">🔐</div><h2 id="nbeSecurityTitle">حماية NBE Sales</h2><p id="nbeSecurityText">أدخل كلمة المرور لفتح بياناتك المشفرة</p><form id="nbeSecurityForm"><label for="nbePassword">كلمة المرور</label><input id="nbePassword" type="password" minlength="10" autocomplete="current-password" required placeholder="10 أحرف على الأقل"><div id="nbeConfirmWrap" hidden><label for="nbePasswordConfirm">تأكيد كلمة المرور</label><input id="nbePasswordConfirm" type="password" minlength="10" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور"></div><p id="nbeSecurityError" role="alert"></p><button class="btn primary" id="nbeUnlockBtn" type="submit">فتح البرنامج</button></form><button class="btn light-btn nbe-bio-btn" id="nbeBiometricBtn" type="button" hidden>تفعيل البصمة على هذا الجهاز</button><small>بياناتك تُشفّر على هذا الجهاز عند قفل البرنامج. احتفظ بكلمة المرور؛ لا توجد طريقة لاستعادتها.</small></div></div>
 <div class="container">
 
 <header class="header">
@@ -247,6 +250,7 @@ body{padding-bottom:86px}
  </div>
  <div class="header-actions no-print">
   <button onclick="toggleTheme()">◐ الوضع الليلي</button>
+  <button onclick="window.NBESecurity&&window.NBESecurity.lock()">🔒 قفل البرنامج</button>
   <button onclick="exportBackup()">⬇ نسخة احتياطية</button>
   <button onclick="$('importFile').click()">⬆ استعادة نسخة</button>
   <input id="importFile" type="file" accept=".json,application/json" class="hidden" onchange="importBackup(event)">
@@ -1017,6 +1021,7 @@ fillInfo();renderAll();
 if(localStorage.getItem("nbe_sales_theme")==="dark")document.body.classList.add("dark");
 </script>
 <script src="./crm.js"></script>
+<script src="./security.js"></script>
 <script>
 if ("serviceWorker" in navigator) {
  window.addEventListener("load", () => {
