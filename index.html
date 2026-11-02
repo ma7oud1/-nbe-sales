@@ -169,6 +169,16 @@ tr:hover td{background:rgba(8,116,67,.035)}
  }
 }
 
+/* عمليات السداد المتعددة في حاسبة الكارت */
+.ci-payments{display:grid;gap:10px;margin:12px 0 18px}
+.ci-payment-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:10px;align-items:end;padding:12px;border:1px solid var(--border-color,#ddd);border-radius:12px;background:var(--card-bg,transparent)}
+.ci-payment-row .field{margin:0}
+.ci-payment-row .field label{display:block;margin-bottom:6px}
+.ci-payment-row input{width:100%;min-width:0}
+.ci-remove{height:42px;white-space:nowrap}
+.ci-payments-heading{margin-top:22px}
+@media(max-width:520px){.ci-payment-row{grid-template-columns:1fr 1fr}.ci-remove{grid-column:1/-1;width:100%}}
+
 /* حاسبة فوائد الكارت */
 .calculator-section .calculator-results{grid-template-columns:repeat(4,minmax(0,1fr))}
 .calculator-section .stat strong{font-size:clamp(17px,2.5vw,24px);overflow-wrap:anywhere}
@@ -521,22 +531,21 @@ function buildAppPages(){
  calculator.innerHTML=`
   <div class="section-title"><h2>حاسبة فوائد مديونية كارت الائتمان</h2><span class="badge">CREDIT CARD INTEREST</span></div>
   <div class="form-grid">
-   <div class="field"><label for="ciBalance">إجمالي المديونية قبل السداد (جنيه)</label><input id="ciBalance" type="number" min="0" step="0.01" value="10000"></div>
-   <div class="field"><label for="ciBeforeDays">عدد أيام المديونية قبل السداد</label><input id="ciBeforeDays" type="number" min="0" step="1" value="15"></div>
-   <div class="field"><label for="ciPayment">مبلغ السداد (جنيه)</label><input id="ciPayment" type="number" min="0" step="0.01" value="3000"></div>
-   <div class="field"><label for="ciAfterDays">عدد الأيام بعد السداد حتى نهاية الشهر</label><input id="ciAfterDays" type="number" min="0" step="1" value="15"></div>
+   <div class="field"><label for="ciBalance">إجمالي المديونية في بداية الشهر (جنيه)</label><input id="ciBalance" type="number" min="0" step="0.01" value="20000"></div>
    <div class="field"><label for="ciMonthDays">عدد أيام الشهر</label><input id="ciMonthDays" type="number" min="1" step="1" value="30"></div>
    <div class="field"><label for="ciRate">نسبة الفائدة الشهرية (%)</label><input id="ciRate" type="number" min="0" step="0.01" value="3.5"></div>
   </div>
-  <div class="actions no-print"><button class="btn primary" type="button" onclick="calculateCardInterest()">احسب الفائدة</button><button class="btn light-btn" type="button" onclick="resetCardInterest()">إعادة القيم الافتراضية</button></div>
+  <div class="section-title ci-payments-heading"><h2>عمليات السداد</h2><span class="badge">تقدر تضيف أي عدد من الدفعات</span></div>
+  <div id="ciPayments" class="ci-payments"></div>
+  <div class="actions no-print"><button class="btn light-btn" type="button" onclick="addCardPaymentRow()">＋ إضافة عملية سداد</button><button class="btn primary" type="button" onclick="calculateCardInterest()">احسب الفائدة</button><button class="btn light-btn" type="button" onclick="resetCardInterest()">إعادة القيم الافتراضية</button></div>
   <div class="stats calculator-results">
-   <div class="stat gold"><small>قيمة الفائدة</small><strong id="ciInterest">0.00</strong></div>
+   <div class="stat gold"><small>إجمالي الفائدة</small><strong id="ciInterest">0.00</strong></div>
    <div class="stat navy"><small>المتبقي من المديونية</small><strong id="ciRemaining">0.00</strong></div>
    <div class="stat"><small>إجمالي المطلوب (المتبقي + الفائدة)</small><strong id="ciTotal">0.00</strong></div>
-   <div class="stat red"><small>المبلغ بعد السداد</small><strong id="ciAfterPayment">0.00</strong></div>
+   <div class="stat red"><small>إجمالي مبالغ السداد</small><strong id="ciPaid">0.00</strong></div>
   </div>
-  <div class="note" id="ciEquation" aria-live="polite">أدخل البيانات واضغط «احسب الفائدة» لعرض التعويض في المعادلة.</div>
-  <div class="note">المعادلة: الفائدة = [(المديونية × أيام ما قبل السداد) + (المديونية المتبقية بعد السداد × أيام ما بعد السداد)] ÷ أيام الشهر × نسبة الفائدة. تأكد من إدخال عدد الأيام وفق كشف حساب البنك؛ هذه الحاسبة أداة تقديرية وليست بديلاً عن كشف الحساب الرسمي.</div>
+  <div class="note" id="ciEquation" aria-live="polite">أدخل المديونية وأضف عمليات السداد مع يوم كل عملية، ثم اضغط «احسب الفائدة».</div>
+  <div class="note">طريقة الحساب: يتم تقسيم الشهر إلى فترات حسب أيام السداد. تُحسب الفائدة على الرصيد القائم في كل فترة، ثم يُخصم مبلغ السداد في يومه. مثال: سداد يوم 5 ثم يوم 15 يعني احتساب 5 أيام على الرصيد الأصلي، ثم 10 أيام على الرصيد بعد السداد الأول، وهكذا. هذه حاسبة تقديرية؛ راجع طريقة احتساب البنك وكشف الحساب الرسمي.</div>
   <div class="footer">تم إنشاء الحاسبة بواسطة محمود محمد رزق</div>
  `;
  pages.calculator.append(calculator);
@@ -843,35 +852,77 @@ function deleteArchive(date){
  renderAll();
 }
 function renderAll(){renderSummaries();renderLedger();renderArchive();renderPerformance();renderFollowups();}
+let cardPaymentRowCounter=0;
+function addCardPaymentRow(amount="",day=""){
+ const host=$("ciPayments");
+ if(!host)return;
+ const id=++cardPaymentRowCounter;
+ const row=document.createElement("div");
+ row.className="ci-payment-row";
+ row.dataset.paymentId=String(id);
+ row.innerHTML='<div class="field"><label>مبلغ السداد (جنيه)</label><input class="ci-payment-amount" type="number" min="0" step="0.01" placeholder="مثال: 3000"></div>'+
+  '<div class="field"><label>يوم السداد من الشهر</label><input class="ci-payment-day" type="number" min="1" step="1" placeholder="من 1 إلى 31"></div>'+
+  '<button class="btn light-btn ci-remove no-print" type="button" aria-label="حذف عملية السداد">حذف</button>';
+ row.querySelector(".ci-payment-amount").value=amount;
+ row.querySelector(".ci-payment-day").value=day;
+ row.querySelector(".ci-remove").addEventListener("click",()=>{row.remove();});
+ host.append(row);
+}
 function calculateCardInterest(){
  const balance=Number($("ciBalance").value);
- const beforeDays=Number($("ciBeforeDays").value);
- const payment=Number($("ciPayment").value);
- const afterDays=Number($("ciAfterDays").value);
  const monthDays=Number($("ciMonthDays").value);
  const rate=Number($("ciRate").value);
- const vals=[balance,beforeDays,payment,afterDays,monthDays,rate];
- if(vals.some(v=>!Number.isFinite(v)||v<0)||monthDays<=0){alert("راجع القيم المدخلة؛ يجب أن تكون موجبة وعدد أيام الشهر أكبر من صفر.");return;}
- if(beforeDays+afterDays>monthDays){alert("مجموع أيام ما قبل السداد وما بعده لا يمكن أن يتجاوز عدد أيام الشهر.");return;}
- if(payment>balance){alert("مبلغ السداد لا يمكن أن يكون أكبر من إجمالي المديونية.");return;}
- const remaining=balance-payment;
- const interest=(((balance*beforeDays)+(remaining*afterDays))/monthDays)*(rate/100);
+ if(!Number.isFinite(balance)||balance<0||!Number.isInteger(monthDays)||monthDays<=0||!Number.isFinite(rate)||rate<0){
+  alert("راجع المديونية ونسبة الفائدة وعدد أيام الشهر.");return;
+ }
+ const rows=[...document.querySelectorAll("#ciPayments .ci-payment-row")];
+ const payments=[];
+ for(let i=0;i<rows.length;i++){
+  const amount=Number(rows[i].querySelector(".ci-payment-amount").value);
+  const day=Number(rows[i].querySelector(".ci-payment-day").value);
+  if(!Number.isFinite(amount)||amount<=0||!Number.isInteger(day)||day<1||day>monthDays){
+   alert("أكمل مبلغ ويوم كل عملية سداد، وتأكد أن يوم السداد بين 1 وعدد أيام الشهر.");return;
+  }
+  payments.push({amount,day,index:i+1});
+ }
+ payments.sort((a,b)=>a.day-b.day||a.index-b.index);
+ const paid=payments.reduce((sum,p)=>sum+p.amount,0);
+ if(paid>balance+0.000001){alert("إجمالي مبالغ السداد أكبر من المديونية الأصلية.");return;}
+ let remaining=balance,previousDay=0,interest=0;
+ const lines=[];
+ payments.forEach((p)=>{
+  const days=p.day-previousDay;
+  const segmentInterest=remaining*(days/monthDays)*(rate/100);
+  interest+=segmentInterest;
+  lines.push("من يوم "+(previousDay+1)+" إلى يوم "+p.day+": "+days+" يوم × رصيد "+fmtCardMoney(remaining)+" × "+rate+"% ÷ "+monthDays+" = "+fmtCardMoney(segmentInterest)+" جنيه");
+  remaining-=p.amount;
+  previousDay=p.day;
+  lines.push("سداد "+fmtCardMoney(p.amount)+" جنيه يوم "+p.day+" ← الرصيد "+fmtCardMoney(remaining)+" جنيه");
+ });
+ const lastDays=monthDays-previousDay;
+ if(lastDays>0){
+  const segmentInterest=remaining*(lastDays/monthDays)*(rate/100);
+  interest+=segmentInterest;
+  lines.push("من بعد يوم "+previousDay+" حتى نهاية الشهر: "+lastDays+" يوم × رصيد "+fmtCardMoney(remaining)+" × "+rate+"% ÷ "+monthDays+" = "+fmtCardMoney(segmentInterest)+" جنيه");
+ }
  const total=remaining+interest;
- const fmt=n=>n.toLocaleString("en-EG",{minimumFractionDigits:2,maximumFractionDigits:2});
- $("ciInterest").textContent=fmt(interest)+" جنيه";
- $("ciRemaining").textContent=fmt(remaining)+" جنيه";
- $("ciTotal").textContent=fmt(total)+" جنيه";
- $("ciAfterPayment").textContent=fmt(remaining)+" جنيه";
- $("ciEquation").innerHTML=
-  "التعويض في المعادلة:<br>"+
-  "[("+fmt(balance)+" × "+beforeDays+") + ("+fmt(remaining)+" × "+afterDays+")] ÷ "+monthDays+" × "+rate+"%"+
-  "<br>الفائدة = "+fmt(interest)+" جنيه"+
-  "<br>المتبقي بعد السداد = "+fmt(balance)+" − "+fmt(payment)+" = "+fmt(remaining)+" جنيه"+
-  "<br><strong>الإجمالي المطلوب = "+fmt(remaining)+" + "+fmt(interest)+" = "+fmt(total)+" جنيه</strong>";
+ $("ciInterest").textContent=fmtCardMoney(interest)+" جنيه";
+ $("ciRemaining").textContent=fmtCardMoney(remaining)+" جنيه";
+ $("ciTotal").textContent=fmtCardMoney(total)+" جنيه";
+ $("ciPaid").textContent=fmtCardMoney(paid)+" جنيه";
+ $("ciEquation").innerHTML="<strong>تفصيل الحساب حسب كل فترة:</strong><br>"+(lines.length?lines.join("<br>"):"لا توجد عمليات سداد؛ الفائدة محسوبة على كامل المديونية طوال الشهر.")+
+  "<br><strong>إجمالي الفائدة = "+fmtCardMoney(interest)+" جنيه</strong>"+
+  "<br>إجمالي السداد = "+fmtCardMoney(paid)+" جنيه"+
+  "<br>المتبقي = "+fmtCardMoney(remaining)+" جنيه"+
+  "<br><strong>الإجمالي المطلوب = "+fmtCardMoney(remaining)+" + "+fmtCardMoney(interest)+" = "+fmtCardMoney(total)+" جنيه</strong>";
+}
+function fmtCardMoney(n){
+ return n.toLocaleString("en-EG",{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 function resetCardInterest(){
- $("ciBalance").value=10000;$("ciBeforeDays").value=15;$("ciPayment").value=3000;
- $("ciAfterDays").value=15;$("ciMonthDays").value=30;$("ciRate").value=3.5;
+ $("ciBalance").value=20000;$("ciMonthDays").value=30;$("ciRate").value=3.5;
+ $("ciPayments").innerHTML="";cardPaymentRowCounter=0;
+ addCardPaymentRow(3000,5);addCardPaymentRow(2000,15);addCardPaymentRow(1000,23);
  calculateCardInterest();
 }
 function toggleTheme(){
@@ -954,7 +1005,7 @@ function importBackup(event){
 }
 buildAppPages();
 showPage("home");
-calculateCardInterest();
+resetCardInterest();
 loadStorage();
 loadTargets();
 loadFollowups();
