@@ -59,7 +59,7 @@ async function doUnlock(pass){
  const data=await decrypt(blob,key);
  if(meta.biometricId){try{await verifyBiometric(meta.biometricId);}catch(bioError){if(confirm("تعذر التحقق بالبصمة. هل تريد المتابعة بكلمة المرور فقط وتعطيل البصمة لهذا الجهاز؟")){meta.biometricId=null;localStorage.setItem(META,JSON.stringify(meta));}else throw bioError;}}
  rawKey=key;sessionStorage.setItem(SESSION,b64(await crypto.subtle.exportKey("raw",key)));
- restore(data);hide();refreshApp();bioButton.hidden=!!meta.biometricId;
+ restore(data);hide();refreshApp();bioButton.hidden=!!meta.biometricId;syncBiometricSettings();
 }
 async function lock(){
  if(!rawKey)return;
@@ -87,7 +87,7 @@ async function registerBiometric(){
   }});
   if(!cred)throw new Error("لم يكتمل تسجيل البصمة.");
   meta.biometricId=b64url(cred.rawId);localStorage.setItem(META,JSON.stringify(meta));
-  bioButton.textContent="✓ البصمة مفعّلة على هذا الجهاز";bioButton.disabled=true;
+  bioButton.textContent="✓ البصمة مفعّلة على هذا الجهاز";bioButton.disabled=true;\n  const settingsBio=document.getElementById("nbeBiometricSettingsBtn"),bioStatus=document.getElementById("nbeBioStatus");\n  if(settingsBio){settingsBio.textContent="✓ البصمة مفعّلة على هذا الجهاز";settingsBio.disabled=true;}\n  if(bioStatus)bioStatus.textContent="تم تسجيل وسيلة التحقق على هذا الجهاز.";
   alert("تم تسجيل وسيلة التحقق على هذا الجهاز. عند فتح البرنامج ستحتاج كلمة المرور ثم تأكيد البصمة.");
  }catch(e){alert(e.message||"تعذر تفعيل البصمة.");}
 }
@@ -118,7 +118,7 @@ async function decryptBackup(payload,pass){
  const key=await derive(pass,un64(payload.salt));
  return decrypt({iv:payload.iv,data:payload.data},key);
 }
-window.NBESecurity={lock:lock,registerBiometric:registerBiometric,encryptBackup:encryptBackup,decryptBackup:decryptBackup};
+window.NBESecurity={lock:lock,registerBiometric:registerBiometric,encryptBackup:encryptBackup,decryptBackup:decryptBackup};\nfunction syncBiometricSettings(){\n const btn=document.getElementById("nbeBiometricSettingsBtn"),status=document.getElementById("nbeBioStatus");\n if(btn&&meta&&meta.biometricId){btn.textContent="✓ البصمة مفعّلة على هذا الجهاز";btn.disabled=true;}\n if(status&&meta&&meta.biometricId)status.textContent="تم تسجيل وسيلة التحقق على هذا الجهاز.";\n}
 async function init(){
  try{
   if(!crypto.subtle||!location.protocol.startsWith("https"))throw new Error("يلزم فتح البرنامج عبر HTTPS لتشغيل التشفير والبصمة.");
@@ -132,7 +132,7 @@ async function init(){
   const sessionKey=sessionStorage.getItem(SESSION);
   if(sessionKey){
    rawKey=await crypto.subtle.importKey("raw",un64(sessionKey),{name:"AES-GCM"},false,["encrypt","decrypt"]);
-   hide();bioButton.hidden=!!meta.biometricId;return;
+   hide();bioButton.hidden=!!meta.biometricId;syncBiometricSettings();return;
   }
   title.textContent="البرنامج مقفول";
   message.textContent=meta.biometricId?"أدخل كلمة المرور ثم أكد هويتك بالبصمة.":"أدخل كلمة المرور لفك تشفير بياناتك وفتح البرنامج.";
