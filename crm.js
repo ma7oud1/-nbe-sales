@@ -6,15 +6,11 @@ let customers=[];
 const style=document.createElement("style");
 style.textContent=".crm-warning{padding:13px;border:1px solid #d7a84b;background:#fff8e7;color:#704d08;border-radius:12px;line-height:1.8;font-size:13px;margin-bottom:18px}.crm-section{margin-top:18px}.crm-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.crm-form input,.crm-toolbar input,.crm-toolbar select{width:100%;min-width:0;padding:11px;border:1px solid var(--border);border-radius:9px;background:var(--card);color:var(--text)}.crm-form-actions{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}.crm-toolbar{display:grid;grid-template-columns:1fr 180px;gap:10px;margin:12px 0}.crm-list{display:grid;gap:10px}.crm-card{border:1px solid var(--border);border-radius:12px;padding:14px;background:var(--card)}.crm-card h3{margin:0 0 8px;color:var(--green);font-size:16px}.crm-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;font-size:12px;color:var(--muted);line-height:1.7;margin-top:10px}.crm-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.crm-backup{border-top:1px solid var(--border);margin-top:24px;padding-top:16px}.crm-empty{text-align:center;color:var(--muted);padding:25px;border:1px dashed var(--border);border-radius:12px}body.dark .crm-warning{background:#3b301c;color:#f6dda0;border-color:#80652c}@media(max-width:620px){.crm-form,.crm-toolbar{grid-template-columns:1fr}.crm-meta{grid-template-columns:1fr 1fr}}";
 document.head.appendChild(style);
-const nav=document.getElementById("mainNav");
-if(nav&&!nav.querySelector('[data-page="crm"]')){
- const b=document.createElement("button");b.className="nav-btn";b.dataset.page="crm";b.innerHTML='<span class="nav-icon">🗃️</span><span>CRM</span>';b.addEventListener("click",function(){window.showPage("crm");});nav.appendChild(b);
- nav.style.gridTemplateColumns="repeat(8,minmax(0,1fr))";
-}
 const host=document.getElementById("pageHost");
 if(!host)return;
-const page=document.createElement("section");page.className="app-page crm-page";page.dataset.page="crm";
-page.innerHTML='<div class="page-heading"><h2>إدارة العملاء CRM</h2><p>ملفات العملاء والمتابعة — نسخة تجريبية ببيانات وهمية</p></div>'+
+const page=host.querySelector('.app-page[data-page="customers"]');
+if(!page)return;
+page.insertAdjacentHTML("beforeend",=''+
 '<div class="section crm-section"><div class="crm-warning"><strong>تنبيه أمان:</strong> هذه نسخة تجريبية فقط. لا تدخل بيانات عملاء حقيقية أو أرقامًا قومية أو بيانات بنكية، ولا ترفعها إلى Google Drive شخصي. استخدم أرقامًا وهمية للاختبار.</div>'+
 '<div class="section-title"><h2 id="crmFormTitle">إضافة عميل جديد</h2><span class="badge">CUSTOMER CRM</span></div>'+
 '<form id="crmForm" class="crm-form">'+
@@ -31,8 +27,7 @@ page.innerHTML='<div class="page-heading"><h2>إدارة العملاء CRM</h2>
 '<div class="crm-toolbar"><input id="crmSearch" type="search" placeholder="بحث بالاسم أو الهاتف أو الرقم التجريبي أو جهة العمل"><select id="crmFilter"><option value="all">كل الحالات</option><option>جديد</option><option>جاري التواصل</option><option>مستوفي</option><option>تم البيع</option><option>غير نشط</option></select></div>'+
 '<div id="crmList" class="crm-list"></div>'+
 '<div class="crm-backup"><h3>النسخ الاحتياطي التجريبي</h3><p>نزّل ملف JSON ثم ارفعه يدويًا إلى Google Drive. للاستعادة، اختر ملف النسخة من جهازك. هذه ليست مزامنة تلقائية أو قاعدة بيانات مباشرة.</p>'+
-'<div class="actions no-print"><button class="btn primary" type="button" id="crmExport">تنزيل نسخة احتياطية</button><button class="btn light-btn" type="button" id="crmImportBtn">استعادة نسخة</button><button class="btn light-btn" type="button" id="crmDrive">فتح Google Drive</button><input id="crmFile" type="file" accept="application/json,.json" hidden></div></div></div>';
-host.appendChild(page);
+'<div class="actions no-print"><button class="btn primary" type="button" id="crmExport">تنزيل نسخة احتياطية</button><button class="btn light-btn" type="button" id="crmImportBtn">استعادة نسخة</button><button class="btn light-btn" type="button" id="crmDrive">فتح Google Drive</button><input id="crmFile" type="file" accept="application/json,.json" hidden></div></div></div>');
 function el(id){return document.getElementById(id);}
 function safe(v){return String(v||"").replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY)||"[]");customers=Array.isArray(x)?x:[];}catch(e){customers=[];}render();}
@@ -67,21 +62,18 @@ el("crmList").addEventListener("click",function(e){
  if(b.dataset.archive){c.archived=!c.archived;c.status=c.archived?"غير نشط":(c.status==="غير نشط"?"جاري التواصل":c.status);c.updatedAt=new Date().toISOString();c.history=(c.history||[]).concat([{at:c.updatedAt,action:c.archived?"تعطيل العميل":"إعادة تنشيط العميل"}]);save();}
  if(b.dataset.history){alert("سجل العميل: "+c.name+"\\n"+(c.history||[]).map(h=>new Date(h.at).toLocaleString("ar-EG")+" — "+h.action).join("\\n"));}
 });
-el("crmExport").addEventListener("click",async function(){
- const pass=prompt("أنشئ كلمة مرور لنسخة CRM الاحتياطية (10 أحرف على الأقل)");if(!pass)return;
- try{
-  const payload={app:"NBE Sales CRM Demo",version:1,exportedAt:new Date().toISOString(),customers:customers};
-  const protectedFile=await window.NBESecurity.encryptBackup(payload,pass);
-  const blob=new Blob([JSON.stringify(protectedFile,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="nbe-crm-encrypted-backup.json";a.click();URL.revokeObjectURL(url);
- }catch(e){alert(e.message||"تعذر إنشاء النسخة المشفرة.");}
+el("crmExport").addEventListener("click",function(){
+ if(!confirm("سيتم تنزيل نسخة CRM غير مشفرة. لا تضع فيها بيانات عملاء حقيقية. هل تريد المتابعة؟"))return;
+ const payload={app:"NBE Sales CRM Demo",version:1,exportedAt:new Date().toISOString(),customers:customers};
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="nbe-crm-demo-backup.json";a.click();URL.revokeObjectURL(url);
 });
 el("crmImportBtn").addEventListener("click",function(){el("crmFile").click();});
 el("crmDrive").addEventListener("click",function(){window.open("https://drive.google.com/drive/my-drive","_blank","noopener");});
 el("crmFile").addEventListener("change",function(e){
  const file=e.target.files&&e.target.files[0];if(!file)return;
- const reader=new FileReader();reader.onload=async function(){
-  try{let p=JSON.parse(reader.result);if(p.app==="NBE Sales Encrypted Backup"){const pass=prompt("أدخل كلمة مرور ملف النسخة الاحتياطية");if(!pass){e.target.value="";return;}p=await window.NBESecurity.decryptBackup(p,pass);}else if(!confirm("هذه نسخة CRM قديمة غير مشفرة. هل تريد استيرادها؟")){e.target.value="";return;}if(p.app!=="NBE Sales CRM Demo"||!Array.isArray(p.customers))throw new Error("bad");
+ const reader=new FileReader();reader.onload=function(){
+  try{const p=JSON.parse(reader.result);if(!confirm("سيتم استيراد نسخة CRM تجريبية غير مشفرة. هل تريد المتابعة؟")){e.target.value="";return;}if(p.app!=="NBE Sales CRM Demo"||!Array.isArray(p.customers))throw new Error("bad");
    const seen=new Set();p.customers.forEach(c=>{if(!c.id||!/^\d{14}$/.test(String(c.national||""))||seen.has(c.national))throw new Error("bad");seen.add(c.national);});
    if(confirm("سيتم استبدال السجل الحالي بالنسخة المختارة. هل تريد المتابعة؟")){customers=p.customers;save();alert("تمت استعادة النسخة التجريبية.");}
   }catch(err){alert("ملف النسخة غير صالح أو لا يخص CRM التجريبي.");}e.target.value="";
