@@ -43,17 +43,37 @@ button{cursor:pointer}
 .section-title h2{font-size:17px;margin:0;color:var(--green)}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 
-/* بيانات التقرير: بطاقة جانبية يسار الصفحة وحقول رأسية */
-.info-section{
- width:min(100%,350px);
- margin-right:auto;
- margin-left:0;
+/* بيانات التقرير: تثبيت البطاقة فعلياً في الركن العلوي الأيسر */
+#pageHost .home-page > .info-section{
+ display:block!important;
+ float:left!important;
+ clear:both!important;
+ width:350px!important;
+ max-width:100%!important;
+ margin:0 auto 18px 0!important;
+ direction:rtl;
 }
-.info-section .grid{grid-template-columns:1fr;gap:11px}
-.info-section .actions{flex-direction:column}
-.info-section .actions .btn{width:100%}
+#pageHost .home-page > .info-section .grid{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ gap:11px!important;
+}
+#pageHost .home-page > .info-section .section-title{
+ justify-content:flex-start;
+}
+#pageHost .home-page > .info-section .section-title .badge{margin-right:auto}
+#pageHost .home-page > .info-section .actions{
+ display:flex!important;
+ flex-direction:column!important;
+}
+#pageHost .home-page > .info-section .actions .btn{width:100%!important}
+#pageHost .home-page > .stats{clear:both!important}
 @media(max-width:800px){
- .info-section{width:100%;margin:18px 0 0}
+ #pageHost .home-page > .info-section{
+  float:none!important;
+  width:100%!important;
+  margin:0 0 18px!important;
+ }
 }
 
 .field{display:flex;flex-direction:column;gap:7px}
