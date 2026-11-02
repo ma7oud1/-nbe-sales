@@ -811,7 +811,6 @@ function buildAppPages(){
    <div class="stat red"><small>إجمالي المدفوعات</small><strong id="loanResultTotal">0.00</strong></div>
   </div>
   <div class="note" id="loanResultNote" aria-live="polite">اختر نوع الحساب وأدخل البيانات ثم اضغط «احسب الآن».</div>
-  <div class="note">الحاسبة تقديرية وتعتمد على سعر العائد المدخل والمدة وتواريخ السداد الإضافي. النتائج الفعلية قد تختلف حسب قواعد البنك والرسوم والتأمين وتاريخ الاستحقاق.</div>
   <div class="footer">تم إنشاء الحاسبة بواسطة محمود محمد رزق</div>
  `;
  pages["loan-calculator"].append(loanCalculator);
@@ -1190,7 +1189,7 @@ function setLoanMode(mode){
  $("loanModePrincipal").className=principalMode?"btn primary":"btn light-btn";
  $("loanModePayment").className=principalMode?"btn light-btn":"btn primary";
  $("loanResults").style.display="none";
- $("loanResultNote").textContent=principalMode?"أدخل القسط الشهري وسعر العائد والمدة لحساب قيمة القرض الممكنة.":"أدخل قيمة القرض وسعر العائد والمدة لحساب القسط الشهري.";
+ $("loanResultNote").textContent="";
 }
 function loanAddMonths(date,months){
  const d=new Date(date.getFullYear(),date.getMonth()+months,1);
