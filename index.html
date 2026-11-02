@@ -1595,7 +1595,17 @@ function importBackup(event){
    Object.keys(incoming).forEach(date=>{
     const source=incoming[date];
     if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!source||typeof source!=="object"||Array.isArray(source))return;
-    reports[date]={...source,cards:Array.isArray(source.cards)?source.cards:[],loans:Array.isArray(source.loans)?source.loans:[]};
+    const existing=reports[date]&&typeof reports[date]==="object"?reports[date]:{};
+    const mergeRows=(oldRows,newRows)=>{
+     const merged=new Map();
+     [...(Array.isArray(oldRows)?oldRows:[]),...(Array.isArray(newRows)?newRows:[])].forEach((item,index)=>{
+      if(!item||typeof item!=="object")return;
+      const key=String(item.id??[item.national,item.mobile,item.code,item.type,item.amount,index].join("|"));
+      merged.set(key,{...(merged.get(key)||{}),...item});
+     });
+     return Array.from(merged.values());
+    };
+    reports[date]={...existing,...source,cards:mergeRows(existing.cards,source.cards),loans:mergeRows(existing.loans,source.loans)};
     importedReports++;
    });
    persist();
