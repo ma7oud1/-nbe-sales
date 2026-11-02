@@ -493,7 +493,7 @@ body.dark .light-btn{background:#203238}
 </header>
 <nav id="mainNav" aria-label="التنقل الرئيسي">
  <button class="nav-btn active" data-page="home" onclick="showPage('home')" aria-label="الرئيسية"><span class="nav-icon">🏠</span></button>
- <button class="nav-btn" data-page="calculator" onclick="showPage('calculator')"><span class="nav-icon">🧮</span><span>الحاسبة</span></button>
+ <button class="nav-btn" data-page="calculator" onclick="showPage('calculator')"><span class="nav-icon">🧮</span><span>حساب فائدة المديونية الشهرية</span></button>
  <button class="nav-btn" data-page="archive" onclick="showPage('archive')"><span class="nav-icon">🗂️</span><span>الأرشيف</span></button>
  <button class="nav-btn" data-page="settings" onclick="showPage('settings')"><span class="nav-icon">⚙️</span><span>الإعدادات</span></button>
 </nav>
@@ -714,7 +714,7 @@ function buildAppPages(){
  const config=[
   ["home","",""],
   ["sales","المبيعات","تسجيل الكروت والقروض ومراجعة سجل العمليات"],
-  ["calculator","حاسبة فوائد الكارت","حساب فائدة المديونية الشهرية بنسبة قابلة للتعديل"],
+  ["calculator","حساب فائدة المديونية الشهرية","حساب فائدة المديونية الشهرية بنسبة قابلة للتعديل"],
   ["customers","إدارة العملاء CRM","ملفات العملاء وبياناتهم وسجلهم"],
   ["followups","متابعة العملاء","إضافة ومراجعة مواعيد ونتائج التواصل مع العملاء"],
   ["archive","الأرشيف","التقارير اليومية المحفوظة"],
@@ -758,7 +758,7 @@ function buildAppPages(){
  const calculator=document.createElement("div");
  calculator.className="section calculator-section";
  calculator.innerHTML=`
-  <div class="section-title"><h2>حاسبة فوائد مديونية كارت الائتمان</h2><span class="badge">CREDIT CARD INTEREST</span></div>
+  <div class="section-title"><h2>حساب فائدة المديونية الشهرية</h2><span class="badge">CREDIT CARD INTEREST</span></div>
   <div class="form-grid">
    <div class="field"><label for="ciBalance">إجمالي المديونية في بداية الشهر (جنيه)</label><input id="ciBalance" type="number" min="0" step="0.01" value="20000"></div>
    <div class="field"><label for="ciMonthDays">عدد أيام الشهر</label><input id="ciMonthDays" type="number" min="1" step="1" value="30"></div>
