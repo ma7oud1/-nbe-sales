@@ -169,11 +169,18 @@ tr:hover td{background:rgba(8,116,67,.035)}
  }
 }
 
+/* حاسبة فوائد الكارت */
+.calculator-section .calculator-results{grid-template-columns:repeat(4,minmax(0,1fr))}
+.calculator-section .stat strong{font-size:clamp(17px,2.5vw,24px);overflow-wrap:anywhere}
+#ciEquation{font-size:13px;line-height:2;direction:rtl;overflow-wrap:anywhere}
+@media(max-width:800px){.calculator-section .calculator-results{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.calculator-section .calculator-results{grid-template-columns:1fr 1fr}.calculator-section .stat{padding:12px}}
+
 /* تقسيم التطبيق إلى صفحات مع شريط تنقل سفلي */
 body{padding-bottom:86px}
 #mainNav{
  position:fixed;z-index:1000;bottom:0;left:0;right:0;
- display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;
+ display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;
  padding:8px max(10px,calc((100vw - 1250px)/2)) calc(8px + env(safe-area-inset-bottom));
  background:var(--card);border-top:1px solid var(--border);
  box-shadow:0 -5px 22px rgba(20,50,40,.09)
@@ -238,6 +245,7 @@ body{padding-bottom:86px}
 <nav id="mainNav" aria-label="التنقل الرئيسي">
  <button class="nav-btn active" data-page="home" onclick="showPage('home')"><span class="nav-icon">🏠</span><span>الرئيسية</span></button>
  <button class="nav-btn" data-page="sales" onclick="showPage('sales')"><span class="nav-icon">💳</span><span>المبيعات</span></button>
+ <button class="nav-btn" data-page="calculator" onclick="showPage('calculator')"><span class="nav-icon">🧮</span><span>الحاسبة</span></button>
  <button class="nav-btn" data-page="customers" onclick="showPage('customers')"><span class="nav-icon">👥</span><span>العملاء</span></button>
  <button class="nav-btn" data-page="targets" onclick="showPage('targets')"><span class="nav-icon">🎯</span><span>الأهداف</span></button>
  <button class="nav-btn" data-page="archive" onclick="showPage('archive')"><span class="nav-icon">🗂️</span><span>الأرشيف</span></button>
@@ -481,6 +489,7 @@ function buildAppPages(){
  const config=[
   ["home","الرئيسية","نظرة عامة على تقرير اليوم وأداء المبيعات"],
   ["sales","المبيعات","تسجيل الكروت والقروض ومراجعة سجل العمليات"],
+  ["calculator","حاسبة فوائد الكارت","حساب فائدة المديونية الشهرية بنسبة قابلة للتعديل"],
   ["customers","العملاء","تنظيم مواعيد التواصل ومتابعة العملاء"],
   ["targets","الأهداف","متابعة المستهدف الشهري ونسب الإنجاز"],
   ["archive","الأرشيف","التقارير اليومية المحفوظة"],
@@ -507,6 +516,30 @@ function buildAppPages(){
  move(".followup-section","customers");
  move(".performance-section","targets");
  move(".archive-section","archive");
+ const calculator=document.createElement("div");
+ calculator.className="section calculator-section";
+ calculator.innerHTML=`
+  <div class="section-title"><h2>حاسبة فوائد مديونية كارت الائتمان</h2><span class="badge">CREDIT CARD INTEREST</span></div>
+  <div class="form-grid">
+   <div class="field"><label for="ciBalance">إجمالي المديونية قبل السداد (جنيه)</label><input id="ciBalance" type="number" min="0" step="0.01" value="10000"></div>
+   <div class="field"><label for="ciBeforeDays">عدد أيام المديونية قبل السداد</label><input id="ciBeforeDays" type="number" min="0" step="1" value="15"></div>
+   <div class="field"><label for="ciPayment">مبلغ السداد (جنيه)</label><input id="ciPayment" type="number" min="0" step="0.01" value="3000"></div>
+   <div class="field"><label for="ciAfterDays">عدد الأيام بعد السداد حتى نهاية الشهر</label><input id="ciAfterDays" type="number" min="0" step="1" value="15"></div>
+   <div class="field"><label for="ciMonthDays">عدد أيام الشهر</label><input id="ciMonthDays" type="number" min="1" step="1" value="30"></div>
+   <div class="field"><label for="ciRate">نسبة الفائدة الشهرية (%)</label><input id="ciRate" type="number" min="0" step="0.01" value="3.5"></div>
+  </div>
+  <div class="actions no-print"><button class="btn primary" type="button" onclick="calculateCardInterest()">احسب الفائدة</button><button class="btn light-btn" type="button" onclick="resetCardInterest()">إعادة القيم الافتراضية</button></div>
+  <div class="stats calculator-results">
+   <div class="stat gold"><small>قيمة الفائدة</small><strong id="ciInterest">0.00</strong></div>
+   <div class="stat navy"><small>المتبقي من المديونية</small><strong id="ciRemaining">0.00</strong></div>
+   <div class="stat"><small>إجمالي المطلوب (المتبقي + الفائدة)</small><strong id="ciTotal">0.00</strong></div>
+   <div class="stat red"><small>المبلغ بعد السداد</small><strong id="ciAfterPayment">0.00</strong></div>
+  </div>
+  <div class="note" id="ciEquation" aria-live="polite">أدخل البيانات واضغط «احسب الفائدة» لعرض التعويض في المعادلة.</div>
+  <div class="note">المعادلة: الفائدة = [(المديونية × أيام ما قبل السداد) + (المديونية المتبقية بعد السداد × أيام ما بعد السداد)] ÷ أيام الشهر × نسبة الفائدة. تأكد من إدخال عدد الأيام وفق كشف حساب البنك؛ هذه الحاسبة أداة تقديرية وليست بديلاً عن كشف الحساب الرسمي.</div>
+  <div class="footer">تم إنشاء الحاسبة بواسطة محمود محمد رزق</div>
+ `;
+ pages.calculator.append(calculator);
  const settings=document.createElement("div");
  settings.className="settings-panel";
  settings.innerHTML='<h2>إدارة التطبيق والبيانات</h2><p>من هنا تقدر تعمل نسخة احتياطية من تقارير المبيعات والمستهدفات وسجل المتابعة أو تستعيد نسخة محفوظة. احتفظ بالنسخة في مكان آمن.</p>';
@@ -810,6 +843,37 @@ function deleteArchive(date){
  renderAll();
 }
 function renderAll(){renderSummaries();renderLedger();renderArchive();renderPerformance();renderFollowups();}
+function calculateCardInterest(){
+ const balance=Number($("ciBalance").value);
+ const beforeDays=Number($("ciBeforeDays").value);
+ const payment=Number($("ciPayment").value);
+ const afterDays=Number($("ciAfterDays").value);
+ const monthDays=Number($("ciMonthDays").value);
+ const rate=Number($("ciRate").value);
+ const vals=[balance,beforeDays,payment,afterDays,monthDays,rate];
+ if(vals.some(v=>!Number.isFinite(v)||v<0)||monthDays<=0){alert("راجع القيم المدخلة؛ يجب أن تكون موجبة وعدد أيام الشهر أكبر من صفر.");return;}
+ if(beforeDays+afterDays>monthDays){alert("مجموع أيام ما قبل السداد وما بعده لا يمكن أن يتجاوز عدد أيام الشهر.");return;}
+ if(payment>balance){alert("مبلغ السداد لا يمكن أن يكون أكبر من إجمالي المديونية.");return;}
+ const remaining=balance-payment;
+ const interest=(((balance*beforeDays)+(remaining*afterDays))/monthDays)*(rate/100);
+ const total=remaining+interest;
+ const fmt=n=>n.toLocaleString("en-EG",{minimumFractionDigits:2,maximumFractionDigits:2});
+ $("ciInterest").textContent=fmt(interest)+" جنيه";
+ $("ciRemaining").textContent=fmt(remaining)+" جنيه";
+ $("ciTotal").textContent=fmt(total)+" جنيه";
+ $("ciAfterPayment").textContent=fmt(remaining)+" جنيه";
+ $("ciEquation").innerHTML=
+  "التعويض في المعادلة:<br>"+
+  "[("+fmt(balance)+" × "+beforeDays+") + ("+fmt(remaining)+" × "+afterDays+")] ÷ "+monthDays+" × "+rate+"%"+
+  "<br>الفائدة = "+fmt(interest)+" جنيه"+
+  "<br>المتبقي بعد السداد = "+fmt(balance)+" − "+fmt(payment)+" = "+fmt(remaining)+" جنيه"+
+  "<br><strong>الإجمالي المطلوب = "+fmt(remaining)+" + "+fmt(interest)+" = "+fmt(total)+" جنيه</strong>";
+}
+function resetCardInterest(){
+ $("ciBalance").value=10000;$("ciBeforeDays").value=15;$("ciPayment").value=3000;
+ $("ciAfterDays").value=15;$("ciMonthDays").value=30;$("ciRate").value=3.5;
+ calculateCardInterest();
+}
 function toggleTheme(){
  document.body.classList.toggle("dark");
  localStorage.setItem("nbe_sales_theme",document.body.classList.contains("dark")?"dark":"light");
@@ -890,6 +954,7 @@ function importBackup(event){
 }
 buildAppPages();
 showPage("home");
+calculateCardInterest();
 loadStorage();
 loadTargets();
 loadFollowups();
