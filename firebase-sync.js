@@ -30,7 +30,7 @@ panel.innerHTML =
   '<div class="nbe-firebase-actions"><button type="button" class="btn primary" id="nbeGoogleLogin">تسجيل الدخول باستخدام Google</button><button type="button" class="btn secondary" id="nbeFirebaseTest" disabled>اختبار اتصال Firestore</button><button type="button" class="btn light-btn" id="nbeGoogleLogout" hidden>تسجيل الخروج</button></div>' +
   '<div class="nbe-sync-crypto"><h4>اختبار تشفير المزامنة</h4><p>اختبار محلي فقط: لا يتم حفظ كلمة المرور أو رفع أي بيانات.</p><label for="nbeSyncPass">كلمة مرور الاختبار (12 حرفًا على الأقل)</label><input id="nbeSyncPass" type="password" minlength="12" autocomplete="new-password" placeholder="اكتب كلمة مرور تجريبية"><label for="nbeSyncPassConfirm">تأكيد كلمة المرور</label><input id="nbeSyncPassConfirm" type="password" minlength="12" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور"><button type="button" class="btn secondary" id="nbeSyncCryptoTest">اختبار التشفير محليًا</button></div>' +
   '<div class="nbe-sync-live"><h4>المزامنة المشفرة بين الأجهزة</h4><p>استخدم نفس كلمة المرور على أجهزتك. لا تُحفظ كلمة المرور ولا تُرسل إلى Google؛ البيانات تُشفّر على جهازك قبل رفعها.</p><label for="nbeSyncRunPass">كلمة مرور المزامنة (12 حرفًا على الأقل)</label><input id="nbeSyncRunPass" type="password" minlength="12" autocomplete="new-password" placeholder="أدخل كلمة مرور المزامنة"><button type="button" class="btn primary" id="nbeSyncRun" disabled>فحص ومزامنة الآن</button></div>' +
-  '<p class="nbe-firebase-note">المزامنة يدوية فقط ولا تعمل في الخلفية. لا تُرفع البيانات إلا بعد تسجيل الدخول والضغط على زر المزامنة. عند وجود تعديلين مختلفين على جهازين، تتوقف المزامنة بدل استبدال أحدهما تلقائيًا. البيانات المحلية الحالية تظل كما هي على جهازك.</p>';
+  '<p class="nbe-firebase-note">المزامنة يدوية فقط ولا تعمل في الخلفية. لا تُرفع البيانات إلا بعد تسجيل الدخول والضغط على زر المزامنة. عند وجود تعديلين مختلفين على جهازين، تتوقف المزامنة بدل استبدال أحدهما تلقائيًا. لن تُستبدل بيانات جهازك عند الاستعادة إلا بعد تأكيد واضح. التشفير يحمي النسخة السحابية؛ أما التخزين المحلي في المتصفح فيظل كما هو حاليًا.</p>';
 const style = document.createElement("style");
 style.textContent =
   ".nbe-firebase-panel{margin-top:22px;padding:18px;border:1px solid var(--border);border-radius:16px;background:var(--bg)}" +
@@ -133,8 +133,8 @@ function snapshotSummary(snapshot) {
   try { followups = JSON.parse(v.followups || "[]"); } catch (_) {}
   try { crm = JSON.parse(v.crm || "[]"); } catch (_) {}
   const days = Object.values(reports);
-  const cards = days.reduce((n, r) => n + (Array.isArray(r.cards) ? r.cards.length : 0), 0);
-  const loans = days.reduce((n, r) => n + (Array.isArray(r.loans) ? r.loans.length : 0), 0);
+  const cards = days.reduce((n, r) => n + (r && Array.isArray(r.cards) ? r.cards.length : 0), 0);
+  const loans = days.reduce((n, r) => n + (r && Array.isArray(r.loans) ? r.loans.length : 0), 0);
   return cards + " كارت، " + loans + " قرض، " + followups.length + " متابعة، " + crm.length + " عميل";
 }
 async function encryptSnapshot(snapshot, password, salt) {
