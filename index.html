@@ -780,7 +780,7 @@ function buildAppPages(){
  pages.calculator.append(calculator);
  const settings=document.createElement("div");
  settings.className="settings-panel";
- settings.innerHTML='<h2>إدارة التطبيق والبيانات</h2><p>من هنا تقدر تعمل نسخة احتياطية من تقارير المبيعات وسجل المتابعة أو تستعيد نسخة محفوظة. النسخ الاحتياطية غير مشفرة؛ احتفظ بها في مكان آمن.</p>';
+ settings.innerHTML=`<h2>بيانات موظف المبيعات</h2><p>اكتب اسم الموظف ورقم السيلز مرة واحدة، وسيتم استخدامهما تلقائيًا في التقارير على هذا الجهاز. اتركهما فارغين إذا كنت ستشارك التطبيق مع زميل ليضبط بياناته بنفسه.</p><div class="form-grid" style="margin-top:14px"><div class="field"><label for="settingEmployee">اسم موظف المبيعات</label><input id="settingEmployee" type="text" maxlength="100" placeholder="اكتب اسم الموظف"></div><div class="field"><label for="settingSalesNo">رقم السيلز</label><input id="settingSalesNo" type="text" maxlength="30" placeholder="اكتب رقم السيلز"></div></div><div class="actions"><button class="btn primary" type="button" onclick="saveEmployeeSettings()">حفظ بيانات الموظف</button></div><hr style="border:0;border-top:1px solid var(--border);margin:22px 0"><h2>إدارة التطبيق والبيانات</h2><p>من هنا تقدر تعمل نسخة احتياطية من تقارير المبيعات وسجل المتابعة أو تستعيد نسخة محفوظة. النسخ الاحتياطية غير مشفرة؛ احتفظ بها في مكان آمن.</p>`;
  pages.settings.append(settings);
  const headerActions=container.querySelector(".header-actions");
  if(headerActions)settings.append(headerActions);
@@ -800,8 +800,9 @@ function showPage(id){
  window.scrollTo({top:0,behavior:"smooth"});
 }
 
-const EMPLOYEE="محمود محمد رزق";
-const SALES_NO="479511";
+let EMPLOYEE="";
+let SALES_NO="";
+const EMPLOYEE_SETTINGS_KEY="NBE_SALES_EMPLOYEE_SETTINGS_V1";
 const STORAGE_KEY="NBE_SALES_REPORTS_V1";
 const FOLLOWUPS_KEY="NBE_SALES_FOLLOWUPS_V1";
 let followups=[];
@@ -813,6 +814,27 @@ const $=id=>document.getElementById(id);
 function today(){
  const d=new Date();
  return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+}
+function loadEmployeeSettings(){
+ try{
+  const saved=JSON.parse(localStorage.getItem(EMPLOYEE_SETTINGS_KEY)||"{}");
+  EMPLOYEE=typeof saved.employee==="string"?saved.employee:"";
+  SALES_NO=typeof saved.salesNo==="string"?saved.salesNo:"";
+ }catch(e){EMPLOYEE="";SALES_NO="";}
+}
+function saveEmployeeSettings(){
+ EMPLOYEE=$("settingEmployee").value.trim();
+ SALES_NO=$("settingSalesNo").value.trim();
+ try{localStorage.setItem(EMPLOYEE_SETTINGS_KEY,JSON.stringify({employee:EMPLOYEE,salesNo:SALES_NO}));}
+ catch(e){alert("تعذر حفظ الإعدادات على هذا الجهاز.");return;}
+ if(currentDate){
+  const report=getReport();
+  report.employee=EMPLOYEE;
+  report.salesNo=SALES_NO;
+  persist();
+ }
+ fillInfo();
+ alert("تم حفظ بيانات موظف المبيعات بنجاح.");
 }
 function blank(date){
  return {date,employee:EMPLOYEE,salesNo:SALES_NO,cards:[],loans:[]};
@@ -923,6 +945,10 @@ function fillInfo(){
  $("reportDate").value=currentDate;
  $("employee").value=EMPLOYEE;
  $("salesNo").value=SALES_NO;
+ const settingEmployee=$("settingEmployee");
+ const settingSalesNo=$("settingSalesNo");
+ if(settingEmployee)settingEmployee.value=EMPLOYEE;
+ if(settingSalesNo)settingSalesNo.value=SALES_NO;
 }
 function showForm(type){
  $("cardForm").classList.toggle("hidden",type!=="card");
@@ -1189,6 +1215,7 @@ function importBackup(event){
  reader.readAsText(file);
 }
 buildAppPages();
+loadEmployeeSettings();
 showPage("home");
 resetCardInterest();
 loadStorage();
