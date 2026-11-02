@@ -28,7 +28,8 @@ panel.innerHTML =
     '<button type="button" class="btn secondary" id="nbeFirebaseTest" disabled>اختبار اتصال Firestore</button>' +
     '<button type="button" class="btn light-btn" id="nbeGoogleLogout" hidden>تسجيل الخروج</button>' +
   '</div>' +
-  '<p class="nbe-firebase-note">لن يتم رفع تقارير المبيعات أو العملاء في هذه المرحلة. اختبار الاتصال ينشئ سجلًا تجريبيًا مؤقتًا ثم يحذفه. سنضيف المزامنة لاحقًا بعد تشفير البيانات على جهازك.</p>';
+  '<div class="nbe-sync-crypto"><h4>اختبار تشفير المزامنة</h4><p>اختبار محلي فقط: لا يتم حفظ كلمة المرور أو رفع أي بيانات.</p><label for="nbeSyncPass">كلمة مرور المزامنة (12 حرفًا على الأقل)</label><input id="nbeSyncPass" type="password" minlength="12" autocomplete="new-password" placeholder="أنشئ كلمة مرور مستقلة عن Gmail"><label for="nbeSyncPassConfirm">تأكيد كلمة المرور</label><input id="nbeSyncPassConfirm" type="password" minlength="12" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور"><button type="button" class="btn secondary" id="nbeSyncCryptoTest">اختبار التشفير محليًا</button></div>' +
+  '<p class="nbe-firebase-note">لا يتم رفع تقارير المبيعات أو العملاء. اختبار Firestore يكتب سجلًا تجريبيًا مؤقتًا ثم يحذفه. اختبار التشفير أدناه محلي فقط ولا يفعّل المزامنة.</p>';
 const style = document.createElement("style");
 style.textContent =
   ".nbe-firebase-panel{margin-top:22px;padding:18px;border:1px solid var(--border);border-radius:16px;background:var(--bg)}" +
@@ -39,7 +40,10 @@ style.textContent =
   ".nbe-firebase-status.ok{border-color:#8ac9a8;color:#087443}.nbe-firebase-status.error{border-color:#e6aaa4;color:#b43d31}" +
   ".nbe-firebase-account{margin-top:9px;color:var(--muted);font-size:12px;overflow-wrap:anywhere}" +
   ".nbe-firebase-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.nbe-firebase-actions button:disabled{opacity:.55;cursor:not-allowed}" +
-  ".nbe-firebase-note{margin:13px 0 0;color:var(--muted);font-size:11px;line-height:1.9}";
+  ".nbe-firebase-note{margin:13px 0 0;color:var(--muted);font-size:11px;line-height:1.9}" +
+  ".nbe-sync-crypto{display:grid;gap:8px;margin-top:18px;padding-top:15px;border-top:1px solid var(--border)}" +
+  ".nbe-sync-crypto h4{margin:0;color:var(--green);font-size:14px}.nbe-sync-crypto p{margin:0;color:var(--muted);font-size:11px;line-height:1.8}" +
+  ".nbe-sync-crypto label{font-size:12px;font-weight:700;color:var(--text)}.nbe-sync-crypto input{width:100%;box-sizing:border-box;padding:11px;border:1px solid var(--border);border-radius:9px;background:var(--card);color:var(--text);direction:ltr;text-align:left}";
 document.head.append(style);
 const settingsPanel = document.querySelector(".settings-panel");
 if (settingsPanel) settingsPanel.append(panel);
@@ -49,6 +53,9 @@ const accountEl = document.getElementById("nbeFirebaseAccount");
 const loginBtn = document.getElementById("nbeGoogleLogin");
 const testBtn = document.getElementById("nbeFirebaseTest");
 const logoutBtn = document.getElementById("nbeGoogleLogout");
+const cryptoPass = document.getElementById("nbeSyncPass");
+const cryptoConfirm = document.getElementById("nbeSyncPassConfirm");
+const cryptoTestBtn = document.getElementById("nbeSyncCryptoTest");
 
 function setStatus(message, type) {
   statusEl.textContent = message;
@@ -68,6 +75,69 @@ function explainError(error) {
 }
 
 let app, auth, db;
+
+async function runLocalCryptoTest() {
+  const password = cryptoPass.value;
+  if (password.length < 12) {
+    setStatus("كلمة مرور المزامنة يجب ألا تقل عن 12 حرفًا.", "error");
+    return;
+  }
+  if (password !== cryptoConfirm.value) {
+    setStatus("كلمتا مرور المزامنة غير متطابقتين.", "error");
+    return;
+  }
+  if (!window.crypto || !crypto.subtle) {
+    setStatus("التشفير غير مدعوم في هذا المتصفح أو السياق.", "error");
+    return;
+  }
+  cryptoTestBtn.disabled = true;
+  setStatus("جارٍ اختبار اشتقاق المفتاح وتشفير البيانات وفكها على هذا الجهاز...");
+  try {
+    const enc = new TextEncoder();
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const baseKey = await crypto.subtle.importKey(
+      "raw", enc.encode(password), "PBKDF2", false, ["deriveKey"]
+    );
+    const key = await crypto.subtle.deriveKey(
+      { name: "PBKDF2", salt, iterations: 310000, hash: "SHA-256" },
+      baseKey,
+      { name: "AES-GCM", length: 256 },
+      false,
+      ["encrypt", "decrypt"]
+    );
+    const sample = {
+      app: "NBE Sales",
+      purpose: "local-crypto-self-test",
+      sample: "لا يحتوي هذا الاختبار على بيانات عملاء",
+      version: 1
+    };
+    const aad = enc.encode("NBE-SALES-SYNC|v1");
+    const cipher = await crypto.subtle.encrypt(
+      { name: "AES-GCM", iv, additionalData: aad, tagLength: 128 },
+      key,
+      enc.encode(JSON.stringify(sample))
+    );
+    const plain = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv, additionalData: aad, tagLength: 128 },
+      key,
+      cipher
+    );
+    const restored = JSON.parse(new TextDecoder().decode(plain));
+    if (JSON.stringify(restored) !== JSON.stringify(sample)) {
+      throw new Error("لم تتطابق البيانات بعد فك التشفير.");
+    }
+    setStatus("نجح الاختبار المحلي: اشتقاق مفتاح AES-256 وفك تشفير البيانات التجريبية. لم تُحفظ كلمة المرور أو المفتاح أو العينة، ولم يتم رفع أي بيانات.", "ok");
+  } catch (error) {
+    setStatus("فشل اختبار التشفير: " + (error.message || "خطأ غير معروف"), "error");
+  } finally {
+    cryptoPass.value = "";
+    cryptoConfirm.value = "";
+    cryptoTestBtn.disabled = false;
+  }
+}
+cryptoTestBtn.addEventListener("click", runLocalCryptoTest);
+
 try {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
