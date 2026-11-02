@@ -18,7 +18,7 @@ page.insertAdjacentHTML("beforeend",''+
 '<div class="section-title"><h2 id="crmFormTitle">إضافة عميل جديد</h2><span class="badge">CUSTOMER CRM</span></div>'+
 '<form id="crmForm" class="crm-form">'+
 '<div class="field"><label>اسم العميل بالكامل *</label><input id="crmName" required maxlength="120"></div>'+
-'<div class="field"><label>رقم قومي تجريبي (14 رقمًا) *</label><input id="crmNational" required inputmode="numeric" maxlength="14" minlength="14" pattern="[0-9]{14}"></div>'+
+'<div class="field"><label>الرقم القومي (14 رقمًا) *</label><input id="crmNational" required inputmode="numeric" maxlength="14" minlength="14" pattern="[0-9]{14}"></div>'+
 '<div class="field"><label>رقم الهاتف *</label><input id="crmPhone" required inputmode="tel" maxlength="20"></div>'+
 '<div class="field"><label>الوظيفة</label><input id="crmJob" maxlength="100"></div>'+
 '<div class="field"><label>جهة العمل</label><input id="crmEmployer" maxlength="120"></div>'+
@@ -27,7 +27,7 @@ page.insertAdjacentHTML("beforeend",''+
 '<div class="field"><label>ملاحظات</label><input id="crmNotes" maxlength="500"></div>'+
 '<div class="crm-form-actions"><button class="btn primary" type="submit" id="crmSubmit">حفظ العميل</button><button class="btn light-btn" type="button" id="crmCancel">تفريغ الحقول</button></div><input type="hidden" id="crmEditId"></form>'+
 '<div class="section-title" style="margin-top:25px"><h2>سجل العملاء</h2><span class="badge" id="crmCount">0 عميل</span></div>'+
-'<div class="crm-toolbar"><input id="crmSearch" type="search" placeholder="بحث بالاسم أو الهاتف أو الرقم التجريبي أو جهة العمل"><select id="crmFilter"><option value="all">كل الحالات</option><option>جديد</option><option>جاري التواصل</option><option>مستوفي</option><option>تم البيع</option><option>غير نشط</option></select></div>'+
+'<div class="crm-toolbar"><input id="crmSearch" type="search" placeholder="بحث بالاسم أو الهاتف أو الرقم القومي أو جهة العمل"><select id="crmFilter"><option value="all">كل الحالات</option><option>جديد</option><option>جاري التواصل</option><option>مستوفي</option><option>تم البيع</option><option>غير نشط</option></select></div>'+
 '<div id="crmList" class="crm-list"></div>'+
 '</div>');
 function el(id){return document.getElementById(id);}
@@ -40,14 +40,14 @@ function render(){
  const q=(el("crmSearch").value||"").trim().toLowerCase(),filter=el("crmFilter").value;
  const rows=customers.filter(c=>(filter==="all"||c.status===filter)&&[c.name,c.national,c.phone,c.employer,c.job].some(v=>String(v||"").toLowerCase().includes(q)));
  el("crmCount").textContent=customers.length+" عميل";
- if(!rows.length){el("crmList").innerHTML='<div class="crm-empty">لا توجد نتائج. أضف سجلًا تجريبيًا للبدء.</div>';return;}
- el("crmList").innerHTML=rows.map(c=>'<article class="crm-card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h3>'+safe(c.name)+'</h3><span class="follow-status">'+safe(c.status)+'</span></div><small>آخر تحديث: '+new Date(c.updatedAt||c.createdAt).toLocaleDateString("ar-EG")+'</small></div><div class="crm-meta"><span>الرقم التجريبي: '+safe(c.national)+'</span><span>الهاتف: '+safe(c.phone)+'</span><span>الوظيفة: '+safe(c.job||"—")+'</span><span>جهة العمل: '+safe(c.employer||"—")+'</span><span>الفرع: '+safe(c.branch||"—")+'</span><span>ملاحظات: '+safe(c.notes||"—")+'</span></div><div class="crm-actions no-print"><button class="btn light-btn" data-edit="'+safe(c.id)+'">تعديل</button><button class="btn light-btn" data-archive="'+safe(c.id)+'">'+(c.archived?"إعادة تنشيط":"تعطيل العميل")+'</button><button class="btn light-btn" data-history="'+safe(c.id)+'">سجل التعديلات</button></div></article>').join("");
+ if(!rows.length){el("crmList").innerHTML='<div class="crm-empty">لا توجد نتائج</div>';return;}
+ el("crmList").innerHTML=rows.map(c=>'<article class="crm-card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h3>'+safe(c.name)+'</h3><span class="follow-status">'+safe(c.status)+'</span></div><small>آخر تحديث: '+new Date(c.updatedAt||c.createdAt).toLocaleDateString("ar-EG")+'</small></div><div class="crm-meta"><span>الرقم القومي: '+safe(c.national)+'</span><span>الهاتف: '+safe(c.phone)+'</span><span>الوظيفة: '+safe(c.job||"—")+'</span><span>جهة العمل: '+safe(c.employer||"—")+'</span><span>الفرع: '+safe(c.branch||"—")+'</span><span>ملاحظات: '+safe(c.notes||"—")+'</span></div><div class="crm-actions no-print"><button class="btn light-btn" data-edit="'+safe(c.id)+'">تعديل</button><button class="btn light-btn" data-archive="'+safe(c.id)+'">'+(c.archived?"إعادة تنشيط":"تعطيل العميل")+'</button><button class="btn light-btn" data-history="'+safe(c.id)+'">سجل التعديلات</button></div></article>').join("");
 }
 el("crmForm").addEventListener("submit",function(e){
  e.preventDefault();
  const id=el("crmEditId").value,name=el("crmName").value.trim(),national=el("crmNational").value.trim(),phone=el("crmPhone").value.trim();
- if(!name||!/^\d{14}$/.test(national)||!phone){alert("أدخل الاسم والرقم التجريبي المكوّن من 14 رقمًا والهاتف.");return;}
- if(customers.some(c=>c.national===national&&c.id!==id)){alert("هذا الرقم التجريبي مسجل بالفعل ولا يمكن تكراره.");return;}
+ if(!name||!/^\d{14}$/.test(national)||!phone){alert("أدخل الاسم والرقم القومي المكوّن من 14 رقمًا ورقم الهاتف.");return;}
+ if(customers.some(c=>c.national===national&&c.id!==id)){alert("هذا الرقم القومي مسجل بالفعل ولا يمكن تكراره.");return;}
  const data={name:national?name:name,national:national,phone:phone,job:el("crmJob").value.trim(),employer:el("crmEmployer").value.trim(),branch:el("crmBranch").value.trim(),status:el("crmStatus").value,notes:el("crmNotes").value.trim()};
  const now=new Date().toISOString();
  if(id){const c=customers.find(x=>x.id===id);if(!c)return;Object.assign(c,data,{national:c.national,updatedAt:now});c.history=(c.history||[]).concat([{at:now,action:"تعديل بيانات العميل"}]);}
