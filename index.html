@@ -229,6 +229,44 @@ body{padding-bottom:86px}
 
 
 #nbeSecurityOverlay{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(5,24,18,.94);font-family:Tahoma,Arial,sans-serif}#nbeSecurityOverlay[hidden]{display:none}.nbe-security-card{width:min(100%,420px);background:var(--card,#fff);color:var(--text,#1d3038);border:1px solid var(--border,#dce5df);border-radius:20px;padding:25px;box-shadow:0 20px 70px #0005;text-align:right}.nbe-security-logo{font-size:38px;text-align:center}.nbe-security-card h2{text-align:center;color:var(--green,#087443);margin:12px 0}.nbe-security-card p{line-height:1.7;color:var(--muted,#718087);font-size:13px}.nbe-security-card label{display:block;margin:12px 0 6px;font-size:13px;font-weight:bold}.nbe-security-card input{width:100%;padding:12px;border:1px solid var(--border,#dce5df);border-radius:9px;background:var(--bg,#f2f5f3);color:var(--text,#1d3038)}.nbe-security-card form .btn{width:100%;margin-top:16px}.nbe-security-card small{display:block;margin-top:16px;line-height:1.7;color:var(--muted,#718087)}.nbe-bio-btn{width:100%;margin-top:10px}.nbe-security-card #nbeSecurityError{color:#c0392b;min-height:18px;margin:8px 0 0}body.nbe-locked{overflow:hidden}
+
+/* لوحة التحكم الذكية */
+.nbe-dashboard{margin-top:18px;display:grid;gap:14px}
+.dash-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:5px 2px}
+.dash-head h2{margin:0;color:var(--green);font-size:19px}
+.dash-head p{margin:6px 0 0;color:var(--muted);font-size:12px}
+.dash-month{display:flex;align-items:center;gap:9px;min-width:210px}
+.dash-month label{font-size:12px;color:var(--muted);white-space:nowrap;font-weight:bold}
+.dash-month input{padding:9px}
+.dash-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.dash-kpi,.dash-panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--shadow);min-width:0}
+.dash-kpi span,.dash-follow-grid span{display:block;color:var(--muted);font-size:12px}
+.dash-kpi strong{display:block;color:var(--green);font-size:clamp(19px,2.5vw,27px);margin:10px 0 5px;overflow-wrap:anywhere}
+.dash-kpi small{color:var(--muted);font-size:11px}
+.dash-panel h3{margin:0 0 15px;font-size:15px;color:var(--green)}
+.dash-columns{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dash-statuses{display:grid;gap:12px}
+.dash-status-row{display:grid;grid-template-columns:100px 1fr 32px;gap:8px;align-items:center;font-size:12px}
+.dash-status-track{height:9px;background:var(--bg);border-radius:20px;overflow:hidden}
+.dash-status-fill{height:100%;border-radius:20px;background:var(--green)}
+.dash-status-row strong{text-align:left;font-size:12px}
+.dash-follow-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dash-follow-grid>div{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px}
+.dash-follow-grid strong{display:block;color:var(--green);font-size:22px;margin-top:7px}
+.dash-bars{height:170px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;align-items:end;border-bottom:1px solid var(--border);padding:8px 4px 0}
+.dash-bar-group{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px;min-width:0}
+.dash-bar-pair{height:130px;width:100%;display:flex;align-items:flex-end;justify-content:center;gap:4px}
+.dash-bar{width:min(24px,38%);min-height:2px;border-radius:5px 5px 0 0;background:var(--green);position:relative}
+.dash-bar.loan{background:var(--gold)}
+.dash-bar-group small{font-size:10px;color:var(--muted);white-space:nowrap}
+.dash-legend{display:flex;gap:18px;margin-top:12px;font-size:11px;color:var(--muted)}
+.dash-legend span:before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--green);margin-left:6px}
+.dash-legend span+span:before{background:var(--gold)}
+.dash-recent-table{min-width:600px}
+.dash-recent-table th,.dash-recent-table td{font-size:12px;padding:10px 8px}
+@media(max-width:800px){.dash-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.dash-columns{grid-template-columns:1fr}}
+@media(max-width:420px){.dash-kpi{padding:12px}.dash-status-row{grid-template-columns:85px 1fr 25px}.dash-bars{gap:5px}.dash-bar-pair{gap:2px}.dash-month{width:100%}}
+
 </style>
 </head>
 <body>
@@ -524,6 +562,26 @@ function buildAppPages(){
  };
  move(".info-section","home");
  move(".stats","home");
+
+ const dashboard=document.createElement("section");
+ dashboard.className="nbe-dashboard";
+ dashboard.innerHTML=`
+  <div class="dash-head"><div><h2>لوحة التحكم الذكية</h2><p>ملخص أداء المبيعات ومتابعة الإنجاز</p></div><div class="dash-month"><label for="dashMonth">عرض شهر</label><input id="dashMonth" type="month" onchange="renderDashboard()"></div></div>
+  <div class="dash-kpis">
+   <div class="dash-kpi"><span>إجمالي الكروت</span><strong id="dashCards">0</strong><small id="dashCardsHint">خلال الشهر المحدد</small></div>
+   <div class="dash-kpi"><span>إجمالي القروض</span><strong id="dashLoans">0</strong><small id="dashLoansHint">خلال الشهر المحدد</small></div>
+   <div class="dash-kpi"><span>صافي القروض</span><strong id="dashAmount">0 ج</strong><small>إجمالي قيمة القروض المسجلة</small></div>
+   <div class="dash-kpi"><span>متوسط القرض</span><strong id="dashAverage">0 ج</strong><small>متوسط قيمة القرض الواحد</small></div>
+  </div>
+  <div class="dash-columns">
+   <div class="dash-panel"><h3>حالة طلبات الكروت</h3><div id="dashStatuses" class="dash-statuses"></div></div>
+   <div class="dash-panel"><h3>مؤشرات المتابعة</h3><div class="dash-follow-grid"><div><span>إجمالي المتابعات</span><strong id="dashFollowTotal">0</strong></div><div><span>مطلوب اليوم</span><strong id="dashFollowToday">0</strong></div><div><span>متأخرة</span><strong id="dashFollowLate">0</strong></div><div><span>مكتملة</span><strong id="dashFollowDone">0</strong></div></div></div>
+  </div>
+  <div class="dash-panel dash-trend"><h3>حركة المبيعات – آخر 6 أشهر</h3><div id="dashTrend" class="dash-bars"></div><div class="dash-legend"><span>الكروت</span><span>القروض</span></div></div>
+  <div class="dash-panel"><div class="section-title"><h3>أحدث العمليات المسجلة</h3><button class="btn light-btn small-btn" onclick="showPage('sales')">عرض سجل المبيعات</button></div><div class="table-wrap"><table class="dash-recent-table"><thead><tr><th>التاريخ</th><th>النوع</th><th>اسم العميل</th><th>التفاصيل</th><th>القيمة / الحالة</th></tr></thead><tbody id="dashRecent"><tr><td colspan="5" class="empty">لا توجد عمليات بعد</td></tr></tbody></table></div></div>
+ `;
+ pages.home.append(dashboard);
+
  move(".entry-section","sales");
  move(".ledger-section","sales");
  move(".cards-section","sales");
@@ -856,7 +914,52 @@ function deleteArchive(date){
  }
  renderAll();
 }
-function renderAll(){renderSummaries();renderLedger();renderArchive();renderPerformance();renderFollowups();}
+
+function renderDashboard(){
+ const monthInput=$("dashMonth");
+ if(!monthInput)return;
+ const month=monthInput.value||today().slice(0,7);
+ if(!monthInput.value)monthInput.value=month;
+ let cards=0,loans=0,amount=0,approved=0,rejected=0,pending=0,other=0;
+ const recent=[];
+ Object.keys(reports).sort().forEach(date=>{
+  const r=reports[date]||{},cs=Array.isArray(r.cards)?r.cards:[],ls=Array.isArray(r.loans)?r.loans:[];
+  if(date.startsWith(month)){
+   cards+=cs.length;loans+=ls.length;
+   ls.forEach(x=>amount+=Number(x.amount)||0);
+   cs.forEach(x=>{const st=String(x.status||"جديد");if(st==="مقبول")approved++;else if(st==="مرفوض")rejected++;else if(st==="جديد"||st==="قيد المراجعة"||st==="تم التقديم")pending++;else other++;});
+  }
+  cs.forEach(x=>recent.push({date,kind:"كارت",name:x.name||"—",detail:x.type||"—",value:x.status||"—",sort:Number(x.id)||0}));
+  ls.forEach(x=>recent.push({date,kind:"قرض",name:x.name||"—",detail:x.type||"—",value:money(x.amount)+" جنيه",sort:Number(x.id)||0}));
+ });
+ $("dashCards").textContent=cards.toLocaleString("en-EG");
+ $("dashLoans").textContent=loans.toLocaleString("en-EG");
+ $("dashAmount").textContent=money(amount)+" ج";
+ $("dashAverage").textContent=money(loans?amount/loans:0)+" ج";
+ $("dashCardsHint").textContent="خلال "+month;
+ $("dashLoansHint").textContent="خلال "+month;
+ const statusRows=[["مقبول",approved],["قيد الإجراء",pending],["مرفوض",rejected],["أخرى",other]];
+ const statusTotal=statusRows.reduce((a,x)=>a+x[1],0);
+ $("dashStatuses").innerHTML=statusRows.map(([name,count])=>'<div class="dash-status-row"><span>'+name+'</span><div class="dash-status-track"><div class="dash-status-fill" style="width:'+(statusTotal?count/statusTotal*100:0)+'%"></div></div><strong>'+count+'</strong></div>').join("");
+ const follow=Array.isArray(followups)?followups:[];
+ const now=today(),openToday=follow.filter(x=>!x.completed&&x.nextDate===now).length;
+ const late=follow.filter(x=>!x.completed&&x.nextDate&&x.nextDate<now).length;
+ const done=follow.filter(x=>x.completed||x.status==="مكتمل").length;
+ $("dashFollowTotal").textContent=follow.length;
+ $("dashFollowToday").textContent=openToday;
+ $("dashFollowLate").textContent=late;
+ $("dashFollowDone").textContent=done;
+ const months=[];
+ const d=new Date(Number(month.slice(0,4)),Number(month.slice(5,7))-1,1);
+ for(let i=5;i>=0;i--){const x=new Date(d.getFullYear(),d.getMonth()-i,1);months.push(x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0"));}
+ const totals=months.map(m=>{let c=0,l=0;Object.keys(reports).forEach(date=>{if(!date.startsWith(m))return;const r=reports[date]||{};c+=(r.cards||[]).length;l+=(r.loans||[]).length;});return {m,c,l};});
+ const max=Math.max(1,...totals.flatMap(x=>[x.c,x.l]));
+ $("dashTrend").innerHTML=totals.map(x=>'<div class="dash-bar-group"><div class="dash-bar-pair"><div class="dash-bar" title="كروت: '+x.c+'" style="height:'+Math.max(2,x.c/max*100)+'%"></div><div class="dash-bar loan" title="قروض: '+x.l+'" style="height:'+Math.max(2,x.l/max*100)+'%"></div></div><small>'+x.m.slice(5)+'</small></div>').join("");
+ recent.sort((a,b)=>b.date.localeCompare(a.date)||b.sort-a.sort);
+ $("dashRecent").innerHTML=recent.slice(0,8).map(x=>'<tr><td>'+esc(x.date)+'</td><td>'+esc(x.kind)+'</td><td>'+esc(x.name)+'</td><td>'+esc(x.detail)+'</td><td>'+esc(x.value)+'</td></tr>').join("")||'<tr><td colspan="5" class="empty">لا توجد عمليات مسجلة حتى الآن</td></tr>';
+}
+
+function renderAll(){renderSummaries();renderLedger();renderArchive();renderPerformance();renderFollowups();renderDashboard();}
 let cardPaymentRowCounter=0;
 function addCardPaymentRow(amount="",day=""){
  const host=$("ciPayments");
