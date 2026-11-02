@@ -659,7 +659,7 @@ function buildAppPages(){
   const page=document.createElement("section");
   page.className="app-page "+id+"-page";
   page.dataset.page=id;
-  page.innerHTML='<div class="page-heading"><h2>'+title+'</h2><p>'+description+'</p></div>';
+  page.innerHTML=id==="home"?"":'<div class="page-heading"><h2>'+title+'</h2><p>'+description+'</p></div>';
   host.append(page);pages[id]=page;
  });
  const move=(selector,id)=>{
