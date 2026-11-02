@@ -36,6 +36,7 @@ host.appendChild(page);
 function el(id){return document.getElementById(id);}
 function safe(v){return String(v||"").replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY)||"[]");customers=Array.isArray(x)?x:[];}catch(e){customers=[];}render();}
+window.refreshNbeCrm=load;
 function save(){localStorage.setItem(KEY,JSON.stringify(customers));render();}
 function reset(){el("crmForm").reset();el("crmEditId").value="";el("crmNational").readOnly=false;el("crmSubmit").textContent="حفظ العميل";el("crmFormTitle").textContent="إضافة عميل جديد";}
 function render(){
