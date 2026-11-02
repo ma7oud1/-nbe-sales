@@ -1034,6 +1034,11 @@ function deleteItem(type,id){
  r[key]=r[key].filter(x=>String(x.id)!==String(id));
  saveReport(true);renderAll();
 }
+function renderAll(){
+ renderSummaries();
+ renderArchive();
+ renderFollowups();
+}
 function renderSummaries(){
  const r=getReport();
  $("cardsBody").innerHTML=r.cards.length?r.cards.map((x,i)=>`
