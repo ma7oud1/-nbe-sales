@@ -472,6 +472,117 @@ body.dark .light-btn{background:#203238}
 .loan-extra-row .loan-extra-remove{min-height:42px}
 .loan-calculator-section .muted{color:var(--muted);font-size:13px;line-height:1.8}
 @media(max-width:700px){.loan-extra-row{grid-template-columns:1fr 1fr}.loan-extra-row .loan-extra-remove{grid-column:1/-1}}
+
+/* Premium loan calculator presentation */
+.loan-calculator-section{
+ position:relative;overflow:hidden;
+ border:1px solid rgba(8,116,67,.16);
+ background:linear-gradient(155deg,var(--card) 0%,color-mix(in srgb,var(--card) 94%,#087443 6%) 100%);
+ box-shadow:0 16px 42px rgba(14,54,39,.08);
+}
+.loan-calculator-section:before{
+ content:"";position:absolute;inset:0 0 auto;height:5px;
+ background:linear-gradient(90deg,#087443,#c6a45b,#087443);
+}
+.loan-calculator-section>.section-title:first-child{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ padding:4px 2px 17px;margin-bottom:18px;border-bottom:1px solid var(--border);
+}
+.loan-calculator-section>.section-title:first-child h2{
+ font-size:23px;font-weight:900;letter-spacing:-.4px;
+}
+.loan-calculator-section>.section-title:first-child .badge{
+ border-radius:999px;padding:7px 12px;font-size:10px;letter-spacing:1px;
+ background:rgba(8,116,67,.10);color:#087443;border:1px solid rgba(8,116,67,.18);
+}
+.loan-calculator-section>.actions:first-of-type{
+ display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px;
+ background:var(--bg);border:1px solid var(--border);border-radius:15px;
+}
+.loan-calculator-section>.actions:first-of-type .btn{
+ min-height:46px;border-radius:11px;font-weight:800;margin:0;
+}
+.loan-calculator-section .form-grid{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;
+ padding:18px;margin-top:16px;border:1px solid var(--border);
+ border-radius:17px;background:var(--bg);
+}
+.loan-calculator-section .field{min-width:0;margin:0}
+.loan-calculator-section .field>label{
+ display:block;margin-bottom:8px;font-size:13px;font-weight:800;color:var(--text);
+}
+.loan-calculator-section input,.loan-calculator-section select{
+ width:100%;min-height:47px;border-radius:11px;border:1px solid var(--border);
+ background:var(--card);padding:10px 12px;font-size:15px;font-weight:600;
+ transition:border-color .18s,box-shadow .18s;
+}
+.loan-calculator-section input:focus,.loan-calculator-section select:focus{
+ outline:none;border-color:#087443;box-shadow:0 0 0 3px rgba(8,116,67,.12);
+}
+.loan-calculator-section .field .grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:9px!important}
+.loan-calculator-section .field .grid .field label,
+.loan-calculator-section .field .grid label{font-size:11px;color:var(--muted);font-weight:700}
+.loan-calculator-section .section-title:not(:first-child){
+ display:flex;align-items:center;justify-content:space-between;gap:10px;
+ margin:24px 0 8px!important;padding-bottom:10px;border-bottom:1px solid var(--border);
+}
+.loan-calculator-section .section-title:not(:first-child) h2{font-size:17px;font-weight:900}
+.loan-calculator-section .section-title:not(:first-child) .badge{
+ background:rgba(198,164,91,.13);color:#9b7838;border-radius:999px;padding:6px 10px;
+}
+.loan-calculator-section>.muted{margin:0 0 12px;line-height:1.8}
+.loan-calculator-section .loan-extra-row{
+ padding:15px;background:var(--bg);border:1px solid var(--border);
+ border-radius:15px;box-shadow:0 5px 16px rgba(0,0,0,.035);
+}
+.loan-calculator-section .loan-extra-row .btn{border-radius:10px}
+.loan-calculator-section>.actions:not(:first-of-type){
+ display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:10px;margin-top:18px;
+}
+.loan-calculator-section>.actions:not(:first-of-type) .btn{
+ min-height:49px;border-radius:12px;font-weight:800;margin:0;
+}
+.loan-calculator-section .calculator-results{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;
+ margin-top:22px;padding:16px;border:1px solid var(--border);
+ border-radius:17px;background:var(--bg);
+}
+.loan-calculator-section .calculator-results .stat{
+ min-width:0;border-radius:14px;padding:17px;border:1px solid var(--border);
+ box-shadow:0 5px 15px rgba(0,0,0,.035);
+}
+.loan-calculator-section .calculator-results .stat small{font-size:12px;font-weight:700;line-height:1.6}
+.loan-calculator-section .calculator-results .stat strong{
+ display:block;margin-top:8px;font-size:clamp(20px,3vw,27px);font-weight:900;
+ overflow-wrap:anywhere;font-variant-numeric:tabular-nums;
+}
+.loan-calculator-section #loanResultNote{
+ margin-top:14px;padding:13px 15px;border-radius:12px;
+ background:rgba(8,116,67,.07);border:1px solid rgba(8,116,67,.13);
+ line-height:1.8;font-size:13px;
+}
+.loan-calculator-section>.footer{
+ margin-top:22px;padding-top:15px;border-top:1px solid var(--border);
+ color:var(--muted);font-size:12px;text-align:center;
+}
+body.dark .loan-calculator-section{border-color:#36544a;box-shadow:0 16px 42px rgba(0,0,0,.18)}
+body.dark .loan-calculator-section>.section-title:first-child .badge{color:#8ed1ad}
+body.dark .loan-calculator-section #loanResultNote{background:rgba(44,150,96,.12);border-color:rgba(90,180,130,.2)}
+@media(max-width:700px){
+ .loan-calculator-section>.section-title:first-child h2{font-size:20px}
+ .loan-calculator-section .form-grid{grid-template-columns:1fr;padding:13px;gap:13px}
+ .loan-calculator-section>.actions:not(:first-of-type){grid-template-columns:1fr 1fr}
+ .loan-calculator-section>.actions:not(:first-of-type) .btn:nth-child(2){grid-column:1/-1;grid-row:1}
+ .loan-calculator-section .loan-extra-row{grid-template-columns:1fr 1fr}
+ .loan-calculator-section .loan-extra-row .loan-extra-remove{grid-column:1/-1}
+}
+@media(max-width:390px){
+ .loan-calculator-section .calculator-results{gap:8px;padding:10px}
+ .loan-calculator-section .calculator-results .stat{padding:12px}
+ .loan-calculator-section .calculator-results .stat strong{font-size:19px}
+ .loan-calculator-section>.actions:first-of-type .btn{font-size:12px;padding:10px 7px}
+}
+
 </style>
 </head>
 <body>
