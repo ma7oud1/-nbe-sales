@@ -466,6 +466,12 @@ body.dark .light-btn{background:#203238}
  #pageHost .home-page .home-top-layout>.nbe-dashboard{height:auto!important}
 }
 
+.loan-extra-rows{display:grid;gap:12px;margin:12px 0}
+.loan-extra-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--card)}
+.loan-extra-row .field{margin:0}
+.loan-extra-row .loan-extra-remove{min-height:42px}
+.loan-calculator-section .muted{color:var(--muted);font-size:13px;line-height:1.8}
+@media(max-width:700px){.loan-extra-row{grid-template-columns:1fr 1fr}.loan-extra-row .loan-extra-remove{grid-column:1/-1}}
 </style>
 </head>
 <body>
@@ -494,6 +500,7 @@ body.dark .light-btn{background:#203238}
 <nav id="mainNav" aria-label="التنقل الرئيسي">
  <button class="nav-btn active" data-page="home" onclick="showPage('home')" aria-label="الرئيسية"><span class="nav-icon">🏠</span></button>
  <button class="nav-btn" data-page="calculator" onclick="showPage('calculator')"><span class="nav-icon">🧮</span><span>حساب فائدة المديونية الشهرية</span></button>
+ <button class="nav-btn" data-page="loan-calculator" onclick="showPage('loan-calculator')"><span class="nav-icon">🏦</span><span>حاسبة القروض</span></button>
  <button class="nav-btn" data-page="archive" onclick="showPage('archive')"><span class="nav-icon">🗂️</span><span>الأرشيف</span></button>
  <button class="nav-btn" data-page="settings" onclick="showPage('settings')"><span class="nav-icon">⚙️</span><span>الإعدادات</span></button>
 </nav>
@@ -715,6 +722,7 @@ function buildAppPages(){
   ["home","",""],
   ["sales","المبيعات","تسجيل الكروت والقروض ومراجعة سجل العمليات"],
   ["calculator","حساب فائدة المديونية الشهرية","حساب فائدة المديونية الشهرية بنسبة قابلة للتعديل"],
+  ["loan-calculator","حاسبة القروض","احسب قيمة القرض أو القسط الشهري مع السداد الإضافي"],
   ["customers","إدارة العملاء CRM","ملفات العملاء وبياناتهم وسجلهم"],
   ["followups","متابعة العملاء","إضافة ومراجعة مواعيد ونتائج التواصل مع العملاء"],
   ["archive","الأرشيف","التقارير اليومية المحفوظة"],
@@ -778,6 +786,35 @@ function buildAppPages(){
   <div class="footer">تم إنشاء الحاسبة بواسطة محمود محمد رزق</div>
  `;
  pages.calculator.append(calculator);
+ const loanCalculator=document.createElement("div");
+ loanCalculator.className="section loan-calculator-section";
+ loanCalculator.innerHTML=`
+  <div class="section-title"><h2>حاسبة القروض</h2><span class="badge">LOAN CALCULATOR</span></div>
+  <div class="actions no-print" style="margin-bottom:16px">
+   <button class="btn primary" id="loanModePrincipal" type="button" onclick="setLoanMode('principal')">احسب قيمة القرض</button>
+   <button class="btn light-btn" id="loanModePayment" type="button" onclick="setLoanMode('payment')">احسب القسط الشهري</button>
+  </div>
+  <div class="form-grid">
+   <div class="field" id="loanPrincipalField"><label for="loanPrincipal">قيمة القرض (جنيه)</label><input id="loanPrincipal" type="number" min="1" step="0.01" placeholder="مثال: 100000"></div>
+   <div class="field" id="loanMonthlyField"><label for="loanMonthly">القسط الشهري (جنيه)</label><input id="loanMonthly" type="number" min="1" step="0.01" placeholder="مثال: 3000"></div>
+   <div class="field"><label for="loanAnnualRate">سعر العائد السنوي (%)</label><input id="loanAnnualRate" type="number" min="0" step="0.01" value="21"></div>
+   <div class="field"><label for="loanMonths">مدة القرض (بالشهور)</label><input id="loanMonths" type="number" min="1" max="600" step="1" value="60"></div>
+  </div>
+  <div class="section-title" style="margin-top:22px"><h2>السداد الإضافي</h2><span class="badge">اختياري ومتعدد</span></div>
+  <p class="muted">أضف دفعة أو أكثر، وحدد أول تاريخ لها وتكرارها. عند إضافة سداد إضافي تُستخدم طريقة الأيام الفعلية / 360 في الحساب التقديري.</p>
+  <div id="loanExtraRows" class="loan-extra-rows"></div>
+  <div class="actions no-print"><button class="btn light-btn" type="button" onclick="addLoanExtraRow()">＋ إضافة سداد إضافي</button><button class="btn primary" type="button" onclick="calculateLoan()">احسب الآن</button><button class="btn light-btn" type="button" onclick="resetLoanCalculator()">إعادة تعيين</button></div>
+  <div class="stats calculator-results" id="loanResults" style="display:none">
+   <div class="stat navy"><small>قيمة القرض / أصل التمويل</small><strong id="loanResultPrincipal">0.00</strong></div>
+   <div class="stat"><small>القسط الشهري</small><strong id="loanResultMonthly">0.00</strong></div>
+   <div class="stat gold"><small>إجمالي الفوائد</small><strong id="loanResultInterest">0.00</strong></div>
+   <div class="stat red"><small>إجمالي المدفوعات</small><strong id="loanResultTotal">0.00</strong></div>
+  </div>
+  <div class="note" id="loanResultNote" aria-live="polite">اختر نوع الحساب وأدخل البيانات ثم اضغط «احسب الآن».</div>
+  <div class="note">الحاسبة تقديرية وتعتمد على سعر العائد المدخل والمدة وتواريخ السداد الإضافي. النتائج الفعلية قد تختلف حسب قواعد البنك والرسوم والتأمين وتاريخ الاستحقاق.</div>
+  <div class="footer">تم إنشاء الحاسبة بواسطة محمود محمد رزق</div>
+ `;
+ pages["loan-calculator"].append(loanCalculator);
  const settings=document.createElement("div");
  settings.className="settings-panel";
  settings.innerHTML=`<h2>بيانات موظف المبيعات</h2><p>اكتب اسم الموظف ورقم السيلز مرة واحدة، وسيتم استخدامهما تلقائيًا في التقارير على هذا الجهاز. اتركهما فارغين إذا كنت ستشارك التطبيق مع زميل ليضبط بياناته بنفسه.</p><div class="form-grid" style="margin-top:14px"><div class="field"><label for="settingEmployee">اسم موظف المبيعات</label><input id="settingEmployee" type="text" maxlength="100" placeholder="اكتب اسم الموظف"></div><div class="field"><label for="settingSalesNo">رقم السيلز</label><input id="settingSalesNo" type="text" maxlength="30" placeholder="اكتب رقم السيلز"></div></div><div class="actions"><button class="btn primary" type="button" onclick="saveEmployeeSettings()">حفظ بيانات الموظف</button></div><hr style="border:0;border-top:1px solid var(--border);margin:22px 0"><h2>إدارة التطبيق والبيانات</h2><p>من هنا تقدر تعمل نسخة احتياطية من تقارير المبيعات وسجل المتابعة أو تستعيد نسخة محفوظة. النسخ الاحتياطية غير مشفرة؛ احتفظ بها في مكان آمن.</p>`;
@@ -1143,6 +1180,130 @@ function calculateCardInterest(){
 function fmtCardMoney(n){
  return n.toLocaleString("en-EG",{minimumFractionDigits:2,maximumFractionDigits:2});
 }
+let loanMode="principal";
+let loanExtraCounter=0;
+function setLoanMode(mode){
+ loanMode=mode;
+ const principalMode=mode==="principal";
+ $("loanPrincipalField").style.display=principalMode?"none":"block";
+ $("loanMonthlyField").style.display=principalMode?"block":"none";
+ $("loanModePrincipal").className=principalMode?"btn primary":"btn light-btn";
+ $("loanModePayment").className=principalMode?"btn light-btn":"btn primary";
+ $("loanResults").style.display="none";
+ $("loanResultNote").textContent=principalMode?"أدخل القسط الشهري وسعر العائد والمدة لحساب قيمة القرض الممكنة.":"أدخل قيمة القرض وسعر العائد والمدة لحساب القسط الشهري.";
+}
+function loanAddMonths(date,months){
+ const d=new Date(date.getFullYear(),date.getMonth()+months,1);
+ const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+ d.setDate(Math.min(date.getDate(),last));
+ return d;
+}
+function loanDateValue(date){
+ const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,"0"),d=String(date.getDate()).padStart(2,"0");
+ return y+"-"+m+"-"+d;
+}
+function addLoanExtraRow(amount="",date="",interval="6"){
+ const host=$("loanExtraRows");if(!host)return;
+ const id=++loanExtraCounter;
+ const defaultDate=loanDateValue(loanAddMonths(new Date(),3));
+ const row=document.createElement("div");
+ row.className="loan-extra-row";
+ row.dataset.extraId=String(id);
+ row.innerHTML='<div class="field"><label>قيمة السداد الإضافي (جنيه)</label><input class="loan-extra-amount" type="number" min="0.01" step="0.01" placeholder="مثال: 3000"></div>'+
+ '<div class="field"><label>أول تاريخ للسداد الإضافي</label><input class="loan-extra-date" type="date" min="'+loanDateValue(new Date())+'"></div>'+
+ '<div class="field"><label>تكرار السداد</label><select class="loan-extra-interval"><option value="3">كل 3 شهور</option><option value="6">كل 6 شهور</option><option value="12">كل سنة</option></select></div>'+
+ '<button class="btn danger small-btn loan-extra-remove no-print" type="button">حذف</button>';
+ row.querySelector(".loan-extra-amount").value=amount;
+ row.querySelector(".loan-extra-date").value=date||defaultDate;
+ row.querySelector(".loan-extra-interval").value=String(interval);
+ row.querySelector(".loan-extra-remove").addEventListener("click",()=>row.remove());
+ host.append(row);
+}
+function getLoanExtras(termMonths){
+ const rows=[...document.querySelectorAll("#loanExtraRows .loan-extra-row")];
+ const extras=[];
+ for(const row of rows){
+  const amount=Number(row.querySelector(".loan-extra-amount").value);
+  const dateValue=row.querySelector(".loan-extra-date").value;
+  const interval=Number(row.querySelector(".loan-extra-interval").value);
+  if(!Number.isFinite(amount)||amount<=0||!dateValue||![3,6,12].includes(interval))throw new Error("أكمل قيمة وتاريخ وتكرار كل سداد إضافي، أو احذف الصف غير المستخدم.");
+  const date=new Date(dateValue+"T12:00:00");
+  if(Number.isNaN(date.getTime())||date<new Date(new Date().toDateString()))throw new Error("تاريخ السداد الإضافي يجب ألا يكون قبل اليوم.");
+  extras.push({amount,date,interval});
+ }
+ return extras;
+}
+function simulateLoan(principal,monthly,term,annualRate,extras){
+ const base=new Date();base.setHours(12,0,0,0);
+ const lastDate=loanAddMonths(base,term);
+ const events=[];
+ for(let month=1;month<=term;month++)events.push({date:loanAddMonths(base,month),type:"monthly",amount:monthly});
+ extras.forEach(extra=>{
+  let date=new Date(extra.date);
+  let guard=0;
+  while(date<=lastDate&&guard++<term+2){
+   if(date>base)events.push({date:new Date(date),type:"extra",amount:extra.amount});
+   date=loanAddMonths(date,extra.interval);
+  }
+ });
+ events.sort((a,b)=>a.date-b.date||(a.type==="monthly"?-1:1));
+ let balance=principal,interest=0,totalPaid=0,previous=base,monthlyCount=0;
+ const daily=extras.length>0;
+ for(const event of events){
+  if(balance<=0.005)break;
+  const days=Math.max(0,Math.round((event.date-previous)/86400000));
+  const accrued=daily?balance*(annualRate/100)*days/360:balance*(annualRate/100)/12;
+  balance+=accrued;interest+=accrued;previous=event.date;
+  const paid=Math.min(balance,event.amount);
+  balance-=paid;totalPaid+=paid;
+  if(event.type==="monthly")monthlyCount++;
+ }
+ return {paidOff:balance<=0.02,balance,interest,totalPaid,monthlyCount};
+}
+function calculateLoan(){
+ try{
+  const term=Number($("loanMonths").value),rate=Number($("loanAnnualRate").value);
+  if(!Number.isInteger(term)||term<1||term>600||!Number.isFinite(rate)||rate<0||rate>100)throw new Error("أدخل مدة من شهر إلى 600 شهر، وسعر عائد صحيح.");
+  const extras=getLoanExtras(term);
+  if(loanMode==="principal"){
+   const monthly=Number($("loanMonthly").value);
+   if(!Number.isFinite(monthly)||monthly<=0)throw new Error("أدخل قيمة القسط الشهري بشكل صحيح.");
+   let low=0,high=monthly*term+extras.reduce((sum,x)=>sum+x.amount*Math.ceil(term/x.interval),0);
+   for(let i=0;i<90;i++){const mid=(low+high)/2;if(simulateLoan(mid,monthly,term,rate,extras).paidOff)low=mid;else high=mid;}
+   if(low<=0.01)throw new Error("القسط غير كافٍ لسداد قرض بهذه المدة وسعر العائد.");
+   const result=simulateLoan(low,monthly,term,rate,extras);
+   showLoanResult(low,monthly,result,extras.length);
+  }else{
+   const principal=Number($("loanPrincipal").value);
+   if(!Number.isFinite(principal)||principal<=0)throw new Error("أدخل قيمة القرض بشكل صحيح.");
+   let low=0,high=Math.max(principal*2,principal+1);
+   while(!simulateLoan(principal,high,term,rate,extras).paidOff&&high<principal*100)high*=2;
+   if(high>=principal*100&&!simulateLoan(principal,high,term,rate,extras).paidOff)throw new Error("تعذر إيجاد قسط مناسب؛ راجع البيانات.");
+   for(let i=0;i<90;i++){const mid=(low+high)/2;if(simulateLoan(principal,mid,term,rate,extras).paidOff)high=mid;else low=mid;}
+   const result=simulateLoan(principal,high,term,rate,extras);
+   showLoanResult(principal,high,result,extras.length);
+  }
+ }catch(e){alert(e.message||"تعذر إجراء الحساب.");}
+}
+function showLoanResult(principal,monthly,result,extraCount){
+ $("loanResults").style.display="grid";
+ $("loanResultPrincipal").textContent=money(principal)+" جنيه";
+ $("loanResultMonthly").textContent=money(monthly)+" جنيه";
+ $("loanResultInterest").textContent=money(result.interest)+" جنيه";
+ $("loanResultTotal").textContent=money(result.totalPaid)+" جنيه";
+ $("loanResultNote").textContent="تم الحساب بنجاح. عدد الأقساط الشهرية حتى إغلاق المديونية: "+result.monthlyCount+". "+(extraCount?"تم تطبيق السداد الإضافي بطريقة الأيام الفعلية / 360.":"تم احتساب العائد شهريًا دون سداد إضافي.")+" إجمالي السداد يشمل الأقساط الشهرية والدفعات الإضافية.";
+}
+function resetLoanCalculator(){
+ $("loanPrincipal").value="";
+ $("loanMonthly").value="";
+ $("loanAnnualRate").value="21";
+ $("loanMonths").value="60";
+ $("loanExtraRows").innerHTML="";
+ $("loanResults").style.display="none";
+ $("loanResultNote").textContent="اختر نوع الحساب وأدخل البيانات ثم اضغط «احسب الآن».";
+ setLoanMode("principal");
+}
+
 function resetCardInterest(){
  $("ciBalance").value=20000;$("ciMonthDays").value=30;$("ciRate").value=3.5;
  $("ciPayments").innerHTML="";cardPaymentRowCounter=0;
@@ -1221,6 +1382,7 @@ function importBackup(event){
 }
 buildAppPages();
 loadEmployeeSettings();
+setLoanMode('principal');
 showPage("home");
 resetCardInterest();
 loadStorage();
