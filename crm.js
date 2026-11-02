@@ -67,16 +67,21 @@ el("crmList").addEventListener("click",function(e){
  if(b.dataset.archive){c.archived=!c.archived;c.status=c.archived?"غير نشط":(c.status==="غير نشط"?"جاري التواصل":c.status);c.updatedAt=new Date().toISOString();c.history=(c.history||[]).concat([{at:c.updatedAt,action:c.archived?"تعطيل العميل":"إعادة تنشيط العميل"}]);save();}
  if(b.dataset.history){alert("سجل العميل: "+c.name+"\\n"+(c.history||[]).map(h=>new Date(h.at).toLocaleString("ar-EG")+" — "+h.action).join("\\n"));}
 });
-el("crmExport").addEventListener("click",function(){
- const blob=new Blob([JSON.stringify({app:"NBE Sales CRM Demo",version:1,exportedAt:new Date().toISOString(),customers:customers},null,2)],{type:"application/json"});
- const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="nbe-crm-demo-backup.json";a.click();URL.revokeObjectURL(url);
+el("crmExport").addEventListener("click",async function(){
+ const pass=prompt("أنشئ كلمة مرور لنسخة CRM الاحتياطية (10 أحرف على الأقل)");if(!pass)return;
+ try{
+  const payload={app:"NBE Sales CRM Demo",version:1,exportedAt:new Date().toISOString(),customers:customers};
+  const protectedFile=await window.NBESecurity.encryptBackup(payload,pass);
+  const blob=new Blob([JSON.stringify(protectedFile,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="nbe-crm-encrypted-backup.json";a.click();URL.revokeObjectURL(url);
+ }catch(e){alert(e.message||"تعذر إنشاء النسخة المشفرة.");}
 });
 el("crmImportBtn").addEventListener("click",function(){el("crmFile").click();});
 el("crmDrive").addEventListener("click",function(){window.open("https://drive.google.com/drive/my-drive","_blank","noopener");});
 el("crmFile").addEventListener("change",function(e){
  const file=e.target.files&&e.target.files[0];if(!file)return;
- const reader=new FileReader();reader.onload=function(){
-  try{const p=JSON.parse(reader.result);if(p.app!=="NBE Sales CRM Demo"||!Array.isArray(p.customers))throw new Error("bad");
+ const reader=new FileReader();reader.onload=async function(){
+  try{let p=JSON.parse(reader.result);if(p.app==="NBE Sales Encrypted Backup"){const pass=prompt("أدخل كلمة مرور ملف النسخة الاحتياطية");if(!pass){e.target.value="";return;}p=await window.NBESecurity.decryptBackup(p,pass);}else if(!confirm("هذه نسخة CRM قديمة غير مشفرة. هل تريد استيرادها؟")){e.target.value="";return;}if(p.app!=="NBE Sales CRM Demo"||!Array.isArray(p.customers))throw new Error("bad");
    const seen=new Set();p.customers.forEach(c=>{if(!c.id||!/^\d{14}$/.test(String(c.national||""))||seen.has(c.national))throw new Error("bad");seen.add(c.national);});
    if(confirm("سيتم استبدال السجل الحالي بالنسخة المختارة. هل تريد المتابعة؟")){customers=p.customers;save();alert("تمت استعادة النسخة التجريبية.");}
   }catch(err){alert("ملف النسخة غير صالح أو لا يخص CRM التجريبي.");}e.target.value="";
