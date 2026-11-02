@@ -48,7 +48,7 @@ function render(){
 el("crmForm").addEventListener("submit",function(e){
  e.preventDefault();
  const id=el("crmEditId").value,name=el("crmName").value.trim(),national=el("crmNational").value.trim(),phone=el("crmPhone").value.trim();
- if(!name||!/^\\d{14}$/.test(national)||!phone){alert("أدخل الاسم والرقم التجريبي المكوّن من 14 رقمًا والهاتف.");return;}
+ if(!name||!/^\d{14}$/.test(national)||!phone){alert("أدخل الاسم والرقم التجريبي المكوّن من 14 رقمًا والهاتف.");return;}
  if(customers.some(c=>c.national===national&&c.id!==id)){alert("هذا الرقم التجريبي مسجل بالفعل ولا يمكن تكراره.");return;}
  const data={name:national?name:name,national:national,phone:phone,job:el("crmJob").value.trim(),employer:el("crmEmployer").value.trim(),branch:el("crmBranch").value.trim(),status:el("crmStatus").value,notes:el("crmNotes").value.trim()};
  const now=new Date().toISOString();
@@ -76,7 +76,7 @@ el("crmFile").addEventListener("change",function(e){
  const file=e.target.files&&e.target.files[0];if(!file)return;
  const reader=new FileReader();reader.onload=function(){
   try{const p=JSON.parse(reader.result);if(p.app!=="NBE Sales CRM Demo"||!Array.isArray(p.customers))throw new Error("bad");
-   const seen=new Set();p.customers.forEach(c=>{if(!c.id||!/^\\d{14}$/.test(String(c.national||""))||seen.has(c.national))throw new Error("bad");seen.add(c.national);});
+   const seen=new Set();p.customers.forEach(c=>{if(!c.id||!/^\d{14}$/.test(String(c.national||""))||seen.has(c.national))throw new Error("bad");seen.add(c.national);});
    if(confirm("سيتم استبدال السجل الحالي بالنسخة المختارة. هل تريد المتابعة؟")){customers=p.customers;save();alert("تمت استعادة النسخة التجريبية.");}
   }catch(err){alert("ملف النسخة غير صالح أو لا يخص CRM التجريبي.");}e.target.value="";
  };reader.readAsText(file);
