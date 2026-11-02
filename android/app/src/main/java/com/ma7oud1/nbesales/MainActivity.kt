@@ -2,6 +2,7 @@ package com.ma7oud1.nbesales
 
 import android.app.Activity
 import android.content.ContentValues
+import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -21,6 +22,8 @@ class MainActivity : Activity() {
     private lateinit var web: WebView
     private val home = "https://ma7oud1.github.io/-nbe-sales/"
     private val trustedHost = "ma7oud1.github.io"
+    private var filePathCallback: android.webkit.ValueCallback<Array<Uri>>? = null
+    private val fileChooserRequestCode = 4107
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +39,7 @@ class MainActivity : Activity() {
         web.settings.databaseEnabled = true
         web.settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
         web.settings.allowFileAccess = false
-        web.settings.allowContentAccess = false
+        web.settings.allowContentAccess = true
         CookieManager.getInstance().setAcceptCookie(true)
         web.addJavascriptInterface(DownloadBridge(), "NbeAndroid")
 
@@ -57,7 +60,29 @@ class MainActivity : Activity() {
                 view.evaluateJavascript(js, null)
             }
         }
-        web.webChromeClient = WebChromeClient()
+        web.webChromeClient = object : WebChromeClient() {
+            override fun onShowFileChooser(
+                webView: WebView,
+                filePathCallback: android.webkit.ValueCallback<Array<Uri>>,
+                fileChooserParams: FileChooserParams
+            ): Boolean {
+                this@MainActivity.filePathCallback?.onReceiveValue(null)
+                this@MainActivity.filePathCallback = filePathCallback
+                return try {
+                    val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                        type = "*/*"
+                        putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/json", "text/json", "application/octet-stream"))
+                    }
+                    startActivityForResult(Intent.createChooser(intent, "اختيار النسخة الاحتياطية"), fileChooserRequestCode)
+                    true
+                } catch (_: Exception) {
+                    this@MainActivity.filePathCallback?.onReceiveValue(null)
+                    this@MainActivity.filePathCallback = null
+                    false
+                }
+            }
+        }
         web.setDownloadListener(DownloadListener { url, _, _, _, _ ->
             Toast.makeText(this, "يتم تجهيز تنزيل الملف", Toast.LENGTH_SHORT).show()
             try {
@@ -97,6 +122,17 @@ class MainActivity : Activity() {
             } catch (_: Exception) {
                 runOnUiThread { Toast.makeText(this@MainActivity, "تعذر حفظ الملف", Toast.LENGTH_LONG).show() }
             }
+        }
+    }
+
+    @Deprecated("Android file chooser result")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == fileChooserRequestCode) {
+            val callback = filePathCallback
+            filePathCallback = null
+            val result = if (resultCode == RESULT_OK && data?.data != null) arrayOf(data.data!!) else null
+            callback?.onReceiveValue(result)
         }
     }
 
