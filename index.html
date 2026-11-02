@@ -951,23 +951,29 @@ function printLedger(){
  window.print();
 }
 window.addEventListener("afterprint",()=>document.body.classList.remove("print-ledger"));
-function exportBackup(){
- saveReport(true);
- saveFollowups();
- localStorage.setItem(TARGETS_KEY,JSON.stringify(targets));
- const backup={app:"NBE Sales Daily Report",version:2,exportedAt:new Date().toISOString(),reports,targets,followups};
- const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
- const url=URL.createObjectURL(blob);
- const a=document.createElement("a");
- a.href=url;a.download="NBE-Sales-Backup-"+today()+".json";a.click();
- URL.revokeObjectURL(url);
+async function exportBackup(){
+ saveReport(true);saveFollowups();localStorage.setItem(TARGETS_KEY,JSON.stringify(targets));
+ const pass=prompt("أدخل كلمة مرور الخزنة لتشفير ملف النسخة الاحتياطية (10 أحرف على الأقل)");
+ if(!pass)return;
+ try{
+  const backup={app:"NBE Sales Daily Report",version:2,exportedAt:new Date().toISOString(),reports,targets,followups};
+  const encrypted=await window.NBESecurity.encryptBackup(backup,pass);
+  const blob=new Blob([JSON.stringify(encrypted,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download="NBE-Sales-Encrypted-Backup-"+today()+".json";a.click();URL.revokeObjectURL(url);
+ }catch(e){alert(e.message||"تعذر إنشاء النسخة المشفرة.");}
 }
 function importBackup(event){
  const file=event.target.files[0];if(!file)return;
  const reader=new FileReader();
- reader.onload=()=>{
+ reader.onload=async()=>{
   try{
-   const data=JSON.parse(reader.result);
+   let data=JSON.parse(reader.result);
+   if(data.app==="NBE Sales Encrypted Backup"){
+    const backupPassword=prompt("أدخل كلمة مرور النسخة الاحتياطية لفك التشفير");
+    if(!backupPassword)return;
+    data=await window.NBESecurity.decryptBackup(data,backupPassword);
+   }else if(!confirm("هذه نسخة قديمة غير مشفرة. قد تحتوي بيانات ظاهرة داخل الملف. هل تريد استيرادها؟"))return;
    const incoming=data.reports||data;
    if(!incoming||typeof incoming!=="object"||Array.isArray(incoming))throw new Error("Invalid backup");
    if(!confirm("سيتم دمج التقارير والمتابعات من النسخة الاحتياطية مع البيانات الموجودة. هل تريد المتابعة؟"))return;
