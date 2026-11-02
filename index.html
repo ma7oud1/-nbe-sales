@@ -602,7 +602,7 @@ body.dark .loan-calculator-section #loanResultNote{background:rgba(44,150,96,.12
   </div>
  </div>
  <div class="header-actions no-print">
-  <button onclick="toggleTheme()">◐ الوضع الليلي</button>
+  
   <button onclick="exportBackup()">⬇ نسخة احتياطية</button>
   <button onclick="$('importFile').click()">⬆ استعادة نسخة</button>
   <input id="importFile" type="file" accept=".json,application/json" class="hidden" onchange="importBackup(event)">
@@ -1421,10 +1421,6 @@ function resetCardInterest(){
  addCardPaymentRow(3000,5);addCardPaymentRow(2000,15);addCardPaymentRow(1000,23);
  calculateCardInterest();
 }
-function toggleTheme(){
- document.body.classList.toggle("dark");
- localStorage.setItem("nbe_sales_theme",document.body.classList.contains("dark")?"dark":"light");
-}
 function printReport(){
  saveReport(true);
  document.body.classList.remove("print-ledger");
@@ -1568,7 +1564,7 @@ function exportBackup(){
    followups:followups,
    customers:readStoredJson("nbe_crm_demo_customers_v1",[]),
    employeeSettings:{employee:EMPLOYEE,salesNo:SALES_NO},
-   theme:localStorage.getItem("nbe_sales_theme")||"light"
+   theme:"dark"
   };
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
   const url=URL.createObjectURL(blob),a=document.createElement("a");
@@ -1626,9 +1622,7 @@ function importBackup(event){
     EMPLOYEE=String(data.employeeSettings.employee||"");SALES_NO=String(data.employeeSettings.salesNo||"");
     localStorage.setItem(EMPLOYEE_SETTINGS_KEY,JSON.stringify({employee:EMPLOYEE,salesNo:SALES_NO}));
    }
-   if(data.theme==="dark"||data.theme==="light"){
-    localStorage.setItem("nbe_sales_theme",data.theme);document.body.classList.toggle("dark",data.theme==="dark");
-   }
+   localStorage.setItem("nbe_sales_theme","dark");document.body.classList.add("dark");
    if(!reports[currentDate])reports[currentDate]=blank(currentDate);
    persist();fillInfo();renderAll();
    if(typeof window.refreshNbeCrm==="function")window.refreshNbeCrm();
@@ -1649,7 +1643,7 @@ $("performanceMonth").value=today().slice(0,7);
 currentDate=today();
 if(!reports[currentDate])reports[currentDate]=blank(currentDate);
 fillInfo();renderAll();
-if(localStorage.getItem("nbe_sales_theme")==="dark")document.body.classList.add("dark");
+localStorage.setItem("nbe_sales_theme","dark");document.body.classList.add("dark");
 </script>
 <script src="./crm.js"></script>
 
