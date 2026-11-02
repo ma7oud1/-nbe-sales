@@ -108,7 +108,17 @@ form.addEventListener("submit",async function(e){
  }catch(e){fail(e.message==="OperationError"?"كلمة المرور غير صحيحة أو تعذر فك تشفير البيانات.":(e.message||"تعذر فتح الخزنة."));}
 });
 bioButton.addEventListener("click",registerBiometric);
-window.NBESecurity={lock:lock,registerBiometric:registerBiometric};
+async function encryptBackup(payload,pass){
+ if(!pass||pass.length<10)throw new Error("كلمة مرور النسخة يجب ألا تقل عن 10 أحرف.");
+ const salt=random(16),key=await derive(pass,salt),blob=await encrypt(payload,key);
+ return {app:"NBE Sales Encrypted Backup",version:1,salt:b64(salt),iv:blob.iv,data:blob.data};
+}
+async function decryptBackup(payload,pass){
+ if(!payload||payload.app!=="NBE Sales Encrypted Backup"||payload.version!==1)throw new Error("صيغة النسخة المشفرة غير صحيحة.");
+ const key=await derive(pass,un64(payload.salt));
+ return decrypt({iv:payload.iv,data:payload.data},key);
+}
+window.NBESecurity={lock:lock,registerBiometric:registerBiometric,encryptBackup:encryptBackup,decryptBackup:decryptBackup};
 async function init(){
  try{
   if(!crypto.subtle||!location.protocol.startsWith("https"))throw new Error("يلزم فتح البرنامج عبر HTTPS لتشغيل التشفير والبصمة.");
