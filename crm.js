@@ -144,7 +144,7 @@ function editVisit(id){
 visitsPage.insertAdjacentHTML("beforeend",''+
 '<section class="section crm-section visit-section">'+
 '<div class="section-title"><h2>تقارير الزيارات</h2><span class="badge">VISIT REPORTS</span></div>'+
-'<div class="crm-warning">كل تقرير زيارة مستقل ومرتبط بملف عميل موجود في سجل العملاء. احفظ بيانات الزيارة ونتيجتها وموعد المتابعة.</div>'+
+
 '<div class="section-title"><h2 id="visitFormTitle">تسجيل زيارة جديدة</h2></div>'+
 '<form id="visitForm" class="crm-form">'+
 '<div class="field"><label>اسم العميل بالكامل *</label><input id="visitName" required maxlength="120" placeholder="اسم العميل"></div>'+
