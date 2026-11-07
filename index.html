@@ -2340,6 +2340,7 @@ function renderAllTimeOverview(){
  put("allTimeLoanAmount",totals.amount);
  put("allTimeCustomers",typeof window.NBEVisitCustomerCount==="function"?window.NBEVisitCustomerCount():0);
 }
+window.refreshNbeBusinessOverview=renderAllTimeOverview;
 function renderAll(){
  renderAllTimeOverview();
  renderSummaries();
