@@ -139,6 +139,7 @@ function editVisit(id){
  el("visitBranch").value="رشيد - 394";
  el("visitDate").value=v.visitDate||"";
  el("visitProduct").value=v.product==="قرض"?"قرض":"كريدت";
+ el("visitNotes").value=v.notes||"";
  el("visitFormTitle").textContent="تعديل تقرير الزيارة";
  el("visitSave").textContent="حفظ التعديلات";el("visitForm").scrollIntoView({behavior:"smooth",block:"start"});
 }
@@ -156,6 +157,7 @@ visitsPage.insertAdjacentHTML("beforeend",''+
 '<div class="field"><label>الفرع</label><input id="visitBranch" value="رشيد - 394" readonly></div>'+
 '<div class="field"><label>نوع المنتج *</label><select id="visitProduct" required><option value="كريدت">كريدت</option><option value="قرض">قرض</option></select></div>'+
 '<div class="field"><label>تاريخ الزيارة *</label><input id="visitDate" type="date" required></div>'+
+'<div class="field" style="grid-column:1/-1"><label>ملاحظات</label><textarea id="visitNotes" rows="3" maxlength="1000" placeholder="اكتب أي ملاحظات عن الزيارة أو العميل"></textarea></div>'+
 '<div class="crm-form-actions"><button class="btn primary" type="submit" id="visitSave">حفظ الزيارة</button><button class="btn light-btn" type="button" id="visitCancel">إلغاء / تفريغ</button></div></form>'+
 '<div class="section-title" style="margin-top:25px"><h2>سجل الزيارات السابقة</h2><span class="badge" id="visitCount">0 زيارة</span><button class="btn primary no-print" type="button" id="printAllVisits">طباعة الزيارات</button></div>'+
 '<div class="crm-toolbar"><input id="visitSearch" type="search" placeholder="بحث باسم العميل أو الجهة أو المسؤول أو النتيجة"></div>'+
@@ -180,7 +182,7 @@ el("visitForm").addEventListener("submit",function(e){
  }
  NBEStore.setItem(KEY,JSON.stringify(customers));
  render();
- const data={customerId:customer.id,customerName:customer.name,customerNational:customer.national,customerPhone:customer.phone,customerJob:customer.job,customerBranch:"رشيد - 394",branchName:"رشيد",branchCode:"394",visitDate:el("visitDate").value,entity:el("visitEmployer").value.trim()||"—",contact:"",visitType:"زيارة تسويقية",product:el("visitProduct").value,expected:"",outcome:"",nextDate:"",notes:"",updatedAt:now};
+ const data={customerId:customer.id,customerName:customer.name,customerNational:customer.national,customerPhone:customer.phone,customerJob:customer.job,customerBranch:"رشيد - 394",branchName:"رشيد",branchCode:"394",visitDate:el("visitDate").value,entity:el("visitEmployer").value.trim()||"—",contact:"",visitType:"زيارة تسويقية",product:el("visitProduct").value,expected:"",outcome:"",nextDate:"",notes:el("visitNotes").value.trim(),updatedAt:now};
  const editing=!!visitEditId;
  if(editing){const old=visitReports.find(v=>String(v.id)===String(visitEditId));if(!old)return;Object.assign(old,data);}
  else visitReports.unshift({...data,id:"visit_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),createdAt:now});
