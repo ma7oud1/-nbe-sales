@@ -111,26 +111,27 @@ function renderVisitReports(){
  }).join("");
 }
 function printHtmlInCurrentPage(html){
- const frame=document.createElement("iframe");
- frame.setAttribute("aria-hidden","true");
- frame.setAttribute("title","Print preview");
- frame.style.cssText="position:fixed;left:0;top:0;width:100%;height:100%;border:0;opacity:0.01;pointer-events:none;z-index:-1;background:#fff";
- let started=false,cleaned=false;
- const cleanup=()=>{if(cleaned)return;cleaned=true;setTimeout(()=>frame.remove(),300);};
- const startPrint=()=>{
-  if(started)return;
-  const win=frame.contentWindow;
-  if(!win)return;
-  started=true;
-  win.onafterprint=cleanup;
-  try{win.focus();win.print();}catch(err){cleanup();console.error("Visit report print failed",err);}
-  setTimeout(()=>{if(!cleaned&&(!win.matchMedia||!win.matchMedia("print").matches))cleanup();},120000);
- };
- frame.onload=()=>{setTimeout(startPrint,250);};
- document.body.appendChild(frame);
- const doc=frame.contentDocument||frame.contentWindow.document;
- doc.open();doc.write(html);doc.close();
- setTimeout(startPrint,1200);
+ // Open a dedicated tab synchronously from the user's print-button action.
+ // This avoids iOS Safari/PWA printing the parent application instead of an iframe.
+ const printWindow=window.open("","_blank");
+ if(!printWindow){
+  alert("لم يتم فتح صفحة الطباعة. اسمح بفتح النوافذ المنبثقة لهذا التطبيق ثم حاول مرة أخرى.");
+  return;
+ }
+ try{
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+  const runPrint=()=>{
+   try{printWindow.focus();printWindow.print();}
+   catch(err){console.error("Visit report print failed",err);alert("تعذرت طباعة تقرير الزيارة. حاول فتح صفحة الطباعة ثم اختر طباعة.");}
+  };
+  printWindow.onload=()=>setTimeout(runPrint,300);
+  setTimeout(runPrint,900);
+ }catch(err){
+  console.error("Visit report window failed",err);
+  alert("تعذر تجهيز تقرير الزيارة للطباعة.");
+ }
 }
 function printVisitReport(id){
  const v=visitReports.find(x=>String(x.id)===String(id));if(!v)return;
