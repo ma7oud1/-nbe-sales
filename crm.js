@@ -19,7 +19,7 @@ page.insertAdjacentHTML("beforeend",''+
 '<div class="section-title"><h2 id="crmFormTitle">إضافة عميل جديد</h2><span class="badge">CUSTOMER CRM</span></div>'+
 '<form id="crmForm" class="crm-form">'+
 '<div class="field"><label>اسم العميل بالكامل *</label><input id="crmName" required maxlength="120"></div>'+
-'<div class="field"><label>الرقم القومي (14 رقمًا) *</label><input id="crmNational" required inputmode="numeric" maxlength="14" minlength="14" pattern="[0-9]{14}"></div>'+
+'<div class="field"><label>الرقم القومي (14 رقمًا) *</label><input id="crmNational" required inputmode="numeric" maxlength="14" minlength="14" pattern="[0-9٠-٩۰-۹]{14}"></div>'+
 '<div class="field"><label>رقم الهاتف *</label><input id="crmPhone" required inputmode="tel" maxlength="20"></div>'+
 '<div class="field"><label>الوظيفة</label><input id="crmJob" maxlength="100"></div>'+
 '<div class="field"><label>جهة العمل</label><input id="crmEmployer" maxlength="120"></div>'+
@@ -33,6 +33,7 @@ page.insertAdjacentHTML("beforeend",''+
 '</div>');
 function el(id){return document.getElementById(id);}
 function safe(v){return String(v||"").replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function normalizeDigits(v){return String(v||"").replace(/[٠-٩۰-۹]/g,function(d){return String("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹".indexOf(d)%10);});}
 function load(){try{const x=JSON.parse(NBEStore.getItem(KEY)||"[]");customers=Array.isArray(x)?x:[];}catch(e){customers=[];}render();}
 window.refreshNbeCrm=load;
 function save(){NBEStore.setItem(KEY,JSON.stringify(customers));render();if(typeof renderVisitCustomerOptions==="function")renderVisitCustomerOptions();if(typeof renderVisitReports==="function")renderVisitReports();}
@@ -46,7 +47,8 @@ function render(){
 }
 el("crmForm").addEventListener("submit",function(e){
  e.preventDefault();
- const id=el("crmEditId").value,name=el("crmName").value.trim(),national=el("crmNational").value.trim(),phone=el("crmPhone").value.trim();
+ const id=el("crmEditId").value,name=el("crmName").value.trim(),national=normalizeDigits(el("crmNational").value.trim()),phone=el("crmPhone").value.trim();
+ el("crmNational").value=national;
  if(!name||!/^\d{14}$/.test(national)||!phone){alert("أدخل الاسم والرقم القومي المكوّن من 14 رقمًا ورقم الهاتف.");return;}
  if(customers.some(c=>c.national===national&&c.id!==id)){alert("هذا الرقم القومي مسجل بالفعل ولا يمكن تكراره.");return;}
  const data={name:national?name:name,national:national,phone:phone,job:el("crmJob").value.trim(),employer:el("crmEmployer").value.trim(),branch:"رشيد - 394",status:el("crmStatus").value,notes:el("crmNotes").value.trim()};
@@ -147,7 +149,7 @@ visitsPage.insertAdjacentHTML("beforeend",''+
 '<div class="section-title"><h2 id="visitFormTitle">تسجيل زيارة جديدة</h2></div>'+
 '<form id="visitForm" class="crm-form">'+
 '<div class="field"><label>اسم العميل بالكامل *</label><input id="visitName" required maxlength="120" placeholder="اسم العميل"></div>'+
-'<div class="field"><label>الرقم القومي (14 رقمًا) *</label><input id="visitNational" required inputmode="numeric" maxlength="14" minlength="14" pattern="[0-9]{14}" placeholder="الرقم القومي"></div>'+
+'<div class="field"><label>الرقم القومي (14 رقمًا) *</label><input id="visitNational" required inputmode="numeric" maxlength="14" minlength="14" pattern="[0-9٠-٩۰-۹]{14}" placeholder="الرقم القومي"></div>'+
 '<div class="field"><label>رقم هاتف العميل *</label><input id="visitPhone" type="tel" inputmode="tel" maxlength="20" required placeholder="رقم الهاتف"></div>'+
 '<div class="field"><label>الوظيفة</label><input id="visitJob" maxlength="100"></div>'+
 '<div class="field"><label>جهة العمل</label><input id="visitEmployer" maxlength="120"></div>'+
@@ -162,7 +164,8 @@ style.textContent += ".visit-section{margin-top:22px}.visit-card-head{display:fl
 el("visitDate").value=new Date().toISOString().slice(0,10);
 el("visitForm").addEventListener("submit",function(e){
  e.preventDefault();
- const name=el("visitName").value.trim(),national=el("visitNational").value.trim(),phone=el("visitPhone").value.trim();
+ const name=el("visitName").value.trim(),national=normalizeDigits(el("visitNational").value.trim()),phone=el("visitPhone").value.trim();
+ el("visitNational").value=national;
  if(!name||!/^\\d{14}$/.test(national)||!phone){alert("أدخل اسم العميل والرقم القومي المكوّن من 14 رقمًا ورقم الهاتف.");return;}
  if(!el("visitDate").value){alert("أدخل تاريخ الزيارة.");return;}
  const now=new Date().toISOString();
@@ -185,7 +188,7 @@ el("visitForm").addEventListener("submit",function(e){
 });
 el("visitCancel").addEventListener("click",resetVisitForm);
 el("visitSearch").addEventListener("input",renderVisitReports);
-el("visitNational").addEventListener("change",()=>{const n=el("visitNational").value.trim();const c=customers.find(x=>String(x.national)===n);if(c){el("visitName").value=c.name||"";el("visitPhone").value=c.phone||"";el("visitJob").value=c.job||"";el("visitEmployer").value=c.employer||"";el("visitBranch").value=c.branch||"";}});
+el("visitNational").addEventListener("change",()=>{const n=normalizeDigits(el("visitNational").value.trim());el("visitNational").value=n;const c=customers.find(x=>String(x.national)===n);if(c){el("visitName").value=c.name||"";el("visitPhone").value=c.phone||"";el("visitJob").value=c.job||"";el("visitEmployer").value=c.employer||"";el("visitBranch").value=c.branch||"";}});
  el("printAllVisits").addEventListener("click",printAllVisitReports);
 el("visitList").addEventListener("click",function(e){
  const b=e.target.closest("button");if(!b)return;
