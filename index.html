@@ -1592,6 +1592,7 @@ async function exportBackup(){
    reports:reports,
    followups:followups,
    customers:readStoredJson("nbe_crm_demo_customers_v1",[]),
+   visitReports:readStoredJson("NBE_VISIT_REPORTS_V1",[]),
    employeeSettings:{employee:EMPLOYEE,salesNo:SALES_NO},
    theme:"dark"
   };
@@ -1659,6 +1660,13 @@ function importBackup(event){
     (Array.isArray(current)?current:[]).forEach((item,index)=>merged.set(String(item.id??item.national??("existing-"+index)),item));
     data.customers.forEach((item,index)=>{if(item&&typeof item==="object")merged.set(String(item.id??item.national??("backup-"+index)),item);});
     NBEStore.setItem("nbe_crm_demo_customers_v1",JSON.stringify(Array.from(merged.values())));
+   }
+   if(Array.isArray(data.visitReports)){
+    const currentVisits=readStoredJson("NBE_VISIT_REPORTS_V1",[]);
+    const mergedVisits=new Map();
+    (Array.isArray(currentVisits)?currentVisits:[]).forEach((item,index)=>mergedVisits.set(String(item.id??("existing-"+index)),item));
+    data.visitReports.forEach((item,index)=>{if(item&&typeof item==="object")mergedVisits.set(String(item.id??("backup-"+index)),item);});
+    NBEStore.setItem("NBE_VISIT_REPORTS_V1",JSON.stringify(Array.from(mergedVisits.values())));
    }
    if(data.employeeSettings&&typeof data.employeeSettings==="object"){
     EMPLOYEE=String(data.employeeSettings.employee||"");SALES_NO=String(data.employeeSettings.salesNo||"");
