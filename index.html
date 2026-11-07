@@ -226,7 +226,7 @@ tr:hover td{background:rgba(8,116,67,.035)}
 body{padding-bottom:86px}
 #mainNav{
  position:fixed;z-index:1000;bottom:0;left:0;right:0;
- display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;
+ display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;
  padding:8px max(10px,calc((100vw - 1250px)/2)) calc(8px + env(safe-area-inset-bottom));
  background:var(--card);border-top:1px solid var(--border);
  box-shadow:0 -5px 22px rgba(20,50,40,.09)
@@ -361,6 +361,20 @@ body.dark #mainNav{background:rgba(26,41,47,.94);border-color:#33464b}
 body.dark th{background:#22363a}
 body.dark .light-btn{background:#203238}
 
+
+/* قائمة الاختصارات في شريط التنقل السفلي */
+#mainNav{grid-template-columns:repeat(7,minmax(0,1fr))}
+.quick-shortcuts-menu{
+ position:fixed;z-index:1100;left:10px;right:10px;bottom:calc(76px + env(safe-area-inset-bottom));
+ display:grid;grid-template-columns:1fr 1fr;gap:9px;
+ max-width:520px;margin:0 auto;padding:13px;
+ background:var(--card);border:1px solid var(--border);border-radius:17px;
+ box-shadow:0 12px 35px rgba(0,0,0,.2)
+}
+.quick-shortcuts-menu[hidden]{display:none}
+.quick-shortcuts-menu .btn{min-height:48px;padding:10px 8px;font-size:12px;white-space:normal}
+.shortcuts-nav-btn.active{background:rgba(8,116,67,.11);color:var(--green)}
+@media(max-width:390px){.nav-btn{font-size:8px}.nav-btn .nav-icon{font-size:16px}}
 
 /* Dashboard quick actions and ledger search */
 .dash-quick-actions{padding:18px}
@@ -619,7 +633,14 @@ body.dark .loan-calculator-section #loanResultNote{background:rgba(44,150,96,.12
  <button class="nav-btn" data-page="archive" onclick="showPage('archive')"><span class="nav-icon">🗂️</span><span>الأرشيف</span></button>
  <button class="nav-btn" data-page="visits" onclick="showPage('visits')"><span class="nav-icon">📍</span><span>تقرير الزيارات</span></button>
  <button class="nav-btn" data-page="settings" onclick="showPage('settings')"><span class="nav-icon">⚙️</span><span>الإعدادات</span></button>
+ <button class="nav-btn shortcuts-nav-btn" type="button" onclick="toggleQuickMenu()" aria-expanded="false"><span class="nav-icon">⚡</span><span>اختصارات</span></button>
 </nav>
+<div id="quickShortcutsMenu" class="quick-shortcuts-menu" hidden>
+ <button class="btn primary" type="button" onclick="quickAdd('card')">＋ تسجيل كارت جديد</button>
+ <button class="btn secondary" type="button" onclick="quickAdd('loan')">＋ تسجيل قرض جديد</button>
+ <button class="btn gold-btn" type="button" onclick="quickAdd('followup')">＋ إضافة متابعة عميل</button>
+ <button class="btn light-btn" type="button" onclick="closeQuickMenu();showPage('customers')">إدارة العملاء CRM</button>
+</div>
 
 <div class="section info-section">
  <div class="section-title">
@@ -861,20 +882,6 @@ function buildAppPages(){
  move(".info-section","home");
  move(".stats","home");
 
- const dashboard=document.createElement("section");
- dashboard.className="nbe-dashboard";
- dashboard.innerHTML=`
-  <div class="dash-panel dash-quick-actions"><h3>اختصارات سريعة</h3><div class="dash-quick-grid"><button class="btn primary" type="button" onclick="quickAdd('card')">＋ تسجيل كارت جديد</button><button class="btn secondary" type="button" onclick="quickAdd('loan')">＋ تسجيل قرض جديد</button><button class="btn gold-btn" type="button" onclick="quickAdd('followup')">＋ إضافة متابعة عميل</button><button class="btn light-btn" type="button" onclick="showPage('customers')">إدارة العملاء CRM</button></div></div>
- `;
- // وضع بيانات التقرير والاختصارات جنب بعض في الصف العلوي
- const homeTop=document.createElement("div");
- homeTop.className="home-top-layout";
- const reportInfo=pages.home.querySelector(".info-section");
- const homeStats=pages.home.querySelector(".stats");
- if(reportInfo)homeTop.append(reportInfo);
- homeTop.append(dashboard);
- pages.home.insertBefore(homeTop,homeStats||null);
-
  move(".entry-section","sales");
  move(".ledger-section","sales");
  move(".cards-section","sales");
@@ -942,12 +949,28 @@ function buildAppPages(){
  const footer=container.querySelector(":scope > .footer");
  if(footer)pages.settings.append(footer);
 }
+function toggleQuickMenu(){
+ const menu=document.getElementById("quickShortcutsMenu");
+ const button=document.querySelector(".shortcuts-nav-btn");
+ if(!menu)return;
+ const opening=menu.hidden;
+ menu.hidden=!opening;
+ if(button){button.classList.toggle("active",opening);button.setAttribute("aria-expanded",String(opening));}
+}
+function closeQuickMenu(){
+ const menu=document.getElementById("quickShortcutsMenu");
+ const button=document.querySelector(".shortcuts-nav-btn");
+ if(menu)menu.hidden=true;
+ if(button){button.classList.remove("active");button.setAttribute("aria-expanded","false");}
+}
 function quickAdd(type){
+ closeQuickMenu();
  if(type==="followup"){showPage("followups");setTimeout(()=>document.getElementById("fName")?.focus(),80);return;}
  showPage("sales");showForm(type);
  setTimeout(()=>{const target=document.getElementById(type==="card"?"cName":"lName");target?.focus();target?.scrollIntoView({behavior:"smooth",block:"center"});},80);
 }
 function showPage(id){
+ closeQuickMenu();
  document.querySelectorAll(".app-page").forEach(page=>page.classList.toggle("active",page.dataset.page===id));
  document.querySelectorAll("#mainNav .nav-btn").forEach(btn=>btn.classList.toggle("active",btn.dataset.page===id));
  window.scrollTo({top:0,behavior:"smooth"});
