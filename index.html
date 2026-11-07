@@ -1200,12 +1200,22 @@ const NBE_EN={
 "لغة التطبيق":"Application Language","اختر لغة واجهة البرنامج بالكامل. سيتم حفظ اختيارك على هذا الجهاز.":"Choose the app interface language. Your selection will be saved on this device.","العربية":"Arabic","الإنجليزية":"English",
 "تم حفظ بيانات موظف المبيعات بنجاح.":"Sales employee details saved successfully.","تعذر حفظ الإعدادات على هذا الجهاز.":"Unable to save settings on this device.","لا توجد زيارات لطباعتها.":"There are no visits to print.","لا توجد نتائج":"No results","لا توجد نتائج في هذا التصنيف":"No results in this category","لا توجد عمليات مسجلة":"No transactions recorded","لا توجد كروت":"No cards","لا توجد قروض":"No loans","لا توجد زيارات مسجلة حتى الآن":"No visits have been recorded yet","أدخل تاريخ الزيارة.":"Enter the visit date.","أدخل اسم العميل والرقم القومي المكوّن من 14 رقمًا ورقم الهاتف.":"Enter the customer name, 14-digit national ID and phone number.","هل تريد حذف تقرير الزيارة؟":"Delete this visit report?","هل أنت متأكد من حذف هذه العملية؟":"Are you sure you want to delete this transaction?","تمت إضافة الكارت بنجاح":"Card added successfully","تمت إضافة القرض بنجاح":"Loan added successfully","تم حفظ العميل.":"Customer saved.","تم تحديث العميل.":"Customer updated."
 };
+const NBE_ORIGINAL_TEXT=new WeakMap();
 function nbeTranslateTree(root){
- if(!root||document.documentElement.lang!=="en")return;
+ if(!root)return;
+ const english=document.documentElement.lang==="en";
  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),nodes=[];
  while(walker.nextNode())nodes.push(walker.currentNode);
- nodes.forEach(n=>{const p=n.parentElement;if(!p||p.closest("script,style,textarea,[contenteditable=true]")||/^(SCRIPT|STYLE|TEXTAREA|INPUT)$/i.test(p.tagName))return;const raw=n.nodeValue,trim=raw.trim();if(NBE_EN[trim])n.nodeValue=raw.replace(trim,NBE_EN[trim]);});
- root.querySelectorAll("[placeholder],[aria-label]").forEach(el=>["placeholder","aria-label"].forEach(k=>{const v=el.getAttribute(k);if(NBE_EN[v])el.setAttribute(k,NBE_EN[v]);}));
+ nodes.forEach(n=>{
+  const p=n.parentElement;
+  if(!p||p.closest("script,style,textarea,[contenteditable=true]")||/^(SCRIPT|STYLE|TEXTAREA|INPUT)$/i.test(p.tagName))return;
+  if(!NBE_ORIGINAL_TEXT.has(n))NBE_ORIGINAL_TEXT.set(n,n.nodeValue);
+  const original=NBE_ORIGINAL_TEXT.get(n),trim=original.trim();
+  const translated=english?NBE_EN[trim]:null;
+  n.nodeValue=translated?original.replace(trim,translated):original;
+ });
+ if(english)root.querySelectorAll("[placeholder],[aria-label]").forEach(el=>["placeholder","aria-label"].forEach(k=>{const v=el.getAttribute(k);if(NBE_EN[v]){if(!el.hasAttribute("data-nbe-original-"+k))el.setAttribute("data-nbe-original-"+k,v);el.setAttribute(k,NBE_EN[v]);}}));
+ else root.querySelectorAll("[data-nbe-original-placeholder],[data-nbe-original-aria-label]").forEach(el=>["placeholder","aria-label"].forEach(k=>{const v=el.getAttribute("data-nbe-original-"+k);if(v!==null){el.setAttribute(k,v);el.removeAttribute("data-nbe-original-"+k);}}));
 }
 function nbeApplyLanguage(lang,save=true){
  lang=lang==="en"?"en":"ar";document.documentElement.lang=lang;document.documentElement.dir=lang==="en"?"ltr":"rtl";document.body.classList.toggle("lang-en",lang==="en");
