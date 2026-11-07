@@ -671,6 +671,100 @@ tr:hover td{background:rgba(0,99,65,.045)}
  .section-title h2{font-size:16px}
 }
 
+
+/* COMPLETE LAYOUT REFINEMENT — consistent banking workspace */
+:root{--green:#006341;--green2:#0a7951;--navy:#153b31;--gold:#c6a765;--bg:#f4f6f4;--card:#fff;--text:#20352d;--muted:#75827b;--border:#e0e7e1;--shadow:0 5px 20px rgba(22,55,39,.055)}
+body.dark{--bg:#111c17;--card:#1b2a22;--text:#edf4ee;--muted:#aab8ae;--border:#34473a;--shadow:0 6px 22px rgba(0,0,0,.18)}
+.container{max-width:1280px;padding:22px 22px 112px}
+#pageHost{width:100%;max-width:100%;margin:0 auto}
+#pageHost .app-page{width:100%;max-width:100%;min-width:0}
+#pageHost .page-heading{display:flex;flex-direction:column;gap:5px;margin:6px 0 18px;padding:0 2px 13px;border-bottom:1px solid var(--border)}
+#pageHost .page-heading h2{font-size:21px;font-weight:800;line-height:1.5;letter-spacing:.1px}
+#pageHost .page-heading p{font-size:12px;line-height:1.8;color:var(--muted);margin:0}
+#pageHost .app-page>.section,#pageHost .app-page>.settings-panel{width:100%;max-width:100%;margin:0 0 16px;min-width:0}
+#pageHost .app-page>.section+.section{margin-top:16px}
+#pageHost .app-page .section-title{min-height:38px;align-items:center;padding-bottom:11px;border-bottom:1px solid var(--border)}
+#pageHost .app-page .section-title h2{font-size:16px;font-weight:800;line-height:1.5}
+#pageHost .app-page .badge{font-size:10px;letter-spacing:.45px;padding:6px 10px}
+#pageHost .app-page .grid,#pageHost .app-page .form-grid{gap:14px}
+#pageHost .app-page .field label{font-size:12px;font-weight:750}
+#pageHost .app-page input,#pageHost .app-page select,#pageHost .app-page textarea{min-height:44px;border-radius:10px}
+#pageHost .app-page .btn{min-height:42px;padding:10px 15px;border-radius:10px}
+#pageHost .app-page .actions{gap:9px;margin-top:16px}
+#pageHost .app-page .stats{margin-top:16px}
+#pageHost .app-page .stat{min-height:105px;display:flex;flex-direction:column;justify-content:center}
+#pageHost .app-page .table-wrap{width:100%;border:1px solid var(--border);border-radius:12px}
+#pageHost .app-page table{margin:0}
+#pageHost .home-page>.info-section{float:none!important;clear:none!important;width:100%!important;max-width:100%!important;margin:0 0 16px!important}
+#pageHost .home-page>.info-section .grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+#pageHost .home-page>.info-section .actions{flex-direction:row!important}
+#pageHost .home-page>.info-section .actions .btn{width:auto!important}
+#pageHost .home-page>.stats{clear:none!important}
+#mainNav{
+ position:fixed;z-index:1000;left:50%;right:auto;bottom:0;transform:translateX(-50%);
+ width:min(calc(100% - 28px),920px);display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
+ gap:6px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+ background:rgba(255,255,255,.96);border:1px solid #dfe8e1;border-bottom:0;
+ border-radius:18px 18px 0 0;box-shadow:0 -8px 30px rgba(17,58,39,.11);
+ backdrop-filter:blur(18px)
+}
+body.dark #mainNav{background:rgba(27,42,34,.96);border-color:var(--border)}
+#mainNav .nav-btn{
+ width:100%;min-width:0;height:58px;padding:6px 3px;border:0;border-radius:12px;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+ background:transparent;color:var(--muted);font-size:10px;font-weight:750;line-height:1.2;
+ white-space:nowrap;overflow:hidden
+}
+#mainNav .nav-btn .nav-icon{font-size:19px;line-height:1;font-weight:700}
+#mainNav .nav-btn.active{background:rgba(0,99,65,.10);color:var(--green);box-shadow:inset 0 0 0 1px rgba(0,99,65,.08)}
+body.dark #mainNav .nav-btn.active{background:rgba(20,150,95,.16);color:#a8e0c1}
+#mainNav .nav-btn:active{transform:scale(.97)}
+.quick-shortcuts-menu{
+ position:fixed;z-index:1100;left:50%;right:auto;transform:translateX(-50%);
+ bottom:calc(82px + env(safe-area-inset-bottom));width:min(calc(100% - 28px),520px);
+ max-height:min(65vh,520px);overflow:auto;grid-template-columns:1fr 1fr;gap:10px;
+ padding:16px;border:1px solid var(--border);border-radius:18px;background:var(--card);
+ box-shadow:0 18px 50px rgba(0,0,0,.20)
+}
+.quick-shortcuts-menu[hidden]{display:none}
+.quick-shortcuts-menu .btn{min-height:48px;font-size:12px;line-height:1.5}
+.header{margin-bottom:18px}
+.nbe-identity-strip{box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+.section,.settings-panel,.dash-kpi,.dash-panel{border-radius:15px}
+.crm-section{padding:20px}
+.crm-card{border-radius:13px}
+.crm-meta{line-height:1.9}
+.archive-list{align-items:stretch}
+.archive-item{min-height:62px}
+.followup-stats,.performance-grid,.dash-kpis{align-items:stretch}
+.footer{padding:20px 10px 12px}
+@media(max-width:800px){
+ .container{padding:14px 14px 112px}
+ #pageHost .home-page>.info-section .grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #pageHost .app-page .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #mainNav{width:calc(100% - 18px);gap:3px;padding:7px 6px calc(7px + env(safe-area-inset-bottom))}
+ #mainNav .nav-btn{height:56px;font-size:10px}
+}
+@media(max-width:420px){
+ .container{padding:10px 10px 108px}
+ #mainNav{width:calc(100% - 12px);gap:2px;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+ #mainNav .nav-btn{height:54px;padding:5px 1px;font-size:9px;gap:3px}
+ #mainNav .nav-btn .nav-icon{font-size:18px}
+ #pageHost .page-heading h2{font-size:18px}
+ #pageHost .app-page>.section{padding:14px}
+ #pageHost .home-page>.info-section .grid{grid-template-columns:1fr!important}
+ .quick-shortcuts-menu{width:calc(100% - 20px);grid-template-columns:1fr 1fr;padding:12px}
+}
+@media(min-width:801px){
+ #mainNav{width:min(calc(100% - 48px),980px)}
+ #mainNav .nav-btn{height:62px;font-size:11px}
+}
+@media print{
+ #mainNav,.quick-shortcuts-menu{display:none!important}
+ body{padding-bottom:0!important}
+ .container{padding:0!important}
+}
+
 </style>
 </head>
 <body>
@@ -700,19 +794,21 @@ tr:hover td{background:rgba(0,99,65,.045)}
  </div>
 </header>
 <nav id="mainNav" aria-label="التنقل الرئيسي">
- <button class="nav-btn active" data-page="home" onclick="showPage('home')" aria-label="الرئيسية"><span class="nav-icon">🏠</span></button>
- <button class="nav-btn" data-page="calculator" onclick="showPage('calculator')"><span class="nav-icon">🧮</span><span>حساب فائدة المديونية الشهرية</span></button>
- <button class="nav-btn" data-page="loan-calculator" onclick="showPage('loan-calculator')"><span class="nav-icon">🏦</span><span>حاسبة القروض</span></button>
- <button class="nav-btn" data-page="archive" onclick="showPage('archive')"><span class="nav-icon">🗂️</span><span>الأرشيف</span></button>
- <button class="nav-btn" data-page="visits" onclick="showPage('visits')"><span class="nav-icon">📍</span><span>تقرير الزيارات</span></button>
- <button class="nav-btn" data-page="settings" onclick="showPage('settings')"><span class="nav-icon">⚙️</span><span>الإعدادات</span></button>
- <button class="nav-btn shortcuts-nav-btn" type="button" onclick="toggleQuickMenu()" aria-expanded="false"><span class="nav-icon">⚡</span><span>اختصارات</span></button>
+ <button class="nav-btn active" data-page="home" onclick="showPage('home')" aria-label="الرئيسية"><span class="nav-icon">⌂</span><span>الرئيسية</span></button>
+ <button class="nav-btn" data-page="sales" onclick="showPage('sales')"><span class="nav-icon">▤</span><span>المبيعات</span></button>
+ <button class="nav-btn" data-page="customers" onclick="showPage('customers')"><span class="nav-icon">♙</span><span>العملاء</span></button>
+ <button class="nav-btn" data-page="followups" onclick="showPage('followups')"><span class="nav-icon">◷</span><span>المتابعة</span></button>
+ <button class="nav-btn" data-page="visits" onclick="showPage('visits')"><span class="nav-icon">⌖</span><span>الزيارات</span></button>
+ <button class="nav-btn" data-page="archive" onclick="showPage('archive')"><span class="nav-icon">▣</span><span>الأرشيف</span></button>
+ <button class="nav-btn shortcuts-nav-btn" type="button" onclick="toggleQuickMenu()" aria-expanded="false"><span class="nav-icon">•••</span><span>المزيد</span></button>
 </nav>
 <div id="quickShortcutsMenu" class="quick-shortcuts-menu" hidden>
  <button class="btn primary" type="button" onclick="quickAdd('card')">＋ تسجيل كارت جديد</button>
  <button class="btn secondary" type="button" onclick="quickAdd('loan')">＋ تسجيل قرض جديد</button>
  <button class="btn gold-btn" type="button" onclick="quickAdd('followup')">＋ إضافة متابعة عميل</button>
- <button class="btn light-btn" type="button" onclick="closeQuickMenu();showPage('customers')">إدارة العملاء CRM</button>
+ <button class="btn light-btn" type="button" onclick="closeQuickMenu();showPage('calculator')">حاسبة فوائد الكريدت</button>
+ <button class="btn light-btn" type="button" onclick="closeQuickMenu();showPage('loan-calculator')">حاسبة القروض</button>
+ <button class="btn light-btn" type="button" onclick="closeQuickMenu();showPage('settings')">الإعدادات والنسخ الاحتياطي</button>
 </div>
 
 <div class="section info-section">
