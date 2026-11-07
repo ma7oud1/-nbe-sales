@@ -1676,7 +1676,7 @@ function importBackup(event){
 }
 window.NBEStorageReady.then(()=>{
  buildAppPages();loadEmployeeSettings();setLoanMode('principal');showPage("home");resetCardInterest();
- loadStorage();loadFollowups();$("performanceMonth").value=today().slice(0,7);currentDate=today();
+ loadStorage();loadFollowups();const performanceMonth=$("performanceMonth");if(performanceMonth)performanceMonth.value=today().slice(0,7);currentDate=today();
  if(!reports[currentDate])reports[currentDate]=blank(currentDate);
  fillInfo();renderAll();NBEStore.setItem("nbe_sales_theme","dark");document.body.classList.add("dark");
  if(typeof window.refreshNbeCrm==="function")window.refreshNbeCrm();
