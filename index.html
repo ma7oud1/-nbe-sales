@@ -925,7 +925,7 @@ body.dark #mainNav .nav-btn.active{background:linear-gradient(180deg,rgba(32,169
 .theme-toggle-icon{font-size:18px;line-height:1;color:var(--gold)}
 #quickShortcutsMenu .btn{border-radius:12px;font-weight:750}
 @media(max-width:420px){#mainNav .nav-btn{min-height:54px;gap:4px}#mainNav .nav-btn .nav-icon{width:19px;height:19px}#mainNav .nav-btn span:not(.nav-icon){font-size:9px}}
-</style>
+html[lang="en"] body,body.lang-en{direction:ltr;font-family:Arial,Tahoma,sans-serif}body.lang-en #mainNav{direction:ltr}body.lang-en .nav-btn,body.lang-en .section-title,body.lang-en .page-heading,body.lang-en .field label,body.lang-en .settings-panel{text-align:left}body.lang-en input,body.lang-en select,body.lang-en textarea{direction:ltr;text-align:left}body.lang-en .crm-section,body.lang-en .crm-list{direction:ltr}</style>
 </head>
 <body>
 <div class="container">
@@ -1185,6 +1185,36 @@ body.dark #mainNav .nav-btn.active{background:linear-gradient(180deg,rgba(32,169
 
 <script>
 
+
+const NBE_LANG_KEY="nbe_sales_language";
+const NBE_EN={
+"الرئيسية":"Home","المبيعات":"Sales","العملاء":"Customers","متابعة العملاء":"Customer Follow-up","المتابعة":"Follow-up","الزيارات":"Visits","تقرير الزيارات":"Visit Reports","الأرشيف":"Archive","الإعدادات":"Settings","إدارة العملاء CRM":"Customer Management CRM",
+"تسجيل الكروت والقروض ومراجعة سجل العمليات":"Register cards and loans and review transactions","حاسبة القروض":"Loan Calculator","احسب قيمة القرض أو القسط الشهري مع السداد الإضافي":"Calculate the loan amount or monthly installment with extra payments","ملفات العملاء وبياناتهم وسجلهم":"Customer profiles, details and history","إضافة ومراجعة مواعيد ونتائج التواصل مع العملاء":"Add and review customer contact schedules and outcomes","تسجيل ومراجعة تقارير الزيارات المرتبطة بالعملاء":"Register and review customer visit reports","التقارير اليومية المحفوظة":"Saved daily reports","إدارة النسخ الاحتياطية وإعدادات التطبيق":"Backup management and app settings",
+"بيانات موظف المبيعات":"Sales Employee Details","اكتب اسم الموظف ورقم السيلز مرة واحدة، وسيتم استخدامهما تلقائيًا في التقارير على هذا الجهاز. اتركهما فارغين إذا كنت ستشارك التطبيق مع زميل ليضبط بياناته بنفسه.":"Enter the employee name and sales ID once. They will be used automatically in reports on this device.",
+"اسم موظف المبيعات":"Sales Employee Name","رقم السيلز":"Sales ID","اكتب اسم الموظف":"Enter employee name","اكتب رقم السيلز":"Enter sales ID","حفظ بيانات الموظف":"Save Employee Details","إدارة التطبيق والبيانات":"App & Data Management","النسخ الاحتياطي والاستعادة":"Backup & Restore","إدارة النسخ المحفوظة والتحكم في مظهر التطبيق من مكان واحد.":"Manage saved backups and app appearance in one place.",
+"الوضع النهاري":"Light Mode","الوضع الليلي":"Dark Mode","تغيير مظهر التطبيق":"Change app appearance","نسخة احتياطية":"Backup","استعادة تلقائية":"Restore Auto Backup","استعادة نسخة":"Restore Backup","اسم العميل":"Customer Name","اسم العميل بالكامل *":"Full Customer Name *","الرقم القومي":"National ID","الرقم القومي (14 رقمًا) *":"National ID (14 digits) *","رقم الهاتف":"Phone Number","رقم الهاتف *":"Phone Number *","رقم هاتف العميل *":"Customer Phone Number *","الموبايل":"Mobile","الوظيفة":"Occupation","جهة العمل":"Employer","الفرع":"Branch","حالة العميل":"Customer Status","ملاحظات":"Notes","حفظ العميل":"Save Customer","تفريغ الحقول":"Clear Fields","إضافة عميل جديد":"Add New Customer","سجل العملاء":"Customer List","عميل":"Customer","تعديل":"Edit","حذف":"Delete","تعطيل العميل":"Deactivate Customer","سجل التعديلات":"Change History","غير نشط":"Inactive","جاري التواصل":"In Progress","جديد":"New","مهتم":"Interested","بانتظار مستندات":"Awaiting Documents","تم التقديم":"Submitted","مكتمل":"Completed","غير مهتم":"Not Interested","مرفوض":"Rejected","قيد المراجعة":"Under Review","غير محدد":"Not Specified",
+"بحث":"Search","بحث في سجل المبيعات":"Search Sales Records","كل العمليات":"All Transactions","نتيجة":"Result","التفاصيل":"Details","القيمة / الحالة":"Amount / Status","نوع العملية":"Transaction Type","كارت ائتمان":"Credit Card","قرض شخصي":"Personal Loan","كارت":"Card","قرض":"Loan","جنيه":"EGP","أخرى":"Other","مكالمة هاتفية":"Phone Call","واتساب":"WhatsApp","مقابلة":"Meeting","لم يتم التواصل":"Not Contacted",
+"إجمالي المديونية في بداية الشهر (جنيه)":"Opening Balance (EGP)","عدد أيام الشهر":"Days in Month","نسبة الفائدة الشهرية (%)":"Monthly Interest Rate (%)","عمليات السداد":"Payments","تقدر تضيف أي عدد من الدفعات":"Add any number of payments","إضافة عملية سداد":"Add Payment","احسب الفائدة":"Calculate Interest","إعادة القيم الافتراضية":"Reset Defaults","إجمالي الفائدة":"Total Interest","المتبقي من المديونية":"Remaining Balance","إجمالي المطلوب (المتبقي + الفائدة)":"Total Due (Balance + Interest)","إجمالي مبالغ السداد":"Total Payments",
+"احسب قيمة القرض":"Calculate Loan Amount","احسب القسط الشهري":"Calculate Monthly Installment","قيمة القرض (جنيه)":"Loan Amount (EGP)","القسط الشهري (جنيه)":"Monthly Installment (EGP)","فايدة القرض (%)":"Loan Interest Rate (%)","مدة القرض":"Loan Term","السنين":"Years","الشهور":"Months","السداد الإضافي":"Extra Payments","اختياري ومتعدد":"Optional · Multiple","إضافة سداد إضافي":"Add Extra Payment","احسب الآن":"Calculate Now","إعادة تعيين":"Reset","قيمة القرض / أصل التمويل":"Loan Principal","القسط الشهري":"Monthly Installment","إجمالي الفوائد":"Total Interest","إجمالي المدفوعات":"Total Payments",
+"تسجيل زيارة جديدة":"Register New Visit","حفظ الزيارة":"Save Visit","حفظ التعديلات":"Save Changes","إلغاء / تفريغ":"Cancel / Clear","سجل الزيارات السابقة":"Previous Visits","طباعة الزيارات":"Print Visits","عرض كل الأيام":"Show All Dates","عرض زيارات اليوم":"Showing Today's Visits","كل الأيام":"All Dates","التاريخ":"Date","تاريخ الزيارة *":"Visit Date *","نوع المنتج *":"Product Type *","نتيجة الزيارة":"Visit Outcome","كريدت":"Credit Card","طباعة التقرير":"Print Report","سجل الزيارات":"Visit Log","عدد الزيارات":"Number of Visits","إجمالي الزيارات المسجلة":"Total Registered Visits","اسم الموظف":"Employee Name","تاريخ التقرير":"Report Date","عدد الكروت:":"Cards:","عدد القروض:":"Loans:","إجمالي العمليات:":"Total Transactions:","البنك الأهلي المصري":"National Bank of Egypt","سجل المبيعات اليومي":"Daily Sales Report","تم إنشاء التقرير من تطبيق NBE Sales":"Generated by NBE Sales",
+"لغة التطبيق":"Application Language","اختر لغة واجهة البرنامج بالكامل. سيتم حفظ اختيارك على هذا الجهاز.":"Choose the app interface language. Your selection will be saved on this device.","العربية":"Arabic","الإنجليزية":"English",
+"تم حفظ بيانات موظف المبيعات بنجاح.":"Sales employee details saved successfully.","تعذر حفظ الإعدادات على هذا الجهاز.":"Unable to save settings on this device.","لا توجد زيارات لطباعتها.":"There are no visits to print.","لا توجد نتائج":"No results","لا توجد نتائج في هذا التصنيف":"No results in this category","لا توجد عمليات مسجلة":"No transactions recorded","لا توجد كروت":"No cards","لا توجد قروض":"No loans","لا توجد زيارات مسجلة حتى الآن":"No visits have been recorded yet","أدخل تاريخ الزيارة.":"Enter the visit date.","أدخل اسم العميل والرقم القومي المكوّن من 14 رقمًا ورقم الهاتف.":"Enter the customer name, 14-digit national ID and phone number.","هل تريد حذف تقرير الزيارة؟":"Delete this visit report?","هل أنت متأكد من حذف هذه العملية؟":"Are you sure you want to delete this transaction?","تمت إضافة الكارت بنجاح":"Card added successfully","تمت إضافة القرض بنجاح":"Loan added successfully","تم حفظ العميل.":"Customer saved.","تم تحديث العميل.":"Customer updated."
+};
+function nbeTranslateTree(root){
+ if(!root||document.documentElement.lang!=="en")return;
+ const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),nodes=[];
+ while(walker.nextNode())nodes.push(walker.currentNode);
+ nodes.forEach(n=>{const p=n.parentElement;if(!p||p.closest("script,style,textarea,[contenteditable=true]")||/^(SCRIPT|STYLE|TEXTAREA|INPUT)$/i.test(p.tagName))return;const raw=n.nodeValue,trim=raw.trim();if(NBE_EN[trim])n.nodeValue=raw.replace(trim,NBE_EN[trim]);});
+ root.querySelectorAll("[placeholder],[aria-label]").forEach(el=>["placeholder","aria-label"].forEach(k=>{const v=el.getAttribute(k);if(NBE_EN[v])el.setAttribute(k,NBE_EN[v]);}));
+}
+function nbeApplyLanguage(lang,save=true){
+ lang=lang==="en"?"en":"ar";document.documentElement.lang=lang;document.documentElement.dir=lang==="en"?"ltr":"rtl";document.body.classList.toggle("lang-en",lang==="en");
+ if(save)try{NBEStore.setItem(NBE_LANG_KEY,lang)}catch(e){}
+ const p=document.getElementById("nbeLanguageSelect");if(p)p.value=lang;
+ nbeTranslateTree(document.body);
+}
+function setNbeLanguage(lang){nbeApplyLanguage(lang,true);}
+
 function buildAppPages(){
  const container=document.querySelector(".container");
  const nav=document.getElementById("mainNav");
@@ -1273,6 +1303,10 @@ function buildAppPages(){
   <div class="footer">تم إنشاء الحاسبة بواسطة محمود محمد رزق | تليفون: <a href="tel:01555051532" style="color:inherit;text-decoration:none;direction:ltr;unicode-bidi:isolate">01555051532</a></div>
  `;
  pages["loan-calculator"].append(loanCalculator);
+ const languageCard=document.createElement("div");
+ languageCard.className="settings-panel nbe-language-card";
+ languageCard.innerHTML='<h2>لغة التطبيق</h2><p>اختر لغة واجهة البرنامج بالكامل. سيتم حفظ اختيارك على هذا الجهاز.</p><div class="field" style="max-width:360px;margin-top:12px"><label for="nbeLanguageSelect">Application Language</label><select id="nbeLanguageSelect" onchange="setNbeLanguage(this.value)"><option value="ar">العربية</option><option value="en">English</option></select></div>';
+ pages.settings.append(languageCard);
  const settings=document.createElement("div");
  settings.className="settings-panel";
  settings.innerHTML=`<h2>بيانات موظف المبيعات</h2><p>اكتب اسم الموظف ورقم السيلز مرة واحدة، وسيتم استخدامهما تلقائيًا في التقارير على هذا الجهاز. اتركهما فارغين إذا كنت ستشارك التطبيق مع زميل ليضبط بياناته بنفسه.</p><div class="form-grid" style="margin-top:14px"><div class="field"><label for="settingEmployee">اسم موظف المبيعات</label><input id="settingEmployee" type="text" maxlength="100" placeholder="اكتب اسم الموظف"></div><div class="field"><label for="settingSalesNo">رقم السيلز</label><input id="settingSalesNo" type="text" maxlength="30" placeholder="اكتب رقم السيلز"></div></div><div class="actions"><button class="btn primary" type="button" onclick="saveEmployeeSettings()">حفظ بيانات الموظف</button></div><hr style="border:0;border-top:1px solid var(--border);margin:22px 0"><h2>إدارة التطبيق والبيانات</h2>`;
@@ -1998,7 +2032,7 @@ async function exportBackup(){
    customers:readStoredJson("nbe_crm_demo_customers_v1",[]),
    visitReports:readStoredJson("NBE_VISIT_REPORTS_V1",[]),
    employeeSettings:{employee:EMPLOYEE,salesNo:SALES_NO},
-   theme:document.body.classList.contains("dark")?"dark":"light"
+   theme:document.body.classList.contains("dark")?"dark":"light",language:NBEStore.getItem(NBE_LANG_KEY)||"ar"
   };
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
   const url=URL.createObjectURL(blob),a=document.createElement("a");
@@ -2088,7 +2122,7 @@ function importBackup(event){
  reader.readAsText(file);
 }
 window.NBEStorageReady.then(()=>{
- buildAppPages();loadEmployeeSettings();setLoanMode('principal');showPage("home");resetCardInterest();
+ buildAppPages();nbeApplyLanguage(NBEStore.getItem(NBE_LANG_KEY)==="en"?"en":"ar",false);new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)nbeTranslateTree(n);else if(n.nodeType===3)nbeTranslateTree(n.parentElement);}))).observe(document.body,{childList:true,subtree:true});loadEmployeeSettings();setLoanMode('principal');showPage("home");resetCardInterest();
  loadStorage();loadFollowups();const performanceMonth=$("performanceMonth");if(performanceMonth)performanceMonth.value=today().slice(0,7);currentDate=today();
  if(!reports[currentDate])reports[currentDate]=blank(currentDate);
  fillInfo();renderAll();setAppTheme(NBEStore.getItem("nbe_sales_theme")==="light"?"light":"dark");
