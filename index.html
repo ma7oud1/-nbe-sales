@@ -1961,7 +1961,7 @@ function buildAppPages(){
  pages.settings.append(languageCard);
  const settings=document.createElement("div");
  settings.className="settings-panel";
- settings.innerHTML=`<h2>بيانات موظف المبيعات</h2><p>اكتب اسم الموظف ورقم السيلز مرة واحدة، وسيتم استخدامهما تلقائيًا في التقارير على هذا الجهاز. اتركهما فارغين إذا كنت ستشارك التطبيق مع زميل ليضبط بياناته بنفسه.</p><div class="form-grid" style="margin-top:14px"><div class="field"><label for="settingEmployee">اسم موظف المبيعات</label><input id="settingEmployee" type="text" maxlength="100" placeholder="اكتب اسم الموظف"></div><div class="field"><label for="settingSalesNo">رقم السيلز</label><input id="settingSalesNo" type="text" maxlength="30" placeholder="اكتب رقم السيلز"></div></div><div class="actions"><button class="btn primary" type="button" onclick="saveEmployeeSettings()">حفظ بيانات الموظف</button></div><hr style="border:0;border-top:1px solid var(--border);margin:22px 0"><h2>إدارة التطبيق والبيانات</h2>`;
+ settings.innerHTML=`<h2>إدارة التطبيق والبيانات</h2>`;
  pages.settings.append(settings);
  const dataCard=document.createElement("div");
  dataCard.className="settings-data-card";
@@ -2059,9 +2059,8 @@ function toggleAppTheme(){
  setAppTheme(document.body.classList.contains("dark")?"light":"dark");
 }
 
-let EMPLOYEE="";
-let SALES_NO="";
-const EMPLOYEE_SETTINGS_KEY="NBE_SALES_EMPLOYEE_SETTINGS_V1";
+const EMPLOYEE="محمود محمد رزق";
+const SALES_NO="479511";
 const BRANCH_NAME="رشيد";
 const BRANCH_CODE="394";
 const STORAGE_KEY="NBE_SALES_REPORTS_V1";
@@ -2105,27 +2104,7 @@ function formatReportDate(date){
  if(parts.length!==3||parts.some(part=>!/^\\d+$/.test(part)))return String(date||"—");
  return parts[2].padStart(2,"0")+"/"+parts[1].padStart(2,"0")+"/"+parts[0];
 }
-function loadEmployeeSettings(){
- try{
-  const saved=JSON.parse(NBEStore.getItem(EMPLOYEE_SETTINGS_KEY)||"{}");
-  EMPLOYEE=typeof saved.employee==="string"?saved.employee:"";
-  SALES_NO=typeof saved.salesNo==="string"?saved.salesNo:"";
- }catch(e){EMPLOYEE="";SALES_NO="";}
-}
-function saveEmployeeSettings(){
- EMPLOYEE=$("settingEmployee").value.trim();
- SALES_NO=$("settingSalesNo").value.trim();
- try{NBEStore.setItem(EMPLOYEE_SETTINGS_KEY,JSON.stringify({employee:EMPLOYEE,salesNo:SALES_NO}));}
- catch(e){alert("تعذر حفظ الإعدادات على هذا الجهاز.");return;}
- if(currentDate){
-  const report=getReport();
-  report.employee=EMPLOYEE;
-  report.salesNo=SALES_NO;
-  persist();
- }
- fillInfo();
- alert("تم حفظ بيانات موظف المبيعات بنجاح.");
-}
+function loadEmployeeSettings(){}
 function blank(date){
  return {date,employee:EMPLOYEE,salesNo:SALES_NO,branchName:BRANCH_NAME,branchCode:BRANCH_CODE,cards:[],loans:[]};
 }
@@ -2237,10 +2216,7 @@ function fillInfo(){
  $("employee").value=EMPLOYEE;
  $("salesNo").value=SALES_NO;
  const branchInfo=$("branchInfo");if(branchInfo)branchInfo.value=BRANCH_NAME+" - "+BRANCH_CODE;
- const settingEmployee=$("settingEmployee");
- const settingSalesNo=$("settingSalesNo");
- if(settingEmployee)settingEmployee.value=EMPLOYEE;
- if(settingSalesNo)settingSalesNo.value=SALES_NO;
+
 }
 function showForm(type){
  $("cardForm").classList.toggle("hidden",type!=="card");
