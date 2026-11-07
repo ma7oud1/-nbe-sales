@@ -6,6 +6,8 @@
 <meta name="theme-color" content="#006341">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NBE Sales">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NBE | Daily Sales Report</title>
@@ -604,6 +606,8 @@ body.dark .loan-calculator-section #loanResultNote{background:rgba(44,150,96,.12
  <div class="header-actions no-print">
   
   <button onclick="exportBackup()">⬇ نسخة احتياطية</button>
+  <button onclick="restoreLatestAutoSnapshot()">↩ استعادة تلقائية</button>
+  <small id="nbeBackupStatus" style="display:block;flex-basis:100%;color:#e0eee7;font-size:11px;text-align:right">قاعدة البيانات المحلية قيد التجهيز...</small>
   <button onclick="$('importFile').click()">⬆ استعادة نسخة</button>
   <input id="importFile" type="file" accept=".json,application/json" class="hidden" onchange="importBackup(event)">
  </div>
@@ -958,13 +962,37 @@ let currentDate="";
 let ledgerMode="all";
 const $=id=>document.getElementById(id);
 
+/* NBE local database: IndexedDB with one-time LocalStorage migration */
+const NBE_DB_NAME="nbe_sales_portfolio_db";
+const NBE_DB_VERSION=1;
+const NBEStore=(()=>{
+ const memory=new Map();let db=null,writeQueue=Promise.resolve(),snapshotTimer=null,persistentStorage=false;
+ function txDone(tx){return new Promise((resolve,reject)=>{tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error||new Error("IndexedDB transaction failed"));tx.onabort=()=>reject(tx.error||new Error("IndexedDB transaction aborted"));});}
+ function openDb(){return new Promise((resolve,reject)=>{if(!("indexedDB" in window))return reject(new Error("IndexedDB unavailable"));const req=indexedDB.open(NBE_DB_NAME,NBE_DB_VERSION);req.onupgradeneeded=()=>{const d=req.result;if(!d.objectStoreNames.contains("kv"))d.createObjectStore("kv",{keyPath:"key"});if(!d.objectStoreNames.contains("snapshots"))d.createObjectStore("snapshots",{keyPath:"id"});};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error("Could not open local database"));});}
+ function enqueue(task){writeQueue=writeQueue.then(task).catch(error=>{console.error("NBE local database write error:",error);window.dispatchEvent(new CustomEvent("nbe-storage-error"));});return writeQueue;}
+ async function latestSnapshot(){if(!db)return null;const tx=db.transaction("snapshots","readonly");const rows=await new Promise((resolve,reject)=>{const req=tx.objectStore("snapshots").getAll();req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error);});rows.sort((a,b)=>b.id-a.id);return rows[0]||null;}
+ function updateBackupStatus(timestamp){const el=document.getElementById("nbeBackupStatus");if(!el)return;const date=timestamp?new Date(timestamp):null;el.textContent=date?"قاعدة البيانات محلية • آخر نسخة تلقائية: "+date.toLocaleString("ar-EG"):"قاعدة البيانات محلية • النسخ التلقائي يعمل";}
+ async function saveSnapshot(){if(!db||!memory.size)return;await writeQueue;const snapshot={id:Date.now(),timestamp:new Date().toISOString(),entries:Object.fromEntries(memory)};const readTx=db.transaction("snapshots","readonly");const all=await new Promise((resolve,reject)=>{const req=readTx.objectStore("snapshots").getAll();req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error);});all.sort((a,b)=>b.id-a.id);const tx=db.transaction("snapshots","readwrite");const store=tx.objectStore("snapshots");store.put(snapshot);all.slice(14).forEach(item=>store.delete(item.id));await txDone(tx);updateBackupStatus(snapshot.timestamp);}
+ function scheduleSnapshot(){if(snapshotTimer)clearTimeout(snapshotTimer);snapshotTimer=setTimeout(()=>{saveSnapshot().catch(error=>console.warn("Automatic snapshot skipped:",error));},1800);}
+ async function init(){try{db=await openDb();const tx=db.transaction("kv","readonly");const rows=await new Promise((resolve,reject)=>{const req=tx.objectStore("kv").getAll();req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error);});rows.forEach(row=>memory.set(row.key,row.value));const legacy=window.localStorage;for(let i=0;i<legacy.length;i++){const key=legacy.key(i);if(key&&!memory.has(key)){const value=legacy.getItem(key);memory.set(key,value);await enqueue(()=>{const wtx=db.transaction("kv","readwrite");wtx.objectStore("kv").put({key,value});return txDone(wtx);});}}if(navigator.storage&&navigator.storage.persist){try{persistentStorage=await navigator.storage.persist();}catch(_){}}const latest=await latestSnapshot();updateBackupStatus(latest&&latest.timestamp);if(!latest&&memory.size)scheduleSnapshot();return{mode:"indexeddb",persistentStorage};}catch(error){console.warn("NBE IndexedDB unavailable; using browser storage fallback:",error);db=null;const legacy=window.localStorage;for(let i=0;i<legacy.length;i++){const key=legacy.key(i);if(key)memory.set(key,legacy.getItem(key));}updateBackupStatus(null);return{mode:"localstorage-fallback",persistentStorage:false};}}
+ function getItem(key){return memory.has(String(key))?memory.get(String(key)):null;}
+ function setItem(key,value){key=String(key);value=String(value);memory.set(key,value);if(db){enqueue(()=>{const tx=db.transaction("kv","readwrite");tx.objectStore("kv").put({key,value});return txDone(tx);});scheduleSnapshot();}else{try{window.localStorage.setItem(key,value);}catch(error){console.error("NBE fallback storage error:",error);}}}
+ function removeItem(key){key=String(key);memory.delete(key);if(db){enqueue(()=>{const tx=db.transaction("kv","readwrite");tx.objectStore("kv").delete(key);return txDone(tx);});scheduleSnapshot();}else{try{window.localStorage.removeItem(key);}catch(_){}}}
+ async function replaceAll(entries){if(!db||!entries||typeof entries!=="object")throw new Error("قاعدة البيانات المحلية غير متاحة");const tx=db.transaction("kv","readwrite");const store=tx.objectStore("kv");store.clear();memory.clear();Object.entries(entries).forEach(([key,value])=>{const text=String(value);memory.set(key,text);store.put({key,value:text});});await txDone(tx);}
+ return{getItem,setItem,removeItem,init,latestSnapshot,replaceAll,entries:()=>Object.fromEntries(memory),flush:()=>writeQueue,get mode(){return db?"indexeddb":"localstorage-fallback";},get persistentStorage(){return persistentStorage;}};
+})();
+window.NBEStore=NBEStore;
+window.NBEStorageReady=NBEStore.init();
+window.addEventListener("nbe-storage-error",()=>{const status=document.getElementById("nbeBackupStatus");if(status)status.textContent="تنبيه: تعذر حفظ آخر تغيير في قاعدة البيانات";});
+
+
 function today(){
  const d=new Date();
  return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
 }
 function loadEmployeeSettings(){
  try{
-  const saved=JSON.parse(localStorage.getItem(EMPLOYEE_SETTINGS_KEY)||"{}");
+  const saved=JSON.parse(NBEStore.getItem(EMPLOYEE_SETTINGS_KEY)||"{}");
   EMPLOYEE=typeof saved.employee==="string"?saved.employee:"";
   SALES_NO=typeof saved.salesNo==="string"?saved.salesNo:"";
  }catch(e){EMPLOYEE="";SALES_NO="";}
@@ -972,7 +1000,7 @@ function loadEmployeeSettings(){
 function saveEmployeeSettings(){
  EMPLOYEE=$("settingEmployee").value.trim();
  SALES_NO=$("settingSalesNo").value.trim();
- try{localStorage.setItem(EMPLOYEE_SETTINGS_KEY,JSON.stringify({employee:EMPLOYEE,salesNo:SALES_NO}));}
+ try{NBEStore.setItem(EMPLOYEE_SETTINGS_KEY,JSON.stringify({employee:EMPLOYEE,salesNo:SALES_NO}));}
  catch(e){alert("تعذر حفظ الإعدادات على هذا الجهاز.");return;}
  if(currentDate){
   const report=getReport();
@@ -988,18 +1016,18 @@ function blank(date){
 }
 function loadStorage(){
  try{
-  reports=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+  reports=JSON.parse(NBEStore.getItem(STORAGE_KEY)||"{}");
   if(!reports||typeof reports!=="object")reports={};
  }catch(e){reports={};}
 }
 function loadFollowups(){
  try{
-  const saved=JSON.parse(localStorage.getItem(FOLLOWUPS_KEY)||"[]");
+  const saved=JSON.parse(NBEStore.getItem(FOLLOWUPS_KEY)||"[]");
   followups=Array.isArray(saved)?saved:[];
  }catch(e){followups=[];}
 }
 function saveFollowups(){
- try{localStorage.setItem(FOLLOWUPS_KEY,JSON.stringify(followups));}
+ try{NBEStore.setItem(FOLLOWUPS_KEY,JSON.stringify(followups));}
  catch(e){alert("تعذر حفظ سجل المتابعة على هذا الجهاز.");}
 }
 function clearFollowupForm(){
@@ -1065,7 +1093,7 @@ function renderFollowups(){
  }).join(""):'<tr><td colspan="9" class="empty">لا توجد نتائج في هذا التصنيف</td></tr>';
 }
 function persist(){
- try{localStorage.setItem(STORAGE_KEY,JSON.stringify(reports));}
+ try{NBEStore.setItem(STORAGE_KEY,JSON.stringify(reports));}
  catch(e){alert("تعذر حفظ البيانات. قد تكون مساحة التخزين ممتلئة.");}
 }
 function getReport(){
@@ -1550,10 +1578,11 @@ function exportLedgerImage(){
 }
 window.addEventListener("afterprint",()=>document.body.classList.remove("print-ledger"));
 function readStoredJson(key,fallback){
- try{const value=localStorage.getItem(key);return value?JSON.parse(value):fallback;}
+ try{const value=NBEStore.getItem(key);return value?JSON.parse(value):fallback;}
  catch(_){return fallback;}
 }
-function exportBackup(){
+async function exportBackup(){
+ await NBEStore.flush();
  if(!confirm("سيتم تنزيل نسخة احتياطية غير مشفرة تشمل التقارير والمتابعات والعملاء وإعدادات الموظف. أي شخص يحصل على الملف قد يطّلع على بياناته. هل تريد المتابعة؟"))return;
  try{
   const payload={
@@ -1573,6 +1602,19 @@ function exportBackup(){
   setTimeout(()=>URL.revokeObjectURL(url),3000);
  }catch(e){alert("تعذر إنشاء النسخة الاحتياطية: "+(e.message||"خطأ غير معروف"));}
 }
+
+async function restoreLatestAutoSnapshot(){
+ try{
+  const snapshot=await NBEStore.latestSnapshot();
+  if(!snapshot){alert("لا توجد نسخة تلقائية محفوظة حتى الآن.");return;}
+  const when=new Date(snapshot.timestamp).toLocaleString("ar-EG");
+  if(!confirm("سيتم استبدال البيانات الحالية بآخر نسخة تلقائية بتاريخ "+when+". يُفضّل تصدير نسخة يدوية أولاً. هل تريد المتابعة؟"))return;
+  await NBEStore.replaceAll(snapshot.entries);
+  alert("تمت استعادة النسخة التلقائية. سيتم إعادة فتح البرنامج.");
+  location.reload();
+ }catch(e){alert("تعذرت استعادة النسخة التلقائية: "+(e.message||"خطأ غير معروف"));}
+}
+
 function importBackup(event){
  const input=event&&event.target;
  const file=input&&input.files&&input.files[0];
@@ -1616,13 +1658,13 @@ function importBackup(event){
     const merged=new Map();
     (Array.isArray(current)?current:[]).forEach((item,index)=>merged.set(String(item.id??item.national??("existing-"+index)),item));
     data.customers.forEach((item,index)=>{if(item&&typeof item==="object")merged.set(String(item.id??item.national??("backup-"+index)),item);});
-    localStorage.setItem("nbe_crm_demo_customers_v1",JSON.stringify(Array.from(merged.values())));
+    NBEStore.setItem("nbe_crm_demo_customers_v1",JSON.stringify(Array.from(merged.values())));
    }
    if(data.employeeSettings&&typeof data.employeeSettings==="object"){
     EMPLOYEE=String(data.employeeSettings.employee||"");SALES_NO=String(data.employeeSettings.salesNo||"");
-    localStorage.setItem(EMPLOYEE_SETTINGS_KEY,JSON.stringify({employee:EMPLOYEE,salesNo:SALES_NO}));
+    NBEStore.setItem(EMPLOYEE_SETTINGS_KEY,JSON.stringify({employee:EMPLOYEE,salesNo:SALES_NO}));
    }
-   localStorage.setItem("nbe_sales_theme","dark");document.body.classList.add("dark");
+   NBEStore.setItem("nbe_sales_theme","dark");document.body.classList.add("dark");
    if(!reports[currentDate])reports[currentDate]=blank(currentDate);
    persist();fillInfo();renderAll();
    if(typeof window.refreshNbeCrm==="function")window.refreshNbeCrm();
@@ -1632,18 +1674,13 @@ function importBackup(event){
  };
  reader.readAsText(file);
 }
-buildAppPages();
-loadEmployeeSettings();
-setLoanMode('principal');
-showPage("home");
-resetCardInterest();
-loadStorage();
-loadFollowups();
-$("performanceMonth").value=today().slice(0,7);
-currentDate=today();
-if(!reports[currentDate])reports[currentDate]=blank(currentDate);
-fillInfo();renderAll();
-localStorage.setItem("nbe_sales_theme","dark");document.body.classList.add("dark");
+window.NBEStorageReady.then(()=>{
+ buildAppPages();loadEmployeeSettings();setLoanMode('principal');showPage("home");resetCardInterest();
+ loadStorage();loadFollowups();$("performanceMonth").value=today().slice(0,7);currentDate=today();
+ if(!reports[currentDate])reports[currentDate]=blank(currentDate);
+ fillInfo();renderAll();NBEStore.setItem("nbe_sales_theme","dark");document.body.classList.add("dark");
+ if(typeof window.refreshNbeCrm==="function")window.refreshNbeCrm();
+}).catch(error=>{console.error("NBE startup error:",error);alert("تعذر تجهيز قاعدة البيانات المحلية. أعد فتح البرنامج.");});
 </script>
 <script src="./crm.js"></script>
 
