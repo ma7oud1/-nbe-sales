@@ -812,7 +812,7 @@ body.dark .loan-calculator-section #loanResultNote{background:rgba(44,150,96,.12
   <table>
    <thead><tr>
     <th>م</th><th>نوع العملية</th><th>اسم العميل</th><th>الرقم القومي</th>
-    <th>الموبايل</th><th>جهة العمل</th><th>التفاصيل</th>
+    <th>الموبايل</th><th>جهة العمل</th><th>الفرع</th><th>التفاصيل</th>
     <th>القيمة / الحالة</th><th>كود العميل</th><th class="delete-col no-print">إجراء</th>
    </tr></thead>
    <tbody id="ledgerBody"><tr><td colspan="10" class="empty">لا توجد عمليات مسجلة لهذا اليوم</td></tr></tbody>
@@ -1215,21 +1215,21 @@ function statusBadge(status){
  return `<span class="badge ${cls}">${esc(status)}</span>`;
 }
 function allRows(r){
- const cards=r.cards.map(x=>({kind:"كارت",name:x.name,national:x.national,mobile:x.mobile,employer:x.employer,detail:x.type,value:statusBadge(x.status),code:x.code,id:x.id,source:"card"}));
- const loans=r.loans.map(x=>({kind:"قرض",name:x.name,national:x.national,mobile:x.mobile,employer:x.employer,detail:x.type,value:money(x.amount)+" جنيه",code:x.code,id:x.id,source:"loan"}));
+ const cards=r.cards.map(x=>({kind:"كارت",name:x.name,national:x.national,mobile:x.mobile,employer:x.employer,branch:"رشيد - 394",detail:x.type,value:statusBadge(x.status),code:x.code,id:x.id,source:"card"}));
+ const loans=r.loans.map(x=>({kind:"قرض",name:x.name,national:x.national,mobile:x.mobile,employer:x.employer,branch:"رشيد - 394",detail:x.type,value:money(x.amount)+" جنيه",code:x.code,id:x.id,source:"loan"}));
  return [...cards,...loans];
 }
 function renderLedger(){
  const r=getReport();
  let rows=allRows(r);
  const search=(document.getElementById("ledgerSearch")?.value||"").trim().toLowerCase();
- if(search)rows=rows.filter(x=>[x.kind,x.name,x.national,x.mobile,x.employer,x.detail,x.code].some(v=>String(v??"").toLowerCase().includes(search)));
+ if(search)rows=rows.filter(x=>[x.kind,x.name,x.national,x.mobile,x.employer,x.branch,x.detail,x.code].some(v=>String(v??"").toLowerCase().includes(search)));
  if(ledgerMode==="cards")rows=rows.filter(x=>x.source==="card");
  if(ledgerMode==="loans")rows=rows.filter(x=>x.source==="loan");
  $("ledgerSearchCount").textContent=search?(rows.length+" نتيجة"):"كل العمليات";
  $("ledgerBody").innerHTML=rows.length?rows.map((x,i)=>`
  <tr><td>${i+1}</td><td>${x.kind}</td><td>${esc(x.name)}</td>
- <td>${esc(x.national)}</td><td>${esc(x.mobile)}</td><td>${esc(x.employer)}</td>
+ <td>${esc(x.national)}</td><td>${esc(x.mobile)}</td><td>${esc(x.employer)}</td><td>رشيد - 394</td>
  <td>${esc(x.detail)}</td><td>${x.value}</td><td>${esc(x.code)}</td>
  <td class="delete-col no-print"><button class="btn danger small-btn" onclick="deleteItem('${x.source}','${x.id}')">حذف</button></td></tr>`).join("")
  :`<tr><td colspan="10" class="empty">لا توجد عمليات مسجلة</td></tr>`;
