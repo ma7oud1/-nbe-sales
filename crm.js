@@ -76,6 +76,7 @@ function loadVisitReports(){
  renderVisitReports();
 }
 function saveVisitReports(){NBEStore.setItem(VISIT_KEY,JSON.stringify(visitReports));renderVisitReports();}
+window.refreshNbeVisits=loadVisitReports;
 function renderVisitCustomerOptions(selected){
  const select=el("visitCustomer");if(!select)return;
  const old=selected??select.value;
