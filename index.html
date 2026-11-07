@@ -805,6 +805,78 @@ body.dark #mainNav .nav-btn.active{background:rgba(20,150,95,.16);color:#a8e0c1}
  .nbe-identity-strip strong{font-size:clamp(11px,3.1vw,14px)}
 }
 
+
+/* Premium action layout for daily report controls */
+#pageHost .home-page > .info-section .actions{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:12px!important;
+ margin-top:22px!important;
+ align-items:stretch;
+}
+#pageHost .home-page > .info-section .actions .btn{
+ width:100%!important;
+ min-height:56px;
+ margin:0!important;
+ padding:12px 16px!important;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ gap:10px;
+ border:1px solid transparent;
+ border-radius:13px;
+ font-size:13px;
+ font-weight:800;
+ line-height:1.5;
+ text-align:center;
+ white-space:normal;
+ box-shadow:0 5px 14px rgba(18,55,40,.07);
+ transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;
+}
+#pageHost .home-page > .info-section .actions .btn:before{
+ font-size:17px;
+ line-height:1;
+ flex:0 0 auto;
+}
+#pageHost .home-page > .info-section .actions .btn:nth-child(1){
+ background:linear-gradient(135deg,#087443,#0a8f5b);
+ color:#fff;
+ box-shadow:0 7px 17px rgba(8,116,67,.19);
+}
+#pageHost .home-page > .info-section .actions .btn:nth-child(1):before{content:"✓"}
+#pageHost .home-page > .info-section .actions .btn:nth-child(2){
+ background:#123342;color:#fff;border-color:#234b5c;
+}
+#pageHost .home-page > .info-section .actions .btn:nth-child(2):before{content:"▤"}
+#pageHost .home-page > .info-section .actions .btn:nth-child(3){
+ background:#f6f0e3;color:#72551d;border-color:#e8d7ad;
+}
+#pageHost .home-page > .info-section .actions .btn:nth-child(3):before{content:"▥"}
+#pageHost .home-page > .info-section .actions .btn:nth-child(4){
+ background:#f1f5f3;color:#176344;border-color:#dce8e1;
+}
+#pageHost .home-page > .info-section .actions .btn:nth-child(4):before{content:"▧"}
+#pageHost .home-page > .info-section .actions .btn:hover{
+ transform:translateY(-2px);
+ box-shadow:0 9px 20px rgba(18,55,40,.12);
+ filter:brightness(1.015);
+}
+@media(max-width:520px){
+ #pageHost .home-page > .info-section .actions{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:9px!important;
+  margin-top:17px!important;
+ }
+ #pageHost .home-page > .info-section .actions .btn{
+  min-height:64px;
+  padding:10px 8px!important;
+  font-size:11px;
+  gap:7px;
+  flex-direction:column;
+ }
+ #pageHost .home-page > .info-section .actions .btn:before{font-size:19px}
+}
+
 </style>
 </head>
 <body>
