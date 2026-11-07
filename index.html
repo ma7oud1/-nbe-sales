@@ -1865,23 +1865,6 @@ function buildAppPages(){
   const el=container.querySelector(selector);
   if(el)pages[id].append(el);
  };
- const homeIntro=document.createElement("section");
- homeIntro.className="executive-home-hero no-print";
- homeIntro.innerHTML=`
-  <div class="executive-hero-copy">
-   <span class="executive-eyebrow">NBE · RETAIL BANKING</span>
-   <h2>مساحة إدارة المبيعات</h2>
-   <p>تابع أداءك اليومي وأدر الكروت والقروض والعملاء من مكان واحد</p>
-   <div class="executive-hero-meta"><span>RASHID BRANCH</span><b>394</b><i></i><span>CREDIT CARDS & PERSONAL LOANS</span></div>
-  </div>
-  <div class="executive-hero-actions">
-   <button type="button" class="hero-action hero-action-primary" onclick="quickAdd('card')"><span>＋</span> تسجيل كارت</button>
-   <button type="button" class="hero-action" onclick="quickAdd('loan')"><span>＋</span> تسجيل قرض</button>
-   <button type="button" class="hero-action" onclick="quickAdd('followup')"><span>＋</span> إضافة متابعة</button>
-  </div>
-  <span class="executive-hero-watermark" aria-hidden="true">NBE</span>
- `;
- pages.home.append(homeIntro);
  move(".stats","home");
  move(".info-section","home");
  // Keep the daily report as its own full-width block directly below the hero.
