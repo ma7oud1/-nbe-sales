@@ -217,6 +217,68 @@ tr:hover td{background:rgba(8,116,67,.035)}
  }
 }
 
+/* Compact daily sales ledger: fit more customer rows on each printed page */
+@media print{
+ @page{size:A4 landscape;margin:6mm}
+ body.print-ledger{font-family:Tahoma,Arial,sans-serif!important}
+ body.print-ledger .ledger-section{font-size:8px!important}
+ body.print-ledger .ledger-section .print-heading{margin:0 0 5px!important}
+ body.print-ledger .ledger-section .print-heading>div:first-child{
+  padding-bottom:5px!important;border-bottom-width:2px!important
+ }
+ body.print-ledger .ledger-section .print-heading img{
+  width:38px!important;height:34px!important
+ }
+ body.print-ledger .ledger-section .print-heading [style*="font-size:19px"]{font-size:12px!important}
+ body.print-ledger .ledger-section .print-heading [style*="font-size:15px"]{font-size:10px!important}
+ body.print-ledger .ledger-section .print-heading [style*="font-size:12px"]{font-size:8px!important}
+ body.print-ledger .ledger-section .print-heading [style*="margin-top:16px"]{margin-top:5px!important}
+ body.print-ledger .ledger-section .print-heading [style*="padding:10px"]{padding:4px!important}
+ body.print-ledger .ledger-section .print-heading [style*="padding:12px"]{padding:5px!important}
+ body.print-ledger .ledger-section .print-heading strong{font-size:9px!important}
+ body.print-ledger .ledger-section table{
+  width:100%!important;table-layout:fixed!important;border-collapse:collapse!important;
+  page-break-inside:auto!important
+ }
+ body.print-ledger .ledger-section thead{display:table-header-group!important}
+ body.print-ledger .ledger-section tfoot{display:table-footer-group!important}
+ body.print-ledger .ledger-section tr{
+  page-break-inside:avoid!important;break-inside:avoid!important
+ }
+ body.print-ledger .ledger-section th{
+  padding:3px 2px!important;font-size:7px!important;line-height:1.15!important;
+  height:auto!important;white-space:normal!important;overflow-wrap:anywhere!important
+ }
+ body.print-ledger .ledger-section td{
+  padding:2.5px 2px!important;font-size:7px!important;line-height:1.18!important;
+  white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important;
+  vertical-align:middle!important
+ }
+ body.print-ledger .ledger-section th:nth-child(1),
+ body.print-ledger .ledger-section td:nth-child(1){width:3%!important;text-align:center!important}
+ body.print-ledger .ledger-section th:nth-child(2),
+ body.print-ledger .ledger-section td:nth-child(2){width:8%!important}
+ body.print-ledger .ledger-section th:nth-child(3),
+ body.print-ledger .ledger-section td:nth-child(3){width:13%!important}
+ body.print-ledger .ledger-section th:nth-child(4),
+ body.print-ledger .ledger-section td:nth-child(4){width:12%!important}
+ body.print-ledger .ledger-section th:nth-child(5),
+ body.print-ledger .ledger-section td:nth-child(5){width:9%!important}
+ body.print-ledger .ledger-section th:nth-child(6),
+ body.print-ledger .ledger-section td:nth-child(6){width:12%!important}
+ body.print-ledger .ledger-section th:nth-child(7),
+ body.print-ledger .ledger-section td:nth-child(7){width:7%!important}
+ body.print-ledger .ledger-section th:nth-child(8),
+ body.print-ledger .ledger-section td:nth-child(8){width:14%!important}
+ body.print-ledger .ledger-section th:nth-child(9),
+ body.print-ledger .ledger-section td:nth-child(9){width:12%!important}
+ body.print-ledger .ledger-section th:nth-child(10),
+ body.print-ledger .ledger-section td:nth-child(10){width:10%!important}
+ body.print-ledger .ledger-section .print-heading~.print-heading{
+  margin-top:7px!important;padding-top:4px!important;font-size:7px!important
+ }
+}
+
 /* عمليات السداد المتعددة في حاسبة الكارت */
 .ci-payments{display:grid;gap:10px;margin:12px 0 18px}
 .ci-payment-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:10px;align-items:end;padding:12px;border:1px solid var(--border-color,#ddd);border-radius:12px;background:var(--card-bg,transparent)}
