@@ -226,7 +226,7 @@ tr:hover td{background:rgba(8,116,67,.035)}
 body{padding-bottom:86px}
 #mainNav{
  position:fixed;z-index:1000;bottom:0;left:0;right:0;
- display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;
+ display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;
  padding:8px max(10px,calc((100vw - 1250px)/2)) calc(8px + env(safe-area-inset-bottom));
  background:var(--card);border-top:1px solid var(--border);
  box-shadow:0 -5px 22px rgba(20,50,40,.09)
@@ -258,7 +258,7 @@ body{padding-bottom:86px}
  body{padding-bottom:0!important}
  #mainNav{display:none!important}
  .app-page{display:block!important}
- .customers-page,.targets-page,.settings-page,.archive-page{display:none!important}
+ .customers-page,.targets-page,.settings-page,.archive-page,.visits-page{display:none!important}
  body.print-ledger .app-page{display:none!important}
  body.print-ledger .sales-page{display:block!important}
 }
@@ -340,7 +340,7 @@ table{border-collapse:separate;border-spacing:0}
 th{background:#f0f5f2}
 th:first-child{border-top-right-radius:10px}th:last-child{border-top-left-radius:10px}
 tr:last-child td{border-bottom:0}
-#mainNav{grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;padding:9px max(12px,calc((100vw - 1050px)/2)) calc(9px + env(safe-area-inset-bottom));background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border:1px solid rgba(218,230,223,.95);box-shadow:0 -8px 34px rgba(20,50,40,.10)}
+#mainNav{grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;padding:9px max(12px,calc((100vw - 1050px)/2)) calc(9px + env(safe-area-inset-bottom));background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border:1px solid rgba(218,230,223,.95);box-shadow:0 -8px 34px rgba(20,50,40,.10)}
 .nav-btn{border-radius:13px;padding:8px 4px;font-size:11px;transition:background .18s,color .18s,transform .18s}
 .nav-btn .nav-icon{font-size:20px}
 .nav-btn.active{background:linear-gradient(135deg,rgba(8,116,67,.13),rgba(8,116,67,.07));color:#087443}
@@ -617,6 +617,7 @@ body.dark .loan-calculator-section #loanResultNote{background:rgba(44,150,96,.12
  <button class="nav-btn" data-page="calculator" onclick="showPage('calculator')"><span class="nav-icon">🧮</span><span>حساب فائدة المديونية الشهرية</span></button>
  <button class="nav-btn" data-page="loan-calculator" onclick="showPage('loan-calculator')"><span class="nav-icon">🏦</span><span>حاسبة القروض</span></button>
  <button class="nav-btn" data-page="archive" onclick="showPage('archive')"><span class="nav-icon">🗂️</span><span>الأرشيف</span></button>
+ <button class="nav-btn" data-page="visits" onclick="showPage('visits')"><span class="nav-icon">📍</span><span>تقرير الزيارات</span></button>
  <button class="nav-btn" data-page="settings" onclick="showPage('settings')"><span class="nav-icon">⚙️</span><span>الإعدادات</span></button>
 </nav>
 
@@ -841,6 +842,7 @@ function buildAppPages(){
   ["loan-calculator","حاسبة القروض","احسب قيمة القرض أو القسط الشهري مع السداد الإضافي"],
   ["customers","إدارة العملاء CRM","ملفات العملاء وبياناتهم وسجلهم"],
   ["followups","متابعة العملاء","إضافة ومراجعة مواعيد ونتائج التواصل مع العملاء"],
+  ["visits","تقرير الزيارات","تسجيل ومراجعة تقارير الزيارات المرتبطة بالعملاء"],
   ["archive","الأرشيف","التقارير اليومية المحفوظة"],
   ["settings","الإعدادات","إدارة النسخ الاحتياطية وإعدادات التطبيق"]
  ];
