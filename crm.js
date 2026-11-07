@@ -167,7 +167,7 @@ el("visitForm").addEventListener("submit",function(e){
  if(!el("visitDate").value){alert("أدخل تاريخ الزيارة.");return;}
  const now=new Date().toISOString();
  let customer=customers.find(c=>String(c.national)===national);
- const customerData={name,national,phone,job:el("visitJob").value.trim(),employer:el("visitEmployer").value.trim()||el("visitEntity").value.trim(),branch:"رشيد - 394"};
+ const customerData={name,national,phone,job:el("visitJob").value.trim(),employer:el("visitEmployer").value.trim(),branch:"رشيد - 394"};
  if(customer){
   Object.assign(customer,customerData,{updatedAt:now});
   customer.history=(customer.history||[]).concat([{at:now,action:"تحديث بيانات العميل من تقرير زيارة"}]);
