@@ -1254,10 +1254,11 @@ function setNbeLanguage(lang){nbeApplyLanguage(lang,true);}
 
 function buildAppPages(){
  const container=document.querySelector(".container");
- const nav=document.getElementById("mainNav");
  const host=document.createElement("div");
  host.id="pageHost";
- nav.after(host);
+ const pageAnchor=document.getElementById("appSidebar")||container.querySelector(".header");
+ if(!pageAnchor)throw new Error("App page anchor not found");
+ pageAnchor.insertAdjacentElement("afterend",host);
  const config=[
   ["home","",""],
   ["sales","المبيعات","تسجيل الكروت والقروض ومراجعة سجل العمليات"],
