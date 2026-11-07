@@ -27,7 +27,7 @@ page.insertAdjacentHTML("beforeend",''+
 '<div class="field"><label>حالة العميل</label><select id="crmStatus"><option>جديد</option><option>جاري التواصل</option><option>مستوفي</option><option>تم البيع</option><option>غير نشط</option></select></div>'+
 '<div class="field"><label>ملاحظات</label><input id="crmNotes" maxlength="500"></div>'+
 '<div class="crm-form-actions"><button class="btn primary" type="submit" id="crmSubmit">حفظ العميل</button><button class="btn light-btn" type="button" id="crmCancel">تفريغ الحقول</button></div><input type="hidden" id="crmEditId"></form>'+
-'<div class="section-title" style="margin-top:25px"><h2>سجل العملاء</h2><span class="badge" id="crmCount">0 عميل</span></div>'+
+'<div class="section-title" style="margin-top:25px"><h2>سجل العملاء</h2><span class="badge" id="crmCount">0 عميل</span><button class="btn danger small-btn no-print" type="button" id="clearCustomerVisitData">مسح العملاء وتقارير الزيارات</button></div>'+
 '<div class="crm-toolbar"><input id="crmSearch" type="search" placeholder="بحث بالاسم أو الهاتف أو الرقم القومي أو جهة العمل"><select id="crmFilter"><option value="all">كل الحالات</option><option>جديد</option><option>جاري التواصل</option><option>مستوفي</option><option>تم البيع</option><option>غير نشط</option></select></div>'+
 '<div id="crmList" class="crm-list"></div>'+
 '</div>');
@@ -71,6 +71,21 @@ el("crmList").addEventListener("click",function(e){
 /* Visit reports linked to existing CRM customers */
 const VISIT_KEY="NBE_VISIT_REPORTS_V1";
 let visitReports=[];
+el("clearCustomerVisitData").addEventListener("click",async function(){
+ if(!confirm("تأكيد مسح جميع العملاء المسجلين وجميع تقارير الزيارات؟\nلن يتم حذف تقارير المبيعات اليومية أو الكروت أو القروض أو المتابعات."))return;
+ try{
+  customers=[];visitReports=[];
+  NBEStore.setItem(KEY,"[]");
+  NBEStore.setItem(VISIT_KEY,"[]");
+  await NBEStore.flush();
+  render();renderVisitCustomerOptions();renderVisitReports();
+  if(typeof window.refreshNbeBusinessOverview==="function")window.refreshNbeBusinessOverview();
+  alert("تم مسح العملاء وتقارير الزيارات بنجاح. باقي بيانات التطبيق محفوظة.");
+ }catch(error){
+  console.error("Customer/visit reset failed",error);
+  alert("تعذر إتمام المسح. لم يتم تأكيد نجاح العملية.");
+ }
+});
 let visitEditId="";
 function loadVisitReports(){
  try{const rows=JSON.parse(NBEStore.getItem(VISIT_KEY)||"[]");visitReports=Array.isArray(rows)?rows:[];}
