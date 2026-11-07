@@ -1727,7 +1727,7 @@ window.NBEStorageReady.then(()=>{
  fillInfo();renderAll();NBEStore.setItem("nbe_sales_theme","dark");document.body.classList.add("dark");
  if(typeof window.refreshNbeCrm==="function")window.refreshNbeCrm();
  const crmScript=document.createElement("script");
- crmScript.src="/-nbe-sales/crm.js?v=60";
+ crmScript.src="/-nbe-sales/crm.js?v=61";
  crmScript.onload=()=>{console.log("NBE CRM and visit reports loaded");if(typeof window.refreshNbeCrm==="function")window.refreshNbeCrm();if(typeof window.refreshNbeVisits==="function")window.refreshNbeVisits();};
  crmScript.onerror=()=>{console.error("Unable to load NBE CRM module");const c=document.querySelector('.app-page[data-page="customers"]');const v=document.querySelector('.app-page[data-page="visits"]');[c,v].forEach(p=>{if(p)p.insertAdjacentHTML("beforeend",'<div class="section crm-warning">تعذر تحميل وحدة CRM. تأكد من الاتصال بالإنترنت ثم أعد فتح التطبيق.</div>');});};
  document.body.appendChild(crmScript);
