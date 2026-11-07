@@ -23,7 +23,7 @@ page.insertAdjacentHTML("beforeend",''+
 '<div class="field"><label>رقم الهاتف *</label><input id="crmPhone" required inputmode="tel" maxlength="20"></div>'+
 '<div class="field"><label>الوظيفة</label><input id="crmJob" maxlength="100"></div>'+
 '<div class="field"><label>جهة العمل</label><input id="crmEmployer" maxlength="120"></div>'+
-'<div class="field"><label>الفرع</label><input id="crmBranch" maxlength="100"></div>'+
+'<div class="field"><label>الفرع</label><input id="crmBranch" value="رشيد - 394" readonly></div>'+
 '<div class="field"><label>حالة العميل</label><select id="crmStatus"><option>جديد</option><option>جاري التواصل</option><option>مستوفي</option><option>تم البيع</option><option>غير نشط</option></select></div>'+
 '<div class="field"><label>ملاحظات</label><input id="crmNotes" maxlength="500"></div>'+
 '<div class="crm-form-actions"><button class="btn primary" type="submit" id="crmSubmit">حفظ العميل</button><button class="btn light-btn" type="button" id="crmCancel">تفريغ الحقول</button></div><input type="hidden" id="crmEditId"></form>'+
@@ -49,7 +49,7 @@ el("crmForm").addEventListener("submit",function(e){
  const id=el("crmEditId").value,name=el("crmName").value.trim(),national=el("crmNational").value.trim(),phone=el("crmPhone").value.trim();
  if(!name||!/^\d{14}$/.test(national)||!phone){alert("أدخل الاسم والرقم القومي المكوّن من 14 رقمًا ورقم الهاتف.");return;}
  if(customers.some(c=>c.national===national&&c.id!==id)){alert("هذا الرقم القومي مسجل بالفعل ولا يمكن تكراره.");return;}
- const data={name:national?name:name,national:national,phone:phone,job:el("crmJob").value.trim(),employer:el("crmEmployer").value.trim(),branch:el("crmBranch").value.trim(),status:el("crmStatus").value,notes:el("crmNotes").value.trim()};
+ const data={name:national?name:name,national:national,phone:phone,job:el("crmJob").value.trim(),employer:el("crmEmployer").value.trim(),branch:"رشيد - 394",status:el("crmStatus").value,notes:el("crmNotes").value.trim()};
  const now=new Date().toISOString();
  if(id){const c=customers.find(x=>x.id===id);if(!c)return;Object.assign(c,data,{national:c.national,updatedAt:now});c.history=(c.history||[]).concat([{at:now,action:"تعديل بيانات العميل"}]);}
  else{customers.unshift(Object.assign({id:"crm_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),createdAt:now,updatedAt:now,archived:false,history:[{at:now,action:"تسجيل العميل"}]},data));}
@@ -107,7 +107,7 @@ function renderVisitReports(){
 function printVisitReport(id){
  const v=visitReports.find(x=>String(x.id)===String(id));if(!v)return;
  const customer=customers.find(c=>String(c.id)===String(v.customerId));
- const fields=[["اسم العميل",customer?.name||v.customerName||"—"],["رقم الهاتف",v.customerPhone||customer?.phone||"—"],["جهة العمل",v.entity||"—"],["المسؤول",v.contact||"—"],["تاريخ الزيارة",v.visitDate||"—"],["نوع الزيارة",v.visitType||"—"],["المنتج",v.product||"—"],["عدد العملاء المتوقعين",v.expected||"0"],["موعد المتابعة",v.nextDate||"—"],["نتيجة الزيارة",v.outcome||"—"],["ملاحظات",v.notes||"—"]];
+ const fields=[["الفرع","رشيد - 394"],["اسم العميل",customer?.name||v.customerName||"—"],["رقم الهاتف",v.customerPhone||customer?.phone||"—"],["جهة العمل",v.entity||"—"],["المسؤول",v.contact||"—"],["تاريخ الزيارة",v.visitDate||"—"],["نوع الزيارة",v.visitType||"—"],["المنتج",v.product||"—"],["عدد العملاء المتوقعين",v.expected||"0"],["موعد المتابعة",v.nextDate||"—"],["نتيجة الزيارة",v.outcome||"—"],["ملاحظات",v.notes||"—"]];
  const esc=x=>String(x??"—").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
  const w=window.open("","_blank","width=850,height=900");
  if(!w){alert("اسمح بفتح نافذة الطباعة لهذا الموقع ثم حاول مرة أخرى.");return;}
@@ -119,10 +119,10 @@ function printAllVisitReports(){
  const rows=visitReports.filter(v=>[v.customerName,v.customerPhone,v.entity,v.contact,v.outcome,v.notes,v.product].some(x=>String(x||"").toLowerCase().includes(query))).slice().sort((a,b)=>String(b.visitDate||"").localeCompare(String(a.visitDate||"")));
  if(!rows.length){alert("لا توجد زيارات لطباعتها.");return;}
  const esc=x=>String(x??"—").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
- const body=rows.map((v,i)=>{const customer=customers.find(c=>String(c.id)===String(v.customerId));return '<tr><td>'+(i+1)+'</td><td>'+esc(v.visitDate)+'</td><td>'+esc(customer?.name||v.customerName)+'</td><td>'+esc(v.customerPhone||customer?.phone||"—")+'</td><td>'+esc(v.entity)+'</td><td>'+esc(v.contact)+'</td><td>'+esc(v.product)+'</td><td>'+esc(v.expected||"0")+'</td><td>'+esc(v.outcome)+'</td><td>'+esc(v.notes)+'</td></tr>';}).join("");
+ const body=rows.map((v,i)=>{const customer=customers.find(c=>String(c.id)===String(v.customerId));return '<tr><td>'+(i+1)+'</td><td>رشيد - 394</td><td>'+esc(v.visitDate)+'</td><td>'+esc(customer?.name||v.customerName)+'</td><td>'+esc(v.customerPhone||customer?.phone||"—")+'</td><td>'+esc(v.entity)+'</td><td>'+esc(v.contact)+'</td><td>'+esc(v.product)+'</td><td>'+esc(v.expected||"0")+'</td><td>'+esc(v.outcome)+'</td><td>'+esc(v.notes)+'</td></tr>';}).join("");
  const w=window.open("","_blank","width=1100,height=850");
  if(!w){alert("اسمح بفتح نافذة الطباعة لهذا الموقع ثم حاول مرة أخرى.");return;}
- w.document.write('<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>سجل الزيارات</title><style>body{font-family:Tahoma,Arial;padding:24px;color:#18352b}h1{color:#087443}p{color:#64756c}table{width:100%;border-collapse:collapse;margin-top:20px;font-size:12px}th,td{border:1px solid #dce7e0;padding:9px;text-align:right;vertical-align:top}th{background:#087443;color:white}tr:nth-child(even){background:#f2f7f4}@media print{body{padding:0}}</style><h1>سجل الزيارات – NBE MY SALES PORTFOLIO</h1><p>عدد الزيارات: '+rows.length+'</p><table><thead><tr><th>م</th><th>التاريخ</th><th>اسم العميل</th><th>رقم الهاتف</th><th>الجهة</th><th>المسؤول</th><th>المنتج</th><th>متوقع</th><th>النتيجة</th><th>ملاحظات</th></tr></thead><tbody>'+body+'</tbody></table><script>window.onload=()=>window.print()<\\/script></html>');
+ w.document.write('<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>سجل الزيارات</title><style>body{font-family:Tahoma,Arial;padding:24px;color:#18352b}h1{color:#087443}p{color:#64756c}table{width:100%;border-collapse:collapse;margin-top:20px;font-size:12px}th,td{border:1px solid #dce7e0;padding:9px;text-align:right;vertical-align:top}th{background:#087443;color:white}tr:nth-child(even){background:#f2f7f4}@media print{body{padding:0}}</style><h1>سجل الزيارات – NBE MY SALES PORTFOLIO</h1><p>عدد الزيارات: '+rows.length+'</p><table><thead><tr><th>م</th><th>الفرع</th><th>التاريخ</th><th>اسم العميل</th><th>رقم الهاتف</th><th>الجهة</th><th>المسؤول</th><th>المنتج</th><th>متوقع</th><th>النتيجة</th><th>ملاحظات</th></tr></thead><tbody>'+body+'</tbody></table><script>window.onload=()=>window.print()<\\/script></html>');
  w.document.close();
 }
 function editVisit(id){
@@ -152,7 +152,7 @@ visitsPage.insertAdjacentHTML("beforeend",''+
 '<div class="field"><label>رقم هاتف العميل *</label><input id="visitPhone" type="tel" inputmode="tel" maxlength="20" required placeholder="رقم الهاتف"></div>'+
 '<div class="field"><label>الوظيفة</label><input id="visitJob" maxlength="100"></div>'+
 '<div class="field"><label>جهة العمل</label><input id="visitEmployer" maxlength="120"></div>'+
-'<div class="field"><label>الفرع / المنطقة</label><input id="visitBranch" maxlength="100"></div>'+
+'<div class="field"><label>الفرع</label><input id="visitBranch" value="رشيد - 394" readonly></div>'+
 '<div class="field"><label>تاريخ الزيارة *</label><input id="visitDate" type="date" required></div>'+
 '<div class="field"><label>اسم الجهة / الشركة *</label><input id="visitEntity" required maxlength="150" placeholder="اسم جهة العمل أو الشركة"></div>'+
 '<div class="field"><label>المسؤول الذي تمت مقابلته</label><input id="visitContact" maxlength="120"></div>'+
@@ -175,7 +175,7 @@ el("visitForm").addEventListener("submit",function(e){
  if(!el("visitDate").value||!el("visitEntity").value.trim()){alert("أكمل تاريخ الزيارة واسم الجهة.");return;}
  const now=new Date().toISOString();
  let customer=customers.find(c=>String(c.national)===national);
- const customerData={name,national,phone,job:el("visitJob").value.trim(),employer:el("visitEmployer").value.trim()||el("visitEntity").value.trim(),branch:el("visitBranch").value.trim()};
+ const customerData={name,national,phone,job:el("visitJob").value.trim(),employer:el("visitEmployer").value.trim()||el("visitEntity").value.trim(),branch:"رشيد - 394"};
  if(customer){
   Object.assign(customer,customerData,{updatedAt:now});
   customer.history=(customer.history||[]).concat([{at:now,action:"تحديث بيانات العميل من تقرير زيارة"}]);
@@ -185,7 +185,7 @@ el("visitForm").addEventListener("submit",function(e){
  }
  NBEStore.setItem(KEY,JSON.stringify(customers));
  render();
- const data={customerId:customer.id,customerName:customer.name,customerNational:customer.national,customerPhone:customer.phone,customerJob:customer.job,customerBranch:customer.branch,visitDate:el("visitDate").value,entity:el("visitEntity").value.trim(),contact:el("visitContact").value.trim(),visitType:el("visitType").value,product:el("visitProduct").value,expected:el("visitExpected").value,outcome:el("visitOutcome").value.trim(),nextDate:el("visitNextDate").value,notes:el("visitNotes").value.trim(),updatedAt:now};
+ const data={customerId:customer.id,customerName:customer.name,customerNational:customer.national,customerPhone:customer.phone,customerJob:customer.job,customerBranch:"رشيد - 394",branchName:"رشيد",branchCode:"394",visitDate:el("visitDate").value,entity:el("visitEntity").value.trim(),contact:el("visitContact").value.trim(),visitType:el("visitType").value,product:el("visitProduct").value,expected:el("visitExpected").value,outcome:el("visitOutcome").value.trim(),nextDate:el("visitNextDate").value,notes:el("visitNotes").value.trim(),updatedAt:now};
  const editing=!!visitEditId;
  if(editing){const old=visitReports.find(v=>String(v.id)===String(visitEditId));if(!old)return;Object.assign(old,data);}
  else visitReports.unshift({...data,id:"visit_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),createdAt:now});
