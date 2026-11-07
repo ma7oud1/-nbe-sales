@@ -135,10 +135,9 @@ function editVisit(id){
  el("visitJob").value=linked?.job||v.customerJob||"";
  el("visitEmployer").value=linked?.employer||v.entity||"";
  el("visitBranch").value="رشيد - 394";
- el("visitDate").value=v.visitDate||"";el("visitEntity").value=v.entity||"";el("visitContact").value=v.contact||"";
- el("visitType").value=v.visitType||"زيارة تسويقية";el("visitProduct").value=v.product==="قرض"?"قرض":"كريدت";
- el("visitExpected").value=v.expected??"";el("visitOutcome").value=v.outcome||"";el("visitNextDate").value=v.nextDate||"";
- el("visitNotes").value=v.notes||"";el("visitFormTitle").textContent="تعديل تقرير الزيارة";
+ el("visitDate").value=v.visitDate||"";
+ el("visitProduct").value=v.product==="قرض"?"قرض":"كريدت";
+ el("visitFormTitle").textContent="تعديل تقرير الزيارة";
  el("visitSave").textContent="حفظ التعديلات";el("visitForm").scrollIntoView({behavior:"smooth",block:"start"});
 }
 visitsPage.insertAdjacentHTML("beforeend",''+
@@ -153,15 +152,8 @@ visitsPage.insertAdjacentHTML("beforeend",''+
 '<div class="field"><label>الوظيفة</label><input id="visitJob" maxlength="100"></div>'+
 '<div class="field"><label>جهة العمل</label><input id="visitEmployer" maxlength="120"></div>'+
 '<div class="field"><label>الفرع</label><input id="visitBranch" value="رشيد - 394" readonly></div>'+
-'<div class="field"><label>تاريخ الزيارة *</label><input id="visitDate" type="date" required></div>'+
-'<div class="field"><label>اسم الجهة / الشركة *</label><input id="visitEntity" required maxlength="150" placeholder="اسم جهة العمل أو الشركة"></div>'+
-'<div class="field"><label>المسؤول الذي تمت مقابلته</label><input id="visitContact" maxlength="120"></div>'+
-'<div class="field"><label>نوع الزيارة</label><select id="visitType"><option>زيارة تسويقية</option><option>زيارة متابعة</option><option>زيارة استكمال مستندات</option><option>زيارة تعاقد / تفعيل</option><option>زيارة أخرى</option></select></div>'+
 '<div class="field"><label>نوع المنتج *</label><select id="visitProduct" required><option value="كريدت">كريدت</option><option value="قرض">قرض</option></select></div>'+
-'<div class="field"><label>عدد العملاء المتوقعين</label><input id="visitExpected" type="number" min="0" step="1" placeholder="0"></div>'+
-'<div class="field"><label>موعد المتابعة القادمة</label><input id="visitNextDate" type="date"></div>'+
-'<div class="field" style="grid-column:1/-1"><label>نتيجة الزيارة</label><input id="visitOutcome" maxlength="500" placeholder="ملخص ما تم خلال الزيارة"></div>'+
-'<div class="field" style="grid-column:1/-1"><label>ملاحظات إضافية</label><input id="visitNotes" maxlength="1000" placeholder="التفاصيل والخطوات المطلوبة"></div>'+
+'<div class="field"><label>تاريخ الزيارة *</label><input id="visitDate" type="date" required></div>'+
 '<div class="crm-form-actions"><button class="btn primary" type="submit" id="visitSave">حفظ الزيارة</button><button class="btn light-btn" type="button" id="visitCancel">إلغاء / تفريغ</button></div></form>'+
 '<div class="section-title" style="margin-top:25px"><h2>سجل الزيارات السابقة</h2><span class="badge" id="visitCount">0 زيارة</span><button class="btn primary no-print" type="button" id="printAllVisits">طباعة الزيارات</button></div>'+
 '<div class="crm-toolbar"><input id="visitSearch" type="search" placeholder="بحث باسم العميل أو الجهة أو المسؤول أو النتيجة"></div>'+
@@ -172,7 +164,7 @@ el("visitForm").addEventListener("submit",function(e){
  e.preventDefault();
  const name=el("visitName").value.trim(),national=el("visitNational").value.trim(),phone=el("visitPhone").value.trim();
  if(!name||!/^\\d{14}$/.test(national)||!phone){alert("أدخل اسم العميل والرقم القومي المكوّن من 14 رقمًا ورقم الهاتف.");return;}
- if(!el("visitDate").value||!el("visitEntity").value.trim()){alert("أكمل تاريخ الزيارة واسم الجهة.");return;}
+ if(!el("visitDate").value){alert("أدخل تاريخ الزيارة.");return;}
  const now=new Date().toISOString();
  let customer=customers.find(c=>String(c.national)===national);
  const customerData={name,national,phone,job:el("visitJob").value.trim(),employer:el("visitEmployer").value.trim()||el("visitEntity").value.trim(),branch:"رشيد - 394"};
@@ -185,7 +177,7 @@ el("visitForm").addEventListener("submit",function(e){
  }
  NBEStore.setItem(KEY,JSON.stringify(customers));
  render();
- const data={customerId:customer.id,customerName:customer.name,customerNational:customer.national,customerPhone:customer.phone,customerJob:customer.job,customerBranch:"رشيد - 394",branchName:"رشيد",branchCode:"394",visitDate:el("visitDate").value,entity:el("visitEntity").value.trim(),contact:el("visitContact").value.trim(),visitType:el("visitType").value,product:el("visitProduct").value,expected:el("visitExpected").value,outcome:el("visitOutcome").value.trim(),nextDate:el("visitNextDate").value,notes:el("visitNotes").value.trim(),updatedAt:now};
+ const data={customerId:customer.id,customerName:customer.name,customerNational:customer.national,customerPhone:customer.phone,customerJob:customer.job,customerBranch:"رشيد - 394",branchName:"رشيد",branchCode:"394",visitDate:el("visitDate").value,entity:el("visitEmployer").value.trim()||"—",contact:"",visitType:"زيارة تسويقية",product:el("visitProduct").value,expected:"",outcome:"",nextDate:"",notes:"",updatedAt:now};
  const editing=!!visitEditId;
  if(editing){const old=visitReports.find(v=>String(v.id)===String(visitEditId));if(!old)return;Object.assign(old,data);}
  else visitReports.unshift({...data,id:"visit_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),createdAt:now});
