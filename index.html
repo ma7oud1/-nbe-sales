@@ -884,6 +884,18 @@ body.dark #mainNav .nav-btn.active{background:rgba(20,150,95,.16);color:#a8e0c1}
  #pageHost .home-page > .info-section .actions .btn:before{font-size:19px}
 }
 
+
+/* Professional navigation icons and persistent day/night theme */
+#mainNav .nav-btn{position:relative;gap:5px;min-height:62px;padding:7px 2px;border-radius:13px;transition:background .18s ease,color .18s ease,transform .18s ease}
+#mainNav .nav-btn .nav-icon{width:21px;height:21px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+#mainNav .nav-btn span:not(.nav-icon){font-size:10px;font-weight:750;letter-spacing:0;line-height:1.25}
+#mainNav .nav-btn.active{background:linear-gradient(180deg,rgba(0,99,65,.13),rgba(0,99,65,.055));box-shadow:inset 0 0 0 1px rgba(0,99,65,.12)}
+#mainNav .nav-btn.active:before{content:"";position:absolute;top:3px;left:50%;transform:translateX(-50%);width:18px;height:3px;border-radius:5px;background:var(--gold)}
+body.dark #mainNav .nav-btn.active{background:linear-gradient(180deg,rgba(32,169,108,.2),rgba(32,169,108,.08));color:#b8e7cc;box-shadow:inset 0 0 0 1px rgba(130,210,165,.12)}
+#quickShortcutsMenu .theme-toggle-btn{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px;background:linear-gradient(110deg,rgba(0,99,65,.10),rgba(198,167,101,.14));border:1px solid var(--border);color:var(--text)}
+.theme-toggle-icon{font-size:18px;line-height:1;color:var(--gold)}
+#quickShortcutsMenu .btn{border-radius:12px;font-weight:750}
+@media(max-width:420px){#mainNav .nav-btn{min-height:54px;gap:4px}#mainNav .nav-btn .nav-icon{width:19px;height:19px}#mainNav .nav-btn span:not(.nav-icon){font-size:9px}}
 </style>
 </head>
 <body>
@@ -914,15 +926,16 @@ body.dark #mainNav .nav-btn.active{background:rgba(20,150,95,.16);color:#a8e0c1}
  </div>
 </header>
 <nav id="mainNav" aria-label="التنقل الرئيسي">
- <button class="nav-btn active" data-page="home" onclick="showPage('home')" aria-label="الرئيسية"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></span><span>الرئيسية</span></button>
- <button class="nav-btn" data-page="sales" onclick="showPage('sales')" aria-label="المبيعات"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><span>المبيعات</span></button>
- <button class="nav-btn" data-page="customers" onclick="showPage('customers')" aria-label="العملاء"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span>العملاء</span></button>
- <button class="nav-btn" data-page="followups" onclick="showPage('followups')" aria-label="المتابعة"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span>المتابعة</span></button>
- <button class="nav-btn" data-page="visits" onclick="showPage('visits')" aria-label="الزيارات"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span>الزيارات</span></button>
- <button class="nav-btn" data-page="archive" onclick="showPage('archive')" aria-label="الأرشيف"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18v4H3zM5 8v12h14V8M9 12h6"/></svg></span><span>الأرشيف</span></button>
- <button class="nav-btn shortcuts-nav-btn" type="button" onclick="toggleQuickMenu()" aria-expanded="false" aria-label="المزيد"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></span><span>المزيد</span></button>
+ <button class="nav-btn active" data-page="home" onclick="showPage('home')" aria-label="الرئيسية"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>الرئيسية</span></button>
+ <button class="nav-btn" data-page="sales" onclick="showPage('sales')"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>المبيعات</span></button>
+ <button class="nav-btn" data-page="customers" onclick="showPage('customers')"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>العملاء</span></button>
+ <button class="nav-btn" data-page="followups" onclick="showPage('followups')"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>المتابعة</span></button>
+ <button class="nav-btn" data-page="visits" onclick="showPage('visits')"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>الزيارات</span></button>
+ <button class="nav-btn" data-page="archive" onclick="showPage('archive')"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v4H3zM5 9v11h14V9M9 13h6"/></svg><span>الأرشيف</span></button>
+ <button class="nav-btn shortcuts-nav-btn" type="button" onclick="toggleQuickMenu()" aria-expanded="false"><svg class="nav-icon more-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span>المزيد</span></button>
 </nav>
 <div id="quickShortcutsMenu" class="quick-shortcuts-menu" hidden>
+ <button class="btn light-btn theme-toggle-btn" id="themeToggleBtn" type="button" onclick="toggleTheme()"><span class="theme-toggle-icon" aria-hidden="true">☀</span><span class="theme-toggle-label">الوضع النهاري</span></button>
  <button class="btn light-btn" type="button" onclick="closeQuickMenu();showPage('calculator')">حاسبة الفوائد</button>
  <button class="btn light-btn" type="button" onclick="closeQuickMenu();showPage('loan-calculator')">حاسبة القروض</button>
  <button class="btn light-btn" type="button" onclick="closeQuickMenu();showPage('settings')">الإعدادات والنسخ الاحتياطي</button>
@@ -1242,6 +1255,17 @@ function buildAppPages(){
  const footer=container.querySelector(":scope > .footer");
  if(footer)pages.settings.append(footer);
 }
+
+function applyTheme(theme,save=true){
+ const isDark=theme==="dark";
+ document.body.classList.toggle("dark",isDark);
+ if(save)NBEStore.setItem("nbe_sales_theme",isDark?"dark":"light");
+ const button=document.getElementById("themeToggleBtn");
+ if(button){const icon=button.querySelector(".theme-toggle-icon");const label=button.querySelector(".theme-toggle-label");if(icon)icon.textContent=isDark?"☀":"☾";if(label)label.textContent=isDark?"التبديل إلى الوضع النهاري":"التبديل إلى الوضع الليلي";button.setAttribute("aria-label",isDark?"التبديل إلى الوضع النهاري":"التبديل إلى الوضع الليلي");}
+ const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=isDark?"#111c17":"#006341";
+}
+function toggleTheme(){applyTheme(document.body.classList.contains("dark")?"light":"dark");}
+
 function toggleQuickMenu(){
  const menu=document.getElementById("quickShortcutsMenu");
  const button=document.querySelector(".shortcuts-nav-btn");
