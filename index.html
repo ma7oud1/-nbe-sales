@@ -1518,6 +1518,22 @@ body.dark #pageHost .home-page>.info-section>.grid>.field input{background:#1a29
  #pageHost .home-page>.info-section>.actions .btn{min-height:44px!important;padding:8px 6px!important;font-size:10px!important}
 }
 
+
+/* All-time sales overview */
+.alltime-overview{margin:0 0 18px;padding:20px;border:1px solid var(--border);border-radius:18px;background:var(--card);box-shadow:var(--shadow)}
+.alltime-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.alltime-heading span{display:block;color:var(--gold);font-size:10px;font-weight:900;letter-spacing:1.5px}
+.alltime-heading h2{margin:5px 0;color:var(--green);font-size:18px}
+.alltime-heading p{margin:0;color:var(--muted);font-size:12px}
+.alltime-heading>b{padding:8px 11px;border:1px solid var(--border);border-radius:9px;color:var(--green);font-size:10px;letter-spacing:1px;white-space:nowrap}
+.alltime-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+.alltime-kpi{min-width:0;padding:16px;border:1px solid var(--border);border-radius:13px;background:var(--bg)}
+.alltime-kpi small,.alltime-kpi span{display:block;color:var(--muted);font-size:11px}
+.alltime-kpi strong{display:block;margin:9px 0 5px;color:var(--green);font-size:clamp(22px,2.5vw,29px);font-weight:900;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.alltime-amount strong{color:var(--gold)}
+@media(max-width:800px){.alltime-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:420px){.alltime-overview{padding:14px}.alltime-kpi{padding:12px}.alltime-kpi small{font-size:10px}.alltime-kpi strong{font-size:22px}.alltime-heading h2{font-size:16px}}
+@media print{.alltime-overview{display:none!important}}
 </style>
 </head>
 <body>
@@ -1867,6 +1883,17 @@ function buildAppPages(){
  };
  move(".stats","home");
  move(".info-section","home");
+ const allTimePanel=document.createElement("section");
+ allTimePanel.className="alltime-overview";
+ allTimePanel.innerHTML=`
+  <div class="alltime-heading"><div><span>SALES PERFORMANCE</span><h2>إجمالي إنجازاتك</h2><p>إحصائيات تراكمية لكل العمليات المسجلة في التطبيق</p></div><b>ALL TIME</b></div>
+  <div class="alltime-grid">
+   <article class="alltime-kpi"><small>إجمالي الكروت</small><strong id="allTimeCards">0</strong><span>كارت مسجل</span></article>
+   <article class="alltime-kpi"><small>العملاء الذين قابلتهم</small><strong id="allTimeCustomers">0</strong><span>عميل مختلف من تقارير الزيارات</span></article>
+   <article class="alltime-kpi"><small>إجمالي القروض</small><strong id="allTimeLoans">0</strong><span>قرض مسجل</span></article>
+   <article class="alltime-kpi alltime-amount"><small>إجمالي مبالغ القروض</small><strong id="allTimeLoanAmount">0</strong><span>جنيه مصري</span></article>
+  </div>`;
+ pages.home.insertBefore(allTimePanel,pages.home.querySelector(".info-section")||pages.home.firstChild);
  // Keep the daily report as its own full-width block directly below the hero.
  const dailyReportPanel=pages.home.querySelector(".info-section");
  const homeStatsPanel=pages.home.querySelector(".stats");
@@ -2299,7 +2326,22 @@ function deleteItem(type,id){
  r[key]=r[key].filter(x=>String(x.id)!==String(id));
  saveReport(true);renderAll();
 }
+function renderAllTimeOverview(){
+ const totals={cards:0,loans:0,amount:0};
+ Object.values(reports||{}).forEach(report=>{
+  if(!report||typeof report!=="object")return;
+  const cards=Array.isArray(report.cards)?report.cards:[];
+  const loans=Array.isArray(report.loans)?report.loans:[];
+  totals.cards+=cards.length;totals.loans+=loans.length;
+  totals.amount+=loans.reduce((sum,item)=>sum+Math.max(0,Number(item&&item.amount)||0),0);
+ });
+ const put=(id,value)=>{const node=$(id);if(node)node.textContent=Number(value||0).toLocaleString("en-US",{maximumFractionDigits:2});};
+ put("allTimeCards",totals.cards);put("allTimeLoans",totals.loans);
+ put("allTimeLoanAmount",totals.amount);
+ put("allTimeCustomers",typeof window.NBEVisitCustomerCount==="function"?window.NBEVisitCustomerCount():0);
+}
 function renderAll(){
+ renderAllTimeOverview();
  renderSummaries();
  renderArchive();
  renderFollowups();
