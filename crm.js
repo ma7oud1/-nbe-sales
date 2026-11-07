@@ -42,7 +42,7 @@ function render(){
  const rows=customers.filter(c=>(filter==="all"||c.status===filter)&&[c.name,c.national,c.phone,c.employer,c.job].some(v=>String(v||"").toLowerCase().includes(q)));
  el("crmCount").textContent=customers.length+" عميل";
  if(!rows.length){el("crmList").innerHTML='<div class="crm-empty">لا توجد نتائج</div>';return;}
- el("crmList").innerHTML=rows.map(c=>'<article class="crm-card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h3>'+safe(c.name)+'</h3><span class="follow-status">'+safe(c.status)+'</span></div><small>آخر تحديث: '+new Date(c.updatedAt||c.createdAt).toLocaleDateString("ar-EG")+'</small></div><div class="crm-meta"><span>الرقم القومي: '+safe(c.national)+'</span><span>الهاتف: '+safe(c.phone)+'</span><span>الوظيفة: '+safe(c.job||"—")+'</span><span>جهة العمل: '+safe(c.employer||"—")+'</span><span>الفرع: '+safe(c.branch||"—")+'</span><span>ملاحظات: '+safe(c.notes||"—")+'</span></div><div class="crm-actions no-print"><button class="btn light-btn" data-edit="'+safe(c.id)+'">تعديل</button><button class="btn light-btn" data-archive="'+safe(c.id)+'">'+(c.archived?"إعادة تنشيط":"تعطيل العميل")+'</button><button class="btn light-btn" data-history="'+safe(c.id)+'">سجل التعديلات</button></div></article>').join("");
+ el("crmList").innerHTML=rows.map(c=>'<article class="crm-card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h3>'+safe(c.name)+'</h3><span class="follow-status">'+safe(c.status)+'</span></div><small>آخر تحديث: '+new Date(c.updatedAt||c.createdAt).toLocaleDateString("ar-EG")+'</small></div><div class="crm-meta"><span>الرقم القومي: '+safe(c.national)+'</span><span>الهاتف: '+safe(c.phone)+'</span><span>الوظيفة: '+safe(c.job||"—")+'</span><span>جهة العمل: '+safe(c.employer||"—")+'</span><span>الفرع: رشيد - 394</span><span>ملاحظات: '+safe(c.notes||"—")+'</span></div><div class="crm-actions no-print"><button class="btn light-btn" data-edit="'+safe(c.id)+'">تعديل</button><button class="btn light-btn" data-archive="'+safe(c.id)+'">'+(c.archived?"إعادة تنشيط":"تعطيل العميل")+'</button><button class="btn light-btn" data-history="'+safe(c.id)+'">سجل التعديلات</button></div></article>').join("");
 }
 el("crmForm").addEventListener("submit",function(e){
  e.preventDefault();
@@ -61,7 +61,7 @@ el("crmFilter").addEventListener("change",render);
 el("crmList").addEventListener("click",function(e){
  const b=e.target.closest("button");if(!b)return;
  const c=customers.find(x=>x.id===b.dataset.edit||x.id===b.dataset.archive||x.id===b.dataset.history);if(!c)return;
- if(b.dataset.edit){el("crmEditId").value=c.id;el("crmName").value=c.name;el("crmNational").value=c.national;el("crmNational").readOnly=true;el("crmPhone").value=c.phone;el("crmJob").value=c.job||"";el("crmEmployer").value=c.employer||"";el("crmBranch").value=c.branch||"";el("crmStatus").value=c.status||"جديد";el("crmNotes").value=c.notes||"";el("crmSubmit").textContent="حفظ التعديلات";el("crmFormTitle").textContent="تعديل بيانات العميل";el("crmForm").scrollIntoView({behavior:"smooth"});}
+ if(b.dataset.edit){el("crmEditId").value=c.id;el("crmName").value=c.name;el("crmNational").value=c.national;el("crmNational").readOnly=true;el("crmPhone").value=c.phone;el("crmJob").value=c.job||"";el("crmEmployer").value=c.employer||"";el("crmBranch").value="رشيد - 394";el("crmStatus").value=c.status||"جديد";el("crmNotes").value=c.notes||"";el("crmSubmit").textContent="حفظ التعديلات";el("crmFormTitle").textContent="تعديل بيانات العميل";el("crmForm").scrollIntoView({behavior:"smooth"});}
  if(b.dataset.archive){c.archived=!c.archived;c.status=c.archived?"غير نشط":(c.status==="غير نشط"?"جاري التواصل":c.status);c.updatedAt=new Date().toISOString();c.history=(c.history||[]).concat([{at:c.updatedAt,action:c.archived?"تعطيل العميل":"إعادة تنشيط العميل"}]);save();}
  if(b.dataset.history){alert("سجل العميل: "+c.name+"\\n"+(c.history||[]).map(h=>new Date(h.at).toLocaleString("ar-EG")+" — "+h.action).join("\\n"));}
 });
@@ -100,7 +100,7 @@ function renderVisitReports(){
  list.innerHTML=rows.slice().sort((a,b)=>String(b.visitDate||"").localeCompare(String(a.visitDate||""))).map(v=>{
   const customer=customers.find(c=>String(c.id)===String(v.customerId));
   return '<article class="crm-card visit-card"><div class="visit-card-head"><div><h3>'+safe(v.entity||"زيارة")+'</h3><span class="follow-status">'+safe(v.visitType||"زيارة تسويقية")+'</span></div><strong>'+safe(v.visitDate||"—")+'</strong></div>'+
-  '<div class="crm-meta"><span>العميل المرتبط: '+safe(customer?.name||v.customerName||"—")+'</span><span>رقم الهاتف: '+safe(v.customerPhone||customer?.phone||"—")+'</span><span>جهة العمل: '+safe(v.entity||"—")+'</span><span>المسؤول: '+safe(v.contact||"—")+'</span><span>المنتج: '+safe(v.product||"—")+'</span><span>العملاء المتوقعون: '+safe(v.expected||"0")+'</span><span>المتابعة القادمة: '+safe(v.nextDate||"—")+'</span><span>نتيجة الزيارة: '+safe(v.outcome||"—")+'</span><span>ملاحظات: '+safe(v.notes||"—")+'</span></div>'+
+  '<div class="crm-meta"><span>العميل المرتبط: '+safe(customer?.name||v.customerName||"—")+'</span><span>رقم الهاتف: '+safe(v.customerPhone||customer?.phone||"—")+'</span><span>الفرع: رشيد - 394</span><span>جهة العمل: '+safe(v.entity||"—")+'</span><span>المسؤول: '+safe(v.contact||"—")+'</span><span>المنتج: '+safe(v.product||"—")+'</span><span>العملاء المتوقعون: '+safe(v.expected||"0")+'</span><span>المتابعة القادمة: '+safe(v.nextDate||"—")+'</span><span>نتيجة الزيارة: '+safe(v.outcome||"—")+'</span><span>ملاحظات: '+safe(v.notes||"—")+'</span></div>'+
   '<div class="crm-actions no-print"><button class="btn light-btn" type="button" data-visit-edit="'+safe(v.id)+'">تعديل</button><button class="btn light-btn" type="button" data-visit-print="'+safe(v.id)+'">طباعة التقرير</button><button class="btn danger small-btn" type="button" data-visit-delete="'+safe(v.id)+'">حذف</button></div></article>';
  }).join("");
 }
@@ -134,7 +134,7 @@ function editVisit(id){
  el("visitPhone").value=v.customerPhone||linked?.phone||"";
  el("visitJob").value=linked?.job||v.customerJob||"";
  el("visitEmployer").value=linked?.employer||v.entity||"";
- el("visitBranch").value=linked?.branch||v.customerBranch||"";
+ el("visitBranch").value="رشيد - 394";
  el("visitDate").value=v.visitDate||"";el("visitEntity").value=v.entity||"";el("visitContact").value=v.contact||"";
  el("visitType").value=v.visitType||"زيارة تسويقية";el("visitProduct").value=v.product||"كارت ائتمان";
  el("visitExpected").value=v.expected??"";el("visitOutcome").value=v.outcome||"";el("visitNextDate").value=v.nextDate||"";
