@@ -1412,6 +1412,112 @@ body.dark #pageHost .home-page input{background:#14231c!important}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
+
+/* NBE DAILY REPORT — standalone home section v100 */
+#pageHost .home-page>.info-section{
+ position:relative!important;isolation:isolate!important;
+ display:block!important;float:none!important;clear:both!important;
+ width:100%!important;max-width:none!important;min-width:0!important;
+ margin:0 0 17px!important;padding:22px!important;
+ border:1px solid rgba(0,99,65,.17)!important;border-radius:19px!important;
+ background:linear-gradient(145deg,var(--card) 0%,color-mix(in srgb,var(--card) 97%,#0b8055 3%) 100%)!important;
+ box-shadow:0 12px 30px rgba(19,55,37,.065)!important;
+}
+#pageHost .home-page>.info-section:before{
+ content:"";position:absolute;z-index:-1;inset:0 0 auto;height:4px;
+ border-radius:19px 19px 0 0;
+ background:linear-gradient(90deg,#006341 0%,#c6a765 52%,#006341 100%);
+}
+#pageHost .home-page>.info-section>.section-title{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:12px!important;margin:0 0 19px!important;padding:3px 1px 15px!important;
+ border-bottom:1px solid var(--border)!important;
+}
+#pageHost .home-page>.info-section>.section-title h2{
+ display:flex;align-items:center;gap:9px;margin:0!important;
+ color:var(--green)!important;font-size:18px!important;font-weight:900!important;
+}
+#pageHost .home-page>.info-section>.section-title h2:before{
+ content:"▤";display:grid;place-items:center;width:34px;height:34px;
+ border-radius:10px;background:rgba(0,99,65,.09);color:var(--green);font-size:17px;
+}
+#pageHost .home-page>.info-section>.section-title .badge{
+ background:rgba(198,167,101,.13)!important;border-color:rgba(198,167,101,.32)!important;
+ color:#8a6a2e!important;letter-spacing:.7px!important;
+}
+#pageHost .home-page>.info-section>.grid{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:13px!important;margin:0!important;
+}
+#pageHost .home-page>.info-section>.grid>.field{
+ min-width:0!important;display:flex!important;flex-direction:column!important;gap:7px!important;
+ padding:12px!important;border:1px solid var(--border)!important;border-radius:13px!important;
+ background:var(--bg)!important;
+}
+#pageHost .home-page>.info-section>.grid>.field label{
+ font-size:11px!important;font-weight:850!important;color:var(--muted)!important;
+}
+#pageHost .home-page>.info-section>.grid>.field input{
+ width:100%!important;min-width:0!important;height:46px!important;min-height:46px!important;
+ padding:9px 11px!important;border:1px solid var(--border)!important;border-radius:10px!important;
+ background:var(--card)!important;color:var(--text)!important;font-size:13px!important;
+ font-weight:750!important;box-shadow:none!important;
+}
+#pageHost .home-page>.info-section>.grid>.field input[readonly]{
+ background:color-mix(in srgb,var(--card) 75%,var(--bg))!important;
+ color:var(--text)!important;opacity:1!important;
+}
+#pageHost .home-page>.info-section>.grid>.field:has(#reportDate){
+ border-color:rgba(0,99,65,.24)!important;background:rgba(0,99,65,.045)!important;
+}
+#pageHost .home-page>.info-section>.grid>.field:has(#reportDate) label{color:var(--green)!important}
+#pageHost .home-page>.info-section #reportDate{
+ direction:ltr!important;text-align:center!important;font-size:15px!important;
+ font-weight:850!important;letter-spacing:.3px!important;color:var(--green)!important;
+}
+#pageHost .home-page>.info-section>.actions{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:10px!important;margin:18px 0 0!important;padding:16px 0 0!important;
+ border-top:1px solid var(--border)!important;
+}
+#pageHost .home-page>.info-section>.actions .btn{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:100%!important;min-width:0!important;min-height:47px!important;margin:0!important;
+ padding:10px 9px!important;border-radius:11px!important;font-size:12px!important;
+ font-weight:850!important;line-height:1.45!important;white-space:normal!important;
+ box-shadow:none!important;
+}
+#pageHost .home-page>.info-section>.actions .btn.primary{background:linear-gradient(135deg,#006341,#0b8055)!important;color:#fff!important}
+#pageHost .home-page>.info-section>.actions .btn.secondary{background:#173e34!important;color:#fff!important}
+#pageHost .home-page>.info-section>.actions .btn.gold-btn{background:linear-gradient(135deg,#d8c18b,#c2a15d)!important;color:#263b2e!important}
+#pageHost .home-page>.info-section>.actions .btn.light-btn{background:var(--bg)!important;color:var(--green)!important;border:1px solid var(--border)!important}
+#pageHost .home-page>.stats{clear:both!important;margin-top:0!important}
+body.dark #pageHost .home-page>.info-section{
+ background:linear-gradient(145deg,var(--card),color-mix(in srgb,var(--card) 94%,#0b8055 6%))!important;
+ border-color:var(--border)!important;
+}
+body.dark #pageHost .home-page>.info-section>.grid>.field{background:#14231c!important}
+body.dark #pageHost .home-page>.info-section>.grid>.field input{background:#1a2921!important}
+@media(max-width:900px){
+ #pageHost .home-page>.info-section{padding:18px!important}
+ #pageHost .home-page>.info-section>.grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #pageHost .home-page>.info-section>.actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:560px){
+ #pageHost .home-page>.info-section{padding:14px!important;margin-bottom:13px!important;border-radius:15px!important}
+ #pageHost .home-page>.info-section>.section-title{align-items:flex-start!important;margin-bottom:13px!important;padding-bottom:11px!important}
+ #pageHost .home-page>.info-section>.section-title h2{font-size:15px!important}
+ #pageHost .home-page>.info-section>.section-title h2:before{width:30px;height:30px;font-size:15px}
+ #pageHost .home-page>.info-section>.section-title .badge{font-size:8px!important;padding:5px 7px!important}
+ #pageHost .home-page>.info-section>.grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+ #pageHost .home-page>.info-section>.grid>.field{padding:9px!important;gap:6px!important;border-radius:10px!important}
+ #pageHost .home-page>.info-section>.grid>.field label{font-size:10px!important}
+ #pageHost .home-page>.info-section>.grid>.field input{height:43px!important;min-height:43px!important;padding:8px!important;font-size:12px!important}
+ #pageHost .home-page>.info-section #reportDate{font-size:13px!important}
+ #pageHost .home-page>.info-section>.actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;margin-top:13px!important;padding-top:12px!important}
+ #pageHost .home-page>.info-section>.actions .btn{min-height:44px!important;padding:8px 6px!important;font-size:10px!important}
+}
+
 </style>
 </head>
 <body>
@@ -1778,6 +1884,10 @@ function buildAppPages(){
  pages.home.append(homeIntro);
  move(".stats","home");
  move(".info-section","home");
+ // Keep the daily report as its own full-width block directly below the hero.
+ const dailyReportPanel=pages.home.querySelector(".info-section");
+ const homeStatsPanel=pages.home.querySelector(".stats");
+ if(dailyReportPanel&&homeStatsPanel)pages.home.insertBefore(dailyReportPanel,homeStatsPanel);
 
  move(".entry-section","sales");
  move(".ledger-section","sales");
