@@ -312,16 +312,34 @@ body{padding-bottom:24px}
 @media(max-width:420px){.settings-data-card{padding:15px}.settings-data-actions{grid-template-columns:1fr}.settings-data-actions #nbeBackupStatus{grid-column:1}}
 
 
-/* توحيد شكل حقول وأيقونات التاريخ في كل صفحات التطبيق */
-input[type="date"]{min-height:46px!important;min-width:0;width:100%;padding:10px 12px!important;border:1px solid var(--border)!important;border-radius:11px!important;background-color:var(--bg)!important;color:var(--text)!important;color-scheme:light;direction:ltr;text-align:center;font-variant-numeric:tabular-nums;font-family:Tahoma,Arial,sans-serif;transition:border-color .18s,box-shadow .18s}#reportDate{direction:ltr;text-align:center;font-weight:700;letter-spacing:.04em}
+/* توحيد حقول التاريخ في كل صفحات التطبيق - iOS / Android */
+input[type="date"]{
+ display:block!important;box-sizing:border-box!important;
+ width:100%!important;min-width:0!important;height:48px!important;min-height:48px!important;
+ margin:0!important;padding:0 10px!important;
+ border:1px solid var(--border)!important;border-radius:11px!important;
+ background:var(--bg)!important;color:var(--text)!important;
+ color-scheme:light;direction:ltr;text-align:center;
+ font-family:Tahoma,Arial,sans-serif!important;font-size:15px!important;
+ font-weight:600;font-variant-numeric:tabular-nums;line-height:normal!important;
+ vertical-align:middle;appearance:auto;-webkit-appearance:auto;
+}
 body.dark input[type="date"]{color-scheme:dark}
 input[type="date"]:focus{border-color:var(--green)!important;box-shadow:0 0 0 3px rgba(8,116,67,.12);outline:none}
-input[type="date"]::-webkit-calendar-picker-indicator{width:14px;height:14px;padding:2px;margin:0 0 0 2px;border-radius:5px;cursor:pointer;opacity:.88;transition:background-color .18s,opacity .18s}
-input[type="date"]::-webkit-calendar-picker-indicator:hover{background-color:rgba(8,116,67,.13);opacity:1}
-input[type="date"]::-webkit-datetime-edit{padding:0 2px}
-input[type="date"]::-webkit-datetime-edit-fields-wrapper{padding:0}
-@media(max-width:520px){input[type="date"]{min-height:48px;font-size:14px}}
-
+input[type="date"]::-webkit-date-and-time-value{min-height:1.4em;text-align:center;margin:0 auto}
+input[type="date"]::-webkit-datetime-edit{padding:0 2px;line-height:normal}
+input[type="date"]::-webkit-datetime-edit-fields-wrapper{padding:0;display:flex;justify-content:center;align-items:center}
+input[type="date"]::-webkit-calendar-picker-indicator{
+ width:18px;height:18px;flex:0 0 18px;padding:2px;margin:0 0 0 5px;
+ border-radius:5px;cursor:pointer;opacity:.85
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover{background:rgba(8,116,67,.13);opacity:1}
+#reportDate{direction:ltr;text-align:center;font-weight:700;letter-spacing:.025em}
+.field input[type="date"]{align-self:stretch}
+@media(max-width:520px){
+ input[type="date"]{height:48px!important;min-height:48px!important;font-size:14px!important;padding:0 9px!important}
+}
+ 
 /* NBE Sales Premium UI Refresh */
 :root{--green:#087443;--green2:#0a8f5b;--navy:#123342;--gold:#c7a45d;--bg:#f3f6f5;--card:#ffffff;--text:#1b3038;--muted:#718187;--border:#e3ebe7;--shadow:0 12px 32px rgba(18,55,40,.075)}
 body{background:radial-gradient(ellipse at 90% 0%,rgba(8,116,67,.07),transparent 34%),var(--bg);letter-spacing:0}
