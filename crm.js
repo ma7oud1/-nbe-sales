@@ -113,17 +113,24 @@ function renderVisitReports(){
 function printHtmlInCurrentPage(html){
  const frame=document.createElement("iframe");
  frame.setAttribute("aria-hidden","true");
- frame.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";
+ frame.setAttribute("title","Print preview");
+ frame.style.cssText="position:fixed;left:0;top:0;width:100%;height:100%;border:0;opacity:0.01;pointer-events:none;z-index:-1;background:#fff";
+ let started=false,cleaned=false;
+ const cleanup=()=>{if(cleaned)return;cleaned=true;setTimeout(()=>frame.remove(),300);};
+ const startPrint=()=>{
+  if(started)return;
+  const win=frame.contentWindow;
+  if(!win)return;
+  started=true;
+  win.onafterprint=cleanup;
+  try{win.focus();win.print();}catch(err){cleanup();console.error("Visit report print failed",err);}
+  setTimeout(()=>{if(!cleaned&&(!win.matchMedia||!win.matchMedia("print").matches))cleanup();},120000);
+ };
+ frame.onload=()=>{setTimeout(startPrint,250);};
  document.body.appendChild(frame);
  const doc=frame.contentDocument||frame.contentWindow.document;
  doc.open();doc.write(html);doc.close();
- frame.onload=function(){
-  const win=frame.contentWindow;
-  if(!win)return;
-  win.onafterprint=function(){frame.remove();};
-  win.focus();
-  win.print();
- };
+ setTimeout(startPrint,1200);
 }
 function printVisitReport(id){
  const v=visitReports.find(x=>String(x.id)===String(id));if(!v)return;
