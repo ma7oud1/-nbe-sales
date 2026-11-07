@@ -88,7 +88,8 @@ function renderVisitCustomerOptions(selected){
 function resetVisitForm(){
  const form=el("visitForm");if(!form)return;
  form.reset();visitEditId="";
- el("visitDate").value=new Date().toISOString().slice(0,10);\n  el("visitPhone").value="";
+ el("visitDate").value=new Date().toISOString().slice(0,10);
+  el("visitPhone").value="";
  el("visitFormTitle").textContent="تسجيل زيارة جديدة";el("visitSave").textContent="حفظ الزيارة";
  renderVisitCustomerOptions();
 }
@@ -128,7 +129,8 @@ function printAllVisitReports(){
 }
 function editVisit(id){
  const v=visitReports.find(x=>String(x.id)===String(id));if(!v)return;
- visitEditId=v.id;renderVisitCustomerOptions(v.customerId);el("visitCustomer").value=v.customerId||"";\n  el("visitPhone").value=v.customerPhone||customers.find(c=>String(c.id)===String(v.customerId))?.phone||"";
+ visitEditId=v.id;renderVisitCustomerOptions(v.customerId);el("visitCustomer").value=v.customerId||"";
+  el("visitPhone").value=v.customerPhone||customers.find(c=>String(c.id)===String(v.customerId))?.phone||"";
  el("visitDate").value=v.visitDate||"";el("visitEntity").value=v.entity||"";el("visitContact").value=v.contact||"";
  el("visitType").value=v.visitType||"زيارة تسويقية";el("visitProduct").value=v.product||"كارت ائتمان";
  el("visitExpected").value=v.expected??"";el("visitOutcome").value=v.outcome||"";el("visitNextDate").value=v.nextDate||"";
@@ -141,7 +143,8 @@ visitsPage.insertAdjacentHTML("beforeend",''+
 '<div class="crm-warning">كل تقرير زيارة مستقل ومرتبط بملف عميل موجود في سجل العملاء. احفظ بيانات الزيارة ونتيجتها وموعد المتابعة.</div>'+
 '<div class="section-title"><h2 id="visitFormTitle">تسجيل زيارة جديدة</h2></div>'+
 '<form id="visitForm" class="crm-form">'+
-'<div class="field"><label>العميل المسجل *</label><select id="visitCustomer" required><option value="">اختر عميلاً مسجلاً</option></select></div>'+\n'<div class="field"><label>رقم هاتف العميل</label><input id="visitPhone" type="tel" inputmode="tel" maxlength="20" readonly placeholder="يظهر تلقائيًا من ملف العميل"></div>'+
+'<div class="field"><label>العميل المسجل *</label><select id="visitCustomer" required><option value="">اختر عميلاً مسجلاً</option></select></div>'+
+'<div class="field"><label>رقم هاتف العميل</label><input id="visitPhone" type="tel" inputmode="tel" maxlength="20" readonly placeholder="يظهر تلقائيًا من ملف العميل"></div>'+
 '<div class="field"><label>تاريخ الزيارة *</label><input id="visitDate" type="date" required></div>'+
 '<div class="field"><label>اسم الجهة / الشركة *</label><input id="visitEntity" required maxlength="150" placeholder="اسم جهة العمل أو الشركة"></div>'+
 '<div class="field"><label>المسؤول الذي تمت مقابلته</label><input id="visitContact" maxlength="120"></div>'+
@@ -169,7 +172,8 @@ el("visitForm").addEventListener("submit",function(e){
 });
 el("visitCancel").addEventListener("click",resetVisitForm);
 el("visitSearch").addEventListener("input",renderVisitReports);
-el("visitCustomer").addEventListener("change",()=>{const c=customers.find(x=>String(x.id)===String(el("visitCustomer").value));el("visitPhone").value=c?.phone||"";if(c&&!el("visitEntity").value)el("visitEntity").value=c.employer||"";});\n el("printAllVisits").addEventListener("click",printAllVisitReports);
+el("visitCustomer").addEventListener("change",()=>{const c=customers.find(x=>String(x.id)===String(el("visitCustomer").value));el("visitPhone").value=c?.phone||"";if(c&&!el("visitEntity").value)el("visitEntity").value=c.employer||"";});
+ el("printAllVisits").addEventListener("click",printAllVisitReports);
 el("visitList").addEventListener("click",function(e){
  const b=e.target.closest("button");if(!b)return;
  if(b.dataset.visitEdit)editVisit(b.dataset.visitEdit);
