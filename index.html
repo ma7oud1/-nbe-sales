@@ -1667,6 +1667,7 @@ function importBackup(event){
     (Array.isArray(currentVisits)?currentVisits:[]).forEach((item,index)=>mergedVisits.set(String(item.id??("existing-"+index)),item));
     data.visitReports.forEach((item,index)=>{if(item&&typeof item==="object")mergedVisits.set(String(item.id??("backup-"+index)),item);});
     NBEStore.setItem("NBE_VISIT_REPORTS_V1",JSON.stringify(Array.from(mergedVisits.values())));
+    if(typeof window.refreshNbeVisits==="function")window.refreshNbeVisits();
    }
    if(data.employeeSettings&&typeof data.employeeSettings==="object"){
     EMPLOYEE=String(data.employeeSettings.employee||"");SALES_NO=String(data.employeeSettings.salesNo||"");
