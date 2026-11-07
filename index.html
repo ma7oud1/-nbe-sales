@@ -329,6 +329,17 @@ body{padding-bottom:86px}
 .settings-data-actions input[type=file]{display:none!important}
 @media(max-width:420px){.settings-data-card{padding:15px}.settings-data-actions{grid-template-columns:1fr}.settings-data-actions #nbeBackupStatus{grid-column:1}}
 
+
+/* توحيد شكل حقول وأيقونات التاريخ في كل صفحات التطبيق */
+input[type="date"]{min-height:46px!important;min-width:0;width:100%;padding:10px 12px!important;border:1px solid var(--border)!important;border-radius:11px!important;background-color:var(--bg)!important;color:var(--text)!important;color-scheme:light;direction:ltr;text-align:left;font-variant-numeric:tabular-nums;font-family:Tahoma,Arial,sans-serif;transition:border-color .18s,box-shadow .18s}
+body.dark input[type="date"]{color-scheme:dark}
+input[type="date"]:focus{border-color:var(--green)!important;box-shadow:0 0 0 3px rgba(8,116,67,.12);outline:none}
+input[type="date"]::-webkit-calendar-picker-indicator{width:20px;height:20px;padding:5px;margin:0 0 0 2px;border-radius:7px;cursor:pointer;opacity:.88;transition:background-color .18s,opacity .18s}
+input[type="date"]::-webkit-calendar-picker-indicator:hover{background-color:rgba(8,116,67,.13);opacity:1}
+input[type="date"]::-webkit-datetime-edit{padding:0 2px}
+input[type="date"]::-webkit-datetime-edit-fields-wrapper{padding:0}
+@media(max-width:520px){input[type="date"]{min-height:48px;font-size:14px}}
+
 /* NBE Sales Premium UI Refresh */
 :root{--green:#087443;--green2:#0a8f5b;--navy:#123342;--gold:#c7a45d;--bg:#f3f6f5;--card:#ffffff;--text:#1b3038;--muted:#718187;--border:#e3ebe7;--shadow:0 12px 32px rgba(18,55,40,.075)}
 body{background:radial-gradient(ellipse at 90% 0%,rgba(8,116,67,.07),transparent 34%),var(--bg);letter-spacing:0}
