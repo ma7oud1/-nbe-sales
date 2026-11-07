@@ -96,9 +96,13 @@ function resetVisitForm(){
 function renderVisitReports(){
  const list=el("visitList");if(!list)return;
  const query=(el("visitSearch")?.value||"").trim().toLowerCase();
- const rows=visitReports.filter(v=>[v.customerName,v.customerPhone,v.entity,v.outcome,v.notes,v.product].some(x=>String(x||"").toLowerCase().includes(query)));
- el("visitCount").textContent=visitReports.length+" زيارة";
+ const day=(el("visitDayFilter")?.value||"").trim();
+ const rows=visitReports.filter(v=>(!day||String(v.visitDate||"")===day)&&[v.customerName,v.customerPhone,v.entity,v.outcome,v.notes,v.product].some(x=>String(x||"").toLowerCase().includes(query)));
+ el("visitCount").textContent=rows.length+" زيارة"+(day?" في "+day:" في كل الأيام");
  if(!rows.length){list.innerHTML='<div class="crm-empty">لا توجد زيارات مسجلة حتى الآن</div>';return;}
+ const today=day||"كل الأيام";
+ const summary=el("visitDaySummary");
+ if(summary)summary.textContent=(day?"تقرير يوم "+day:"عرض كل الأيام")+" • عدد الزيارات: "+rows.length+" • إجمالي الزيارات المسجلة: "+visitReports.length;
  list.innerHTML=rows.slice().sort((a,b)=>String(b.visitDate||"").localeCompare(String(a.visitDate||""))).map(v=>{
   const customer=customers.find(c=>String(c.id)===String(v.customerId));
   return '<article class="crm-card visit-card"><div class="visit-card-head"><div><h3>'+safe(v.entity||"زيارة")+'</h3><span class="follow-status">'+safe(v.visitType||"زيارة تسويقية")+'</span></div><strong>'+safe(v.visitDate||"—")+'</strong></div>'+
@@ -131,7 +135,8 @@ function printVisitReport(id){
 }
 function printAllVisitReports(){
  const query=(el("visitSearch")?.value||"").trim().toLowerCase();
- const rows=visitReports.filter(v=>[v.customerName,v.customerPhone,v.entity,v.outcome,v.notes,v.product].some(x=>String(x||"").toLowerCase().includes(query))).slice().sort((a,b)=>String(b.visitDate||"").localeCompare(String(a.visitDate||"")));
+ const day=(el("visitDayFilter")?.value||"").trim();
+ const rows=visitReports.filter(v=>(!day||String(v.visitDate||"")===day)&&[v.customerName,v.customerPhone,v.entity,v.outcome,v.notes,v.product].some(x=>String(x||"").toLowerCase().includes(query))).slice().sort((a,b)=>String(b.visitDate||"").localeCompare(String(a.visitDate||"")));
  if(!rows.length){alert("لا توجد زيارات لطباعتها.");return;}
  const esc=x=>String(x??"—").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
  const body=rows.map((v,i)=>{const customer=customers.find(c=>String(c.id)===String(v.customerId));return '<tr><td>'+(i+1)+'</td><td>'+esc(v.visitDate)+'</td><td>'+esc(customer?.name||v.customerName)+'</td><td>'+esc(v.customerPhone||customer?.phone||"—")+'</td><td>رشيد - 394</td><td>'+esc(v.entity||customer?.employer||"—")+'</td><td>'+esc(v.product)+'</td><td>'+esc(v.outcome||"—")+'</td><td>'+esc(v.notes||"—")+'</td></tr>';}).join("");
@@ -173,7 +178,7 @@ visitsPage.insertAdjacentHTML("beforeend",''+
 '<div class="field" style="grid-column:1/-1"><label>ملاحظات</label><textarea id="visitNotes" rows="3" maxlength="1000" placeholder="اكتب أي ملاحظات عن الزيارة أو العميل"></textarea></div>'+
 '<div class="crm-form-actions"><button class="btn primary" type="submit" id="visitSave">حفظ الزيارة</button><button class="btn light-btn" type="button" id="visitCancel">إلغاء / تفريغ</button></div></form>'+
 '<div class="section-title" style="margin-top:25px"><h2>سجل الزيارات السابقة</h2><span class="badge" id="visitCount">0 زيارة</span><button class="btn primary no-print" type="button" id="printAllVisits">طباعة الزيارات</button></div>'+
-'<div class="crm-toolbar"><input id="visitSearch" type="search" placeholder="بحث باسم العميل أو جهة العمل أو نتيجة الزيارة أو الملاحظات"></div>'+
+'<div class="crm-toolbar visit-daily-toolbar"><input id="visitDayFilter" type="date" aria-label="اختر يوم الزيارات"><input id="visitSearch" type="search" placeholder="بحث باسم العميل أو جهة العمل أو نتيجة الزيارة أو الملاحظات"><button class="btn light-btn no-print" type="button" id="visitAllDays">عرض كل الأيام</button></div><div id="visitDaySummary" class="crm-warning" aria-live="polite">عرض زيارات اليوم</div>'+
 '<div id="visitList" class="crm-list"></div></section>');
 style.textContent += ".visit-section{margin-top:22px}.visit-card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.visit-card-head strong{color:var(--muted);font-size:12px}.visit-section .crm-form select{width:100%;min-width:0;padding:13px 14px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text)}.visit-section .crm-form input{background:var(--card)}@media print{.visit-section{display:none!important}}";
 el("visitDate").value=new Date().toISOString().slice(0,10);
@@ -203,6 +208,10 @@ el("visitForm").addEventListener("submit",function(e){
 });
 el("visitCancel").addEventListener("click",resetVisitForm);
 el("visitSearch").addEventListener("input",renderVisitReports);
+function localVisitDate(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+el("visitDayFilter").value=localVisitDate();
+el("visitDayFilter").addEventListener("change",renderVisitReports);
+el("visitAllDays").addEventListener("click",function(){el("visitDayFilter").value="";renderVisitReports();});
 el("visitNational").addEventListener("change",()=>{const n=normalizeDigits(el("visitNational").value.trim());el("visitNational").value=n;const c=customers.find(x=>String(x.national)===n);if(c){el("visitName").value=c.name||"";el("visitPhone").value=c.phone||"";el("visitJob").value=c.job||"";el("visitEmployer").value=c.employer||"";el("visitBranch").value=c.branch||"";}});
  el("printAllVisits").addEventListener("click",printAllVisitReports);
 el("visitList").addEventListener("click",function(e){
