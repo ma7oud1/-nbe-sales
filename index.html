@@ -222,26 +222,8 @@ tr:hover td{background:rgba(8,116,67,.035)}
 @media(max-width:800px){.calculator-section .calculator-results{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.calculator-section .calculator-results{grid-template-columns:1fr 1fr}.calculator-section .stat{padding:12px}}
 
-/* تقسيم التطبيق إلى صفحات مع شريط تنقل سفلي */
-body{padding-bottom:86px}
-#mainNav{
- position:fixed;z-index:1000;bottom:0;left:0;right:0;
- display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;
- padding:8px max(10px,calc((100vw - 1250px)/2)) calc(8px + env(safe-area-inset-bottom));
- background:var(--card);border-top:1px solid var(--border);
- box-shadow:0 -5px 22px rgba(20,50,40,.09)
-}
-.nav-btn{
- position:relative;border:0;background:transparent;color:var(--muted);border-radius:13px;
- padding:8px 3px;display:flex;flex-direction:column;align-items:center;
- justify-content:center;gap:5px;font-size:10px;font-weight:700;min-width:0;
- transition:background .2s,color .2s,transform .2s;
-}
-.nav-btn .nav-icon{width:23px;height:23px;display:grid;place-items:center;line-height:1}
-.nav-btn .nav-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
-.nav-btn.active{background:linear-gradient(145deg,rgba(0,99,65,.13),rgba(0,99,65,.055));color:var(--green)}
-.nav-btn.active:before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 4px 4px;background:var(--gold)}
-.nav-btn:active{transform:scale(.96)}
+/* Navigation is now handled by the slide-out sidebar. */
+body{padding-bottom:24px}
 .theme-toggle-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,.14)!important;color:#fff!important;border:1px solid rgba(255,255,255,.28)!important;border-radius:12px;padding:10px 14px;font-weight:800}
 .theme-toggle-btn span:first-child{font-size:18px;line-height:1}
 @media(max-width:520px){.theme-toggle-btn{padding:9px 11px;font-size:12px}}
@@ -398,19 +380,7 @@ body.dark th{background:#22363a}
 body.dark .light-btn{background:#203238}
 
 
-/* قائمة الاختصارات في شريط التنقل السفلي */
-#mainNav{grid-template-columns:repeat(7,minmax(0,1fr))}
-.quick-shortcuts-menu{
- position:fixed;z-index:1100;left:10px;right:10px;bottom:calc(76px + env(safe-area-inset-bottom));
- display:grid;grid-template-columns:1fr 1fr;gap:9px;
- max-width:520px;margin:0 auto;padding:13px;
- background:var(--card);border:1px solid var(--border);border-radius:17px;
- box-shadow:0 12px 35px rgba(0,0,0,.2)
-}
-.quick-shortcuts-menu[hidden]{display:none}
-.quick-shortcuts-menu .btn{min-height:48px;padding:10px 8px;font-size:12px;white-space:normal}
-.shortcuts-nav-btn.active{background:rgba(8,116,67,.11);color:var(--green)}
-@media(max-width:390px){.nav-btn{font-size:8px}.nav-btn .nav-icon{font-size:16px}}
+/* Previous bottom shortcuts menu removed in favor of the sidebar. */
 
 /* Dashboard quick actions and ledger search */
 .dash-quick-actions{padding:18px}
@@ -925,13 +895,54 @@ body.dark #mainNav .nav-btn.active{background:linear-gradient(180deg,rgba(32,169
 .theme-toggle-icon{font-size:18px;line-height:1;color:var(--gold)}
 #quickShortcutsMenu .btn{border-radius:12px;font-weight:750}
 @media(max-width:420px){#mainNav .nav-btn{min-height:54px;gap:4px}#mainNav .nav-btn .nav-icon{width:19px;height:19px}#mainNav .nav-btn span:not(.nav-icon){font-size:9px}}
-html[lang="en"] body,body.lang-en{direction:ltr;font-family:Arial,Tahoma,sans-serif}body.lang-en #mainNav{direction:ltr}body.lang-en .nav-btn,body.lang-en .section-title,body.lang-en .page-heading,body.lang-en .field label,body.lang-en .settings-panel{text-align:left}body.lang-en input,body.lang-en select,body.lang-en textarea{direction:ltr;text-align:left}body.lang-en .crm-section,body.lang-en .crm-list{direction:ltr}</style>
+html[lang="en"] body,body.lang-en{direction:ltr;font-family:Arial,Tahoma,sans-serif}body.lang-en #mainNav{direction:ltr}body.lang-en .nav-btn,body.lang-en .section-title,body.lang-en .page-heading,body.lang-en .field label,body.lang-en .settings-panel{text-align:left}body.lang-en input,body.lang-en select,body.lang-en textarea{direction:ltr;text-align:left}body.lang-en .crm-section,body.lang-en .crm-list{direction:ltr}
+/* NBE slide-out navigation */
+.menu-toggle{width:44px;height:44px;flex:0 0 44px;border:1px solid rgba(255,255,255,.3);border-radius:12px;background:rgba(255,255,255,.13);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer}
+.menu-toggle span{display:block;width:21px;height:2px;border-radius:4px;background:#fff;transition:transform .2s,opacity .2s}
+.menu-toggle[aria-expanded="true"] span:first-child{transform:translateY(7px) rotate(45deg)}
+.menu-toggle[aria-expanded="true"] span:nth-child(2){opacity:0}
+.menu-toggle[aria-expanded="true"] span:last-child{transform:translateY(-7px) rotate(-45deg)}
+.sidebar-backdrop{position:fixed;inset:0;z-index:1200;background:rgba(4,20,14,.56);backdrop-filter:blur(2px)}
+.sidebar-backdrop[hidden]{display:none}
+.app-sidebar{position:fixed;z-index:1201;top:0;bottom:0;left:0;width:min(84vw,340px);padding:calc(18px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom));background:var(--card);color:var(--text);border-right:1px solid var(--border);box-shadow:16px 0 48px rgba(0,0,0,.22);transform:translateX(-110%);visibility:hidden;transition:transform .25s ease,visibility .25s;overflow-y:auto;display:flex;flex-direction:column}
+html[dir="rtl"] .app-sidebar{left:auto;right:0;border-right:0;border-left:1px solid var(--border);transform:translateX(110%)}
+.app-sidebar.open{transform:translateX(0);visibility:visible}
+.sidebar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 2px 16px;border-bottom:1px solid var(--border)}
+.sidebar-brand{display:flex;align-items:center;gap:11px}
+.sidebar-brand strong{width:48px;height:48px;border-radius:14px;background:linear-gradient(145deg,#087443,#0b9860);color:#fff;display:grid;place-items:center;font-size:20px;letter-spacing:.5px}
+.sidebar-brand span{font-size:11px;font-weight:900;letter-spacing:1px;color:var(--muted)}
+.sidebar-close{width:38px;height:38px;border:1px solid var(--border);border-radius:11px;background:var(--bg);color:var(--text);font-size:25px;line-height:1}
+.sidebar-employee{display:flex;flex-direction:column;gap:5px;margin:15px 0;padding:13px;border-radius:12px;background:linear-gradient(120deg,rgba(8,116,67,.12),rgba(198,164,91,.10));}
+.sidebar-employee span{font-size:10px;font-weight:900;letter-spacing:1px;color:var(--green)}
+.sidebar-employee strong{font-size:11px;letter-spacing:.4px}
+.sidebar-nav{display:grid;gap:5px}
+.sidebar-item{width:100%;min-height:47px;display:flex;align-items:center;gap:13px;padding:9px 12px;border:1px solid transparent;border-radius:11px;background:transparent;color:var(--text);font-size:14px;font-weight:700;text-align:start}
+.sidebar-item-icon{width:29px;height:29px;flex:0 0 29px;border-radius:9px;display:grid;place-items:center;background:var(--bg);color:var(--green);font-size:19px}
+.sidebar-item.active{background:rgba(8,116,67,.10);border-color:rgba(8,116,67,.18);color:var(--green)}
+.sidebar-item.active .sidebar-item-icon{background:var(--green);color:#fff}
+.sidebar-divider{height:1px;background:var(--border);margin:15px 0 12px}
+.sidebar-quick-title{font-size:11px;font-weight:900;color:var(--muted);margin-bottom:9px}
+.sidebar-quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sidebar-quick-actions button{min-height:43px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-size:12px;font-weight:800}
+.sidebar-quick-actions button:last-child{grid-column:1/-1}
+.sidebar-theme{margin-top:12px;min-height:44px;display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-weight:700;text-align:start}
+.sidebar-theme span:first-child{color:var(--gold);font-size:19px}
+.sidebar-footer{margin-top:auto;padding-top:22px;text-align:center;color:var(--muted);font-size:10px;letter-spacing:.7px;line-height:1.8}
+.sidebar-footer small{font-size:9px}
+body.sidebar-open{overflow:hidden}
+body.lang-en .app-sidebar{left:0;right:auto;border-left:0;border-right:1px solid var(--border);transform:translateX(-110%)}
+body.lang-en .app-sidebar.open{transform:translateX(0)}
+body.lang-en .sidebar-item{text-align:left}
+@media(min-width:900px){.menu-toggle{width:48px;height:48px}.app-sidebar{width:350px}}
+
+</style>
 </head>
 <body>
 <div class="container">
 
 <header class="header">
  <div class="brand">
+  <button type="button" id="menuToggle" class="menu-toggle" onclick="toggleSidebar()" aria-label="فتح القائمة" aria-controls="appSidebar" aria-expanded="false"><span></span><span></span><span></span></button>
   <div class="logo">
    <img src="https://commons.wikimedia.org/wiki/Special:FilePath/National_Bank_of_Egypt.svg"
     alt="NBE Logo"
@@ -954,22 +965,34 @@ html[lang="en"] body,body.lang-en{direction:ltr;font-family:Arial,Tahoma,sans-se
   <input id="importFile" type="file" accept=".json,application/json" class="hidden" onchange="importBackup(event)">
  </div>
 </header>
-<nav id="mainNav" aria-label="التنقل الرئيسي">
- <button class="nav-btn active" data-page="home" onclick="showPage('home')" aria-label="الرئيسية"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>الرئيسية</span></button>
- <button class="nav-btn" data-page="sales" onclick="showPage('sales')"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>المبيعات</span></button>
- <button class="nav-btn" data-page="customers" onclick="showPage('customers')"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>العملاء</span></button>
- <button class="nav-btn" data-page="followups" onclick="showPage('followups')"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>المتابعة</span></button>
- <button class="nav-btn" data-page="visits" onclick="showPage('visits')"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>الزيارات</span></button>
- <button class="nav-btn" data-page="archive" onclick="showPage('archive')"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v4H3zM5 9v11h14V9M9 13h6"/></svg><span>الأرشيف</span></button>
- <button class="nav-btn shortcuts-nav-btn" type="button" onclick="toggleQuickMenu()" aria-expanded="false"><svg class="nav-icon more-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span>المزيد</span></button>
-</nav>
-<div id="quickShortcutsMenu" class="quick-shortcuts-menu" hidden>
- <button class="btn light-btn theme-toggle-btn" id="themeToggleBtn" type="button" onclick="toggleAppTheme()"><span class="theme-toggle-icon" aria-hidden="true">☀</span><span class="theme-toggle-label">الوضع النهاري</span></button>
- <button class="btn light-btn" type="button" onclick="closeQuickMenu();showPage('calculator')">حاسبة الفوائد</button>
- <button class="btn light-btn" type="button" onclick="closeQuickMenu();showPage('loan-calculator')">حاسبة القروض</button>
- <button class="btn light-btn" type="button" onclick="closeQuickMenu();showPage('settings')">الإعدادات والنسخ الاحتياطي</button>
-</div>
-
+<div id="sidebarBackdrop" class="sidebar-backdrop" hidden onclick="closeSidebar()" aria-hidden="true"></div>
+<aside id="appSidebar" class="app-sidebar" aria-label="القائمة الرئيسية" aria-hidden="true">
+ <div class="sidebar-head">
+  <div class="sidebar-brand"><strong>NBE</strong><span>SALES PORTFOLIO</span></div>
+  <button type="button" class="sidebar-close" onclick="closeSidebar()" aria-label="إغلاق القائمة">×</button>
+ </div>
+ <div class="sidebar-employee"><span>RETAIL BANKING</span><strong>RASHID BRANCH 394</strong></div>
+ <nav class="sidebar-nav" aria-label="التنقل الرئيسي">
+  <button class="sidebar-item active" data-page="home" onclick="showPage('home')"><span class="sidebar-item-icon">⌂</span><span>الرئيسية</span></button>
+  <button class="sidebar-item" data-page="sales" onclick="showPage('sales')"><span class="sidebar-item-icon">▤</span><span>المبيعات</span></button>
+  <button class="sidebar-item" data-page="customers" onclick="showPage('customers')"><span class="sidebar-item-icon">♙</span><span>العملاء</span></button>
+  <button class="sidebar-item" data-page="followups" onclick="showPage('followups')"><span class="sidebar-item-icon">◷</span><span>المتابعة</span></button>
+  <button class="sidebar-item" data-page="visits" onclick="showPage('visits')"><span class="sidebar-item-icon">⌖</span><span>الزيارات</span></button>
+  <button class="sidebar-item" data-page="archive" onclick="showPage('archive')"><span class="sidebar-item-icon">▣</span><span>الأرشيف</span></button>
+  <button class="sidebar-item" data-page="calculator" onclick="showPage('calculator')"><span class="sidebar-item-icon">％</span><span>حاسبة الفوائد</span></button>
+  <button class="sidebar-item" data-page="loan-calculator" onclick="showPage('loan-calculator')"><span class="sidebar-item-icon">▦</span><span>حاسبة القروض</span></button>
+  <button class="sidebar-item" data-page="settings" onclick="showPage('settings')"><span class="sidebar-item-icon">⚙</span><span>الإعدادات والنسخ الاحتياطي</span></button>
+ </nav>
+ <div class="sidebar-divider"></div>
+ <div class="sidebar-quick-title">إجراءات سريعة</div>
+ <div class="sidebar-quick-actions">
+  <button type="button" onclick="quickAdd('card')">＋ تسجيل كارت</button>
+  <button type="button" onclick="quickAdd('loan')">＋ تسجيل قرض</button>
+  <button type="button" onclick="quickAdd('followup')">＋ إضافة متابعة</button>
+ </div>
+ <button type="button" class="sidebar-theme" onclick="toggleAppTheme()"><span>◐</span><span>تغيير مظهر التطبيق</span></button>
+ <div class="sidebar-footer">NATIONAL BANK OF EGYPT<br><small>RASHID BRANCH · 394</small></div>
+</aside>
 <div class="section info-section">
  <div class="section-title">
   <h2>بيانات التقرير اليومي</h2>
@@ -1346,20 +1369,29 @@ function buildAppPages(){
  if(footer)pages.settings.append(footer);
 }
 
-function toggleQuickMenu(){
- const menu=document.getElementById("quickShortcutsMenu");
- const button=document.querySelector(".shortcuts-nav-btn");
- if(!menu)return;
- const opening=menu.hidden;
- menu.hidden=!opening;
- if(button){button.classList.toggle("active",opening);button.setAttribute("aria-expanded",String(opening));}
+function toggleSidebar(){
+ const sidebar=document.getElementById("appSidebar");
+ const backdrop=document.getElementById("sidebarBackdrop");
+ const button=document.getElementById("menuToggle");
+ if(!sidebar||!backdrop)return;
+ const opening=!sidebar.classList.contains("open");
+ sidebar.classList.toggle("open",opening);
+ backdrop.hidden=!opening;
+ sidebar.setAttribute("aria-hidden",String(!opening));
+ document.body.classList.toggle("sidebar-open",opening);
+ if(button)button.setAttribute("aria-expanded",String(opening));
 }
-function closeQuickMenu(){
- const menu=document.getElementById("quickShortcutsMenu");
- const button=document.querySelector(".shortcuts-nav-btn");
- if(menu)menu.hidden=true;
- if(button){button.classList.remove("active");button.setAttribute("aria-expanded","false");}
+function closeSidebar(){
+ const sidebar=document.getElementById("appSidebar");
+ const backdrop=document.getElementById("sidebarBackdrop");
+ const button=document.getElementById("menuToggle");
+ if(sidebar){sidebar.classList.remove("open");sidebar.setAttribute("aria-hidden","true");}
+ if(backdrop)backdrop.hidden=true;
+ document.body.classList.remove("sidebar-open");
+ if(button)button.setAttribute("aria-expanded","false");
 }
+function toggleQuickMenu(){toggleSidebar();}
+function closeQuickMenu(){closeSidebar();}
 function quickAdd(type){
  closeQuickMenu();
  if(type==="followup"){showPage("followups");setTimeout(()=>document.getElementById("fName")?.focus(),80);return;}
@@ -1367,9 +1399,9 @@ function quickAdd(type){
  setTimeout(()=>{const target=document.getElementById(type==="card"?"cName":"lName");target?.focus();target?.scrollIntoView({behavior:"smooth",block:"center"});},80);
 }
 function showPage(id){
- closeQuickMenu();
+ closeSidebar();
  document.querySelectorAll(".app-page").forEach(page=>page.classList.toggle("active",page.dataset.page===id));
- document.querySelectorAll("#mainNav .nav-btn").forEach(btn=>btn.classList.toggle("active",btn.dataset.page===id));
+ document.querySelectorAll(".sidebar-item[data-page]").forEach(btn=>btn.classList.toggle("active",btn.dataset.page===id));
  window.scrollTo({top:0,behavior:"smooth"});
 }
 
