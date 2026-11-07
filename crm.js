@@ -89,9 +89,7 @@ function resetVisitForm(){
  const form=el("visitForm");if(!form)return;
  form.reset();visitEditId="";
  el("visitDate").value=new Date().toISOString().slice(0,10);
-  el("visitPhone").value="";
  el("visitFormTitle").textContent="تسجيل زيارة جديدة";el("visitSave").textContent="حفظ الزيارة";
- renderVisitCustomerOptions();
 }
 function renderVisitReports(){
  const list=el("visitList");if(!list)return;
@@ -129,8 +127,14 @@ function printAllVisitReports(){
 }
 function editVisit(id){
  const v=visitReports.find(x=>String(x.id)===String(id));if(!v)return;
- visitEditId=v.id;renderVisitCustomerOptions(v.customerId);el("visitCustomer").value=v.customerId||"";
-  el("visitPhone").value=v.customerPhone||customers.find(c=>String(c.id)===String(v.customerId))?.phone||"";
+ visitEditId=v.id;
+ const linked=customers.find(c=>String(c.id)===String(v.customerId));
+ el("visitName").value=linked?.name||v.customerName||"";
+ el("visitNational").value=linked?.national||v.customerNational||"";
+ el("visitPhone").value=v.customerPhone||linked?.phone||"";
+ el("visitJob").value=linked?.job||v.customerJob||"";
+ el("visitEmployer").value=linked?.employer||v.entity||"";
+ el("visitBranch").value=linked?.branch||v.customerBranch||"";
  el("visitDate").value=v.visitDate||"";el("visitEntity").value=v.entity||"";el("visitContact").value=v.contact||"";
  el("visitType").value=v.visitType||"زيارة تسويقية";el("visitProduct").value=v.product||"كارت ائتمان";
  el("visitExpected").value=v.expected??"";el("visitOutcome").value=v.outcome||"";el("visitNextDate").value=v.nextDate||"";
@@ -143,8 +147,12 @@ visitsPage.insertAdjacentHTML("beforeend",''+
 '<div class="crm-warning">كل تقرير زيارة مستقل ومرتبط بملف عميل موجود في سجل العملاء. احفظ بيانات الزيارة ونتيجتها وموعد المتابعة.</div>'+
 '<div class="section-title"><h2 id="visitFormTitle">تسجيل زيارة جديدة</h2></div>'+
 '<form id="visitForm" class="crm-form">'+
-'<div class="field"><label>العميل المسجل *</label><select id="visitCustomer" required><option value="">اختر عميلاً مسجلاً</option></select></div>'+
-'<div class="field"><label>رقم هاتف العميل</label><input id="visitPhone" type="tel" inputmode="tel" maxlength="20" readonly placeholder="يظهر تلقائيًا من ملف العميل"></div>'+
+'<div class="field"><label>اسم العميل بالكامل *</label><input id="visitName" required maxlength="120" placeholder="اسم العميل"></div>'+
+'<div class="field"><label>الرقم القومي (14 رقمًا) *</label><input id="visitNational" required inputmode="numeric" maxlength="14" minlength="14" pattern="[0-9]{14}" placeholder="الرقم القومي"></div>'+
+'<div class="field"><label>رقم هاتف العميل *</label><input id="visitPhone" type="tel" inputmode="tel" maxlength="20" required placeholder="رقم الهاتف"></div>'+
+'<div class="field"><label>الوظيفة</label><input id="visitJob" maxlength="100"></div>'+
+'<div class="field"><label>جهة العمل</label><input id="visitEmployer" maxlength="120"></div>'+
+'<div class="field"><label>الفرع / المنطقة</label><input id="visitBranch" maxlength="100"></div>'+
 '<div class="field"><label>تاريخ الزيارة *</label><input id="visitDate" type="date" required></div>'+
 '<div class="field"><label>اسم الجهة / الشركة *</label><input id="visitEntity" required maxlength="150" placeholder="اسم جهة العمل أو الشركة"></div>'+
 '<div class="field"><label>المسؤول الذي تمت مقابلته</label><input id="visitContact" maxlength="120"></div>'+
@@ -161,18 +169,31 @@ visitsPage.insertAdjacentHTML("beforeend",''+
 style.textContent += ".visit-section{margin-top:22px}.visit-card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.visit-card-head strong{color:var(--muted);font-size:12px}.visit-section .crm-form select{width:100%;min-width:0;padding:13px 14px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text)}.visit-section .crm-form input{background:var(--card)}@media print{.visit-section{display:none!important}}";
 el("visitDate").value=new Date().toISOString().slice(0,10);
 el("visitForm").addEventListener("submit",function(e){
- e.preventDefault();const customer=customers.find(c=>String(c.id)===String(el("visitCustomer").value));
- if(!customer){alert("اختر عميلاً مسجلاً أولاً.");return;}
- const data={customerId:customer.id,customerName:customer.name,customerPhone:customer.phone||el("visitPhone").value.trim(),visitDate:el("visitDate").value,entity:el("visitEntity").value.trim(),contact:el("visitContact").value.trim(),visitType:el("visitType").value,product:el("visitProduct").value,expected:el("visitExpected").value,outcome:el("visitOutcome").value.trim(),nextDate:el("visitNextDate").value,notes:el("visitNotes").value.trim(),updatedAt:new Date().toISOString()};
- if(!data.visitDate||!data.entity){alert("أكمل تاريخ الزيارة واسم الجهة.");return;}
+ e.preventDefault();
+ const name=el("visitName").value.trim(),national=el("visitNational").value.trim(),phone=el("visitPhone").value.trim();
+ if(!name||!/^\\d{14}$/.test(national)||!phone){alert("أدخل اسم العميل والرقم القومي المكوّن من 14 رقمًا ورقم الهاتف.");return;}
+ if(!el("visitDate").value||!el("visitEntity").value.trim()){alert("أكمل تاريخ الزيارة واسم الجهة.");return;}
+ const now=new Date().toISOString();
+ let customer=customers.find(c=>String(c.national)===national);
+ const customerData={name,national,phone,job:el("visitJob").value.trim(),employer:el("visitEmployer").value.trim()||el("visitEntity").value.trim(),branch:el("visitBranch").value.trim()};
+ if(customer){
+  Object.assign(customer,customerData,{updatedAt:now});
+  customer.history=(customer.history||[]).concat([{at:now,action:"تحديث بيانات العميل من تقرير زيارة"}]);
+ }else{
+  customer=Object.assign({id:"crm_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),createdAt:now,updatedAt:now,archived:false,status:"جديد",notes:"",history:[{at:now,action:"إضافة العميل من تقرير زيارة"}]},customerData);
+  customers.unshift(customer);
+ }
+ NBEStore.setItem(KEY,JSON.stringify(customers));
+ render();
+ const data={customerId:customer.id,customerName:customer.name,customerNational:customer.national,customerPhone:customer.phone,customerJob:customer.job,customerBranch:customer.branch,visitDate:el("visitDate").value,entity:el("visitEntity").value.trim(),contact:el("visitContact").value.trim(),visitType:el("visitType").value,product:el("visitProduct").value,expected:el("visitExpected").value,outcome:el("visitOutcome").value.trim(),nextDate:el("visitNextDate").value,notes:el("visitNotes").value.trim(),updatedAt:now};
  const editing=!!visitEditId;
  if(editing){const old=visitReports.find(v=>String(v.id)===String(visitEditId));if(!old)return;Object.assign(old,data);}
- else visitReports.unshift({...data,id:"visit_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),createdAt:new Date().toISOString()});
- saveVisitReports();resetVisitForm();alert(editing?"تم تحديث تقرير الزيارة.":"تم حفظ تقرير الزيارة.");
+ else visitReports.unshift({...data,id:"visit_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),createdAt:now});
+ saveVisitReports();resetVisitForm();alert(editing?"تم تحديث بيانات العميل في CRM وتحديث تقرير الزيارة.":"تم حفظ الزيارة وإضافة/تحديث بيانات العميل في CRM.");
 });
 el("visitCancel").addEventListener("click",resetVisitForm);
 el("visitSearch").addEventListener("input",renderVisitReports);
-el("visitCustomer").addEventListener("change",()=>{const c=customers.find(x=>String(x.id)===String(el("visitCustomer").value));el("visitPhone").value=c?.phone||"";if(c&&!el("visitEntity").value)el("visitEntity").value=c.employer||"";});
+el("visitNational").addEventListener("change",()=>{const n=el("visitNational").value.trim();const c=customers.find(x=>String(x.national)===n);if(c){el("visitName").value=c.name||"";el("visitPhone").value=c.phone||"";el("visitJob").value=c.job||"";el("visitEmployer").value=c.employer||"";el("visitBranch").value=c.branch||"";}});
  el("printAllVisits").addEventListener("click",printAllVisitReports);
 el("visitList").addEventListener("click",function(e){
  const b=e.target.closest("button");if(!b)return;
