@@ -935,7 +935,7 @@ body.dark #mainNav .nav-btn.active{background:linear-gradient(180deg,rgba(32,169
  <button class="nav-btn shortcuts-nav-btn" type="button" onclick="toggleQuickMenu()" aria-expanded="false"><svg class="nav-icon more-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span>المزيد</span></button>
 </nav>
 <div id="quickShortcutsMenu" class="quick-shortcuts-menu" hidden>
- <button class="btn light-btn theme-toggle-btn" id="themeToggleBtn" type="button" onclick="toggleTheme()"><span class="theme-toggle-icon" aria-hidden="true">☀</span><span class="theme-toggle-label">الوضع النهاري</span></button>
+ <button class="btn light-btn theme-toggle-btn" id="themeToggleBtn" type="button" onclick="toggleAppTheme()"><span class="theme-toggle-icon" aria-hidden="true">☀</span><span class="theme-toggle-label">الوضع النهاري</span></button>
  <button class="btn light-btn" type="button" onclick="closeQuickMenu();showPage('calculator')">حاسبة الفوائد</button>
  <button class="btn light-btn" type="button" onclick="closeQuickMenu();showPage('loan-calculator')">حاسبة القروض</button>
  <button class="btn light-btn" type="button" onclick="closeQuickMenu();showPage('settings')">الإعدادات والنسخ الاحتياطي</button>
@@ -1256,16 +1256,6 @@ function buildAppPages(){
  if(footer)pages.settings.append(footer);
 }
 
-function applyTheme(theme,save=true){
- const isDark=theme==="dark";
- document.body.classList.toggle("dark",isDark);
- if(save)NBEStore.setItem("nbe_sales_theme",isDark?"dark":"light");
- const button=document.getElementById("themeToggleBtn");
- if(button){const icon=button.querySelector(".theme-toggle-icon");const label=button.querySelector(".theme-toggle-label");if(icon)icon.textContent=isDark?"☀":"☾";if(label)label.textContent=isDark?"التبديل إلى الوضع النهاري":"التبديل إلى الوضع الليلي";button.setAttribute("aria-label",isDark?"التبديل إلى الوضع النهاري":"التبديل إلى الوضع الليلي");}
- const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=isDark?"#111c17":"#006341";
-}
-function toggleTheme(){applyTheme(document.body.classList.contains("dark")?"light":"dark");}
-
 function toggleQuickMenu(){
  const menu=document.getElementById("quickShortcutsMenu");
  const button=document.querySelector(".shortcuts-nav-btn");
@@ -1303,6 +1293,16 @@ function setAppTheme(theme){
  if(icon)icon.textContent=isDark?"☼":"☾";
  if(label)label.textContent=isDark?"الوضع النهاري":"الوضع الليلي";
  if(button)button.setAttribute("aria-label",isDark?"التبديل إلى الوضع النهاري":"التبديل إلى الوضع الليلي");
+ const menuButton=document.getElementById("themeToggleBtn");
+ if(menuButton){
+  const menuIcon=menuButton.querySelector(".theme-toggle-icon");
+  const menuLabel=menuButton.querySelector(".theme-toggle-label");
+  if(menuIcon)menuIcon.textContent=isDark?"☀":"☾";
+  if(menuLabel)menuLabel.textContent=isDark?"التبديل إلى الوضع النهاري":"التبديل إلى الوضع الليلي";
+  menuButton.setAttribute("aria-label",isDark?"التبديل إلى الوضع النهاري":"التبديل إلى الوضع الليلي");
+ }
+ const meta=document.querySelector('meta[name="theme-color"]');
+ if(meta)meta.content=isDark?"#111c17":"#006341";
 }
 function toggleAppTheme(){
  setAppTheme(document.body.classList.contains("dark")?"light":"dark");
@@ -2035,7 +2035,7 @@ function importBackup(event){
     EMPLOYEE=String(data.employeeSettings.employee||"");SALES_NO=String(data.employeeSettings.salesNo||"");
     NBEStore.setItem(EMPLOYEE_SETTINGS_KEY,JSON.stringify({employee:EMPLOYEE,salesNo:SALES_NO}));
    }
-   setAppTheme(data.theme==="light"?"light":"dark");
+   setAppTheme(data.theme==="light"?"light":data.theme==="dark"?"dark":(NBEStore.getItem("nbe_sales_theme")||"dark"));
    if(!reports[currentDate])reports[currentDate]=blank(currentDate);
    persist();fillInfo();renderAll();
    if(typeof window.refreshNbeCrm==="function")window.refreshNbeCrm();
