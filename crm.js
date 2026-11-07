@@ -12,7 +12,8 @@ document.head.appendChild(style);
 const host=document.getElementById("pageHost");
 if(!host)return;
 const page=host.querySelector('.app-page[data-page="customers"]');
-if(!page)return;
+const visitsPage=host.querySelector('.app-page[data-page="visits"]');
+if(!page||!visitsPage)return;
 page.insertAdjacentHTML("beforeend",''+
 '<div class="section crm-section">'+
 '<div class="section-title"><h2 id="crmFormTitle">إضافة عميل جديد</h2><span class="badge">CUSTOMER CRM</span></div>'+
@@ -123,7 +124,7 @@ function editVisit(id){
  el("visitNotes").value=v.notes||"";el("visitFormTitle").textContent="تعديل تقرير الزيارة";
  el("visitSave").textContent="حفظ التعديلات";el("visitForm").scrollIntoView({behavior:"smooth",block:"start"});
 }
-page.insertAdjacentHTML("beforeend",''+
+visitsPage.insertAdjacentHTML("beforeend",''+
 '<section class="section crm-section visit-section">'+
 '<div class="section-title"><h2>تقارير الزيارات</h2><span class="badge">VISIT REPORTS</span></div>'+
 '<div class="crm-warning">كل تقرير زيارة مستقل ومرتبط بملف عميل موجود في سجل العملاء. احفظ بيانات الزيارة ونتيجتها وموعد المتابعة.</div>'+
