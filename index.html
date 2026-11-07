@@ -651,6 +651,7 @@ body.dark .loan-calculator-section #loanResultNote{background:rgba(44,150,96,.12
   <div class="field"><label>تاريخ التقرير</label><input type="date" id="reportDate" onchange="changeDate()"></div>
   <div class="field"><label>اسم موظف المبيعات</label><input id="employee" value="محمود محمد رزق" readonly></div>
   <div class="field"><label>رقم السيلز</label><input id="salesNo" value="479511" readonly></div>
+  <div class="field"><label>الفرع</label><input id="branchInfo" value="رشيد - 394" readonly></div>
  </div>
  <div class="actions no-print">
   <button class="btn primary" onclick="saveReport()">حفظ التقرير</button>
@@ -680,6 +681,7 @@ body.dark .loan-calculator-section #loanResultNote{background:rgba(44,150,96,.12
   <div class="field"><label>نتيجة التواصل</label><select id="fStatus"><option value="لم يتم التواصل">لم يتم التواصل</option><option value="مهتم">مهتم</option><option value="بانتظار مستندات">بانتظار مستندات</option><option value="تم التقديم">تم التقديم</option><option value="مكتمل">مكتمل</option><option value="غير مهتم">غير مهتم</option></select></div>
   <div class="field"><label>موعد المتابعة القادمة</label><input id="fNextDate" type="date"></div>
   <div class="field"><label>ملاحظات المتابعة</label><input id="fNotes" maxlength="300" placeholder="ملخص مختصر للمتابعة"></div>
+  <div class="field"><label>الفرع</label><input value="رشيد - 394" readonly></div>
  </div>
  <div class="actions"><button class="btn primary" onclick="addFollowup()">إضافة إلى سجل المتابعة</button><button class="btn light-btn" onclick="clearFollowupForm()">مسح الحقول</button></div>
  <div class="section-title followup-list-title"><h2>المتابعات المسجلة</h2>
@@ -720,6 +722,7 @@ body.dark .loan-calculator-section #loanResultNote{background:rgba(44,150,96,.12
     </select>
    </div>
    <div class="field"><label>كود العميل</label><input id="cCode" placeholder="كود العميل"></div>
+   <div class="field"><label>الفرع</label><input value="رشيد - 394" readonly></div>
   </div>
   <div class="actions">
    <button class="btn primary" onclick="addCard()">إضافة الكارت للسجل</button>
@@ -746,6 +749,7 @@ body.dark .loan-calculator-section #loanResultNote{background:rgba(44,150,96,.12
    </div>
    <div class="field"><label>قيمة القرض الصافي بالجنيه</label><input id="lAmount" type="number" min="0" step="0.01" placeholder="0.00"></div>
    <div class="field"><label>كود العميل</label><input id="lCode" placeholder="كود العميل"></div>
+   <div class="field"><label>الفرع</label><input value="رشيد - 394" readonly></div>
   </div>
   <div class="actions">
    <button class="btn primary" onclick="addLoan()">إضافة القرض للسجل</button>
@@ -780,6 +784,9 @@ body.dark .loan-calculator-section #loanResultNote{background:rgba(44,150,96,.12
    <div style="border:1px solid #dce5df;padding:10px;border-radius:6px">
     <div style="font-size:10px;color:#718087">رقم السيلز</div>
     <strong style="font-size:13px">479511</strong>
+   </div>
+   <div style="border:1px solid #dce5df;padding:10px;border-radius:6px">
+    <div style="font-size:10px;color:#718087">الفرع</div><strong style="font-size:13px">رشيد - 394</strong>
    </div>
    <div style="border:1px solid #dce5df;padding:10px;border-radius:6px">
     <div style="font-size:10px;color:#718087">تاريخ التقرير</div>
@@ -979,6 +986,8 @@ function showPage(id){
 let EMPLOYEE="";
 let SALES_NO="";
 const EMPLOYEE_SETTINGS_KEY="NBE_SALES_EMPLOYEE_SETTINGS_V1";
+const BRANCH_NAME="رشيد";
+const BRANCH_CODE="394";
 const STORAGE_KEY="NBE_SALES_REPORTS_V1";
 const FOLLOWUPS_KEY="NBE_SALES_FOLLOWUPS_V1";
 let followups=[];
@@ -1037,7 +1046,7 @@ function saveEmployeeSettings(){
  alert("تم حفظ بيانات موظف المبيعات بنجاح.");
 }
 function blank(date){
- return {date,employee:EMPLOYEE,salesNo:SALES_NO,cards:[],loans:[]};
+ return {date,employee:EMPLOYEE,salesNo:SALES_NO,branchName:BRANCH_NAME,branchCode:BRANCH_CODE,cards:[],loans:[]};
 }
 function loadStorage(){
  try{
@@ -1073,7 +1082,8 @@ function addFollowup(){
   nextDate:$("fNextDate").value,
   notes:$("fNotes").value.trim(),
   createdAt:today(),
-  completed:$("fStatus").value==="مكتمل"
+  completed:$("fStatus").value==="مكتمل",
+  branchName:BRANCH_NAME,branchCode:BRANCH_CODE
  };
  followups.unshift(item);
  saveFollowups();
@@ -1124,7 +1134,7 @@ function persist(){
 function getReport(){
  if(!reports[currentDate])reports[currentDate]=blank(currentDate);
  const r=reports[currentDate];
- r.employee=EMPLOYEE;r.salesNo=SALES_NO;
+ r.employee=EMPLOYEE;r.salesNo=SALES_NO;r.branchName=BRANCH_NAME;r.branchCode=BRANCH_CODE;
  if(!Array.isArray(r.cards))r.cards=[];
  if(!Array.isArray(r.loans))r.loans=[];
  return r;
@@ -1145,6 +1155,7 @@ function fillInfo(){
  $("reportDate").value=currentDate;
  $("employee").value=EMPLOYEE;
  $("salesNo").value=SALES_NO;
+ const branchInfo=$("branchInfo");if(branchInfo)branchInfo.value=BRANCH_NAME+" - "+BRANCH_CODE;
  const settingEmployee=$("settingEmployee");
  const settingSalesNo=$("settingSalesNo");
  if(settingEmployee)settingEmployee.value=EMPLOYEE;
@@ -1176,7 +1187,7 @@ function addCard(){
  if(!validCustomer(data))return;
  const type=$("cType").value;
  if(!type){alert("اختر نوع الكارت");return;}
- getReport().cards.push({id:Date.now()+Math.random(),...data,type,status:$("cStatus").value});
+ getReport().cards.push({id:Date.now()+Math.random(),...data,type,status:$("cStatus").value,branchName:BRANCH_NAME,branchCode:BRANCH_CODE});
  saveReport(true);clearForm("card");renderAll();
  alert("تمت إضافة الكارت بنجاح");
 }
@@ -1187,7 +1198,7 @@ function addLoan(){
  const amount=Number($("lAmount").value);
  if(!type){alert("اختر نوع القرض");return;}
  if(!Number.isFinite(amount)||amount<=0){alert("أدخل قيمة قرض صحيحة");return;}
- getReport().loans.push({id:Date.now()+Math.random(),...data,type,amount});
+ getReport().loans.push({id:Date.now()+Math.random(),...data,type,amount,branchName:BRANCH_NAME,branchCode:BRANCH_CODE});
  saveReport(true);clearForm("loan");renderAll();
  alert("تمت إضافة القرض بنجاح");
 }
@@ -1501,6 +1512,7 @@ function exportLedgerImage(){
   {title:"الرقم القومي",key:"national",width:190},
   {title:"الموبايل",key:"mobile",width:155},
   {title:"جهة العمل",key:"employer",width:190},
+  {title:"الفرع",key:"branch",width:130},
   {title:"التفاصيل",key:"detail",width:220},
   {title:"القيمة / الحالة",key:"value",width:190},
   {title:"كود العميل",key:"code",width:150}
