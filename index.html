@@ -765,6 +765,46 @@ body.dark #mainNav .nav-btn.active{background:rgba(20,150,95,.16);color:#a8e0c1}
  .container{padding:0!important}
 }
 
+
+/* Refined typography for Credit Cards • Personal Loans identity line */
+.nbe-identity-strip{
+ min-width:clamp(220px,24vw,300px);
+ padding:14px 20px;
+ gap:8px;
+ align-items:center;
+ justify-content:center;
+ text-align:center;
+ border-right:0;
+ border-top:2px solid #c9aa6b;
+ background:linear-gradient(135deg,rgba(255,255,255,.11),rgba(255,255,255,.045));
+}
+.nbe-identity-strip .identity-label{
+ font-size:10px;
+ line-height:1.4;
+ letter-spacing:1.8px;
+}
+.nbe-identity-strip strong{
+ display:block;
+ direction:ltr;
+ white-space:nowrap;
+ font-size:clamp(12px,1.25vw,15px);
+ line-height:1.55;
+ font-weight:800;
+ letter-spacing:.15px;
+}
+.nbe-identity-strip i{padding:0 6px;font-size:1.05em}
+.nbe-identity-strip small{font-size:10px;line-height:1.5;letter-spacing:1.15px}
+@media(max-width:640px){
+ .nbe-identity-strip{
+  width:100%;
+  min-width:0;
+  padding:11px 12px;
+  gap:5px;
+  border-top-width:1px;
+ }
+ .nbe-identity-strip strong{font-size:clamp(11px,3.1vw,14px)}
+}
+
 </style>
 </head>
 <body>
