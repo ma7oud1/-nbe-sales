@@ -313,7 +313,7 @@ body{padding-bottom:24px}
 
 
 /* توحيد شكل حقول وأيقونات التاريخ في كل صفحات التطبيق */
-input[type="date"]{min-height:46px!important;min-width:0;width:100%;padding:10px 12px!important;border:1px solid var(--border)!important;border-radius:11px!important;background-color:var(--bg)!important;color:var(--text)!important;color-scheme:light;direction:ltr;text-align:left;font-variant-numeric:tabular-nums;font-family:Tahoma,Arial,sans-serif;transition:border-color .18s,box-shadow .18s}
+input[type="date"]{min-height:46px!important;min-width:0;width:100%;padding:10px 12px!important;border:1px solid var(--border)!important;border-radius:11px!important;background-color:var(--bg)!important;color:var(--text)!important;color-scheme:light;direction:ltr;text-align:center;font-variant-numeric:tabular-nums;font-family:Tahoma,Arial,sans-serif;transition:border-color .18s,box-shadow .18s}#reportDate{direction:ltr;text-align:center;font-weight:700;letter-spacing:.04em}
 body.dark input[type="date"]{color-scheme:dark}
 input[type="date"]:focus{border-color:var(--green)!important;box-shadow:0 0 0 3px rgba(8,116,67,.12);outline:none}
 input[type="date"]::-webkit-calendar-picker-indicator{width:14px;height:14px;padding:2px;margin:0 0 0 2px;border-radius:5px;cursor:pointer;opacity:.88;transition:background-color .18s,opacity .18s}
@@ -1003,7 +1003,7 @@ body.lang-en .sidebar-item{text-align:left}
   <span class="badge">DAILY SALES REPORT</span>
  </div>
  <div class="grid">
-  <div class="field"><label>تاريخ التقرير</label><input type="date" id="reportDate" onchange="changeDate()"></div>
+  <div class="field"><label>تاريخ التقرير</label><input type="date" id="reportDate" lang="en-GB" dir="ltr" aria-label="Report date (DD/MM/YYYY)" onchange="changeDate()"></div>
   <div class="field"><label>اسم موظف المبيعات</label><input id="employee" value="محمود محمد رزق" readonly></div>
   <div class="field"><label>رقم السيلز</label><input id="salesNo" value="479511" readonly></div>
   <div class="field"><label>الفرع</label><input id="branchInfo" value="رشيد - 394" readonly></div>
@@ -1490,6 +1490,11 @@ function today(){
  const d=new Date();
  return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
 }
+function formatReportDate(date){
+ const parts=String(date||"").split("-");
+ if(parts.length!==3||parts.some(part=>!/^\\d+$/.test(part)))return String(date||"—");
+ return parts[2].padStart(2,"0")+"/"+parts[1].padStart(2,"0")+"/"+parts[0];
+}
 function loadEmployeeSettings(){
  try{
   const saved=JSON.parse(NBEStore.getItem(EMPLOYEE_SETTINGS_KEY)||"{}");
@@ -1607,7 +1612,7 @@ function getReport(){
 }
 function saveReport(silent=false){
  getReport();persist();renderAll();
- if(!silent)alert("تم حفظ تقرير يوم "+currentDate+" بنجاح");
+ if(!silent)alert("تم حفظ تقرير يوم "+formatReportDate(currentDate)+" بنجاح");
 }
 function changeDate(){
  const selected=$("reportDate").value;
@@ -1729,7 +1734,7 @@ function renderArchive(){
  const dates=Object.keys(reports).sort().reverse();
  $("archiveList").innerHTML=dates.length?dates.map(date=>{
   const r=reports[date],cards=(r.cards||[]).length,loans=(r.loans||[]).length;
-  return `<div class="archive-item"><div><strong>${esc(date)}</strong>
+  return `<div class="archive-item"><div><strong>${esc(formatReportDate(date))}</strong>
   <div style="font-size:11px;color:var(--muted);margin-top:5px">${cards} كارت · ${loans} قرض</div></div>
   <div style="display:flex;gap:5px">
   <button class="btn primary small-btn" onclick="openArchive('${date}')">فتح</button>
@@ -1960,7 +1965,7 @@ function printLedger(){
  saveReport(true);
  const r=getReport();
  const total=r.loans.reduce((sum,x)=>sum+Number(x.amount||0),0);
- $("printDate").textContent=currentDate;
+ $("printDate").textContent=formatReportDate(currentDate);
  $("printCards").textContent=r.cards.length;
  $("printLoans").textContent=r.loans.length;
  $("printAmount").textContent=money(total);
