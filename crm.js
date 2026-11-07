@@ -32,9 +32,9 @@ page.insertAdjacentHTML("beforeend",''+
 '</div>');
 function el(id){return document.getElementById(id);}
 function safe(v){return String(v||"").replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
-function load(){try{const x=JSON.parse(localStorage.getItem(KEY)||"[]");customers=Array.isArray(x)?x:[];}catch(e){customers=[];}render();}
+function load(){try{const x=JSON.parse(NBEStore.getItem(KEY)||"[]");customers=Array.isArray(x)?x:[];}catch(e){customers=[];}render();}
 window.refreshNbeCrm=load;
-function save(){localStorage.setItem(KEY,JSON.stringify(customers));render();}
+function save(){NBEStore.setItem(KEY,JSON.stringify(customers));render();}
 function reset(){el("crmForm").reset();el("crmEditId").value="";el("crmNational").readOnly=false;el("crmSubmit").textContent="حفظ العميل";el("crmFormTitle").textContent="إضافة عميل جديد";}
 function render(){
  const q=(el("crmSearch").value||"").trim().toLowerCase(),filter=el("crmFilter").value;
@@ -64,5 +64,5 @@ el("crmList").addEventListener("click",function(e){
  if(b.dataset.archive){c.archived=!c.archived;c.status=c.archived?"غير نشط":(c.status==="غير نشط"?"جاري التواصل":c.status);c.updatedAt=new Date().toISOString();c.history=(c.history||[]).concat([{at:c.updatedAt,action:c.archived?"تعطيل العميل":"إعادة تنشيط العميل"}]);save();}
  if(b.dataset.history){alert("سجل العميل: "+c.name+"\\n"+(c.history||[]).map(h=>new Date(h.at).toLocaleString("ar-EG")+" — "+h.action).join("\\n"));}
 });
-load();
+if(window.NBEStorageReady)window.NBEStorageReady.then(load).catch(()=>load());else load();
 })();
