@@ -2136,7 +2136,7 @@ function importBackup(event){
  reader.readAsText(file);
 }
 window.NBEStorageReady.then(()=>{
- buildAppPages();nbeApplyLanguage(NBEStore.getItem(NBE_LANG_KEY)==="en"?"en":"ar",false);new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)nbeTranslateTree(n);else if(n.nodeType===3)nbeTranslateTree(n.parentElement);}))).observe(document.body,{childList:true,subtree:true,characterData:true});loadEmployeeSettings();setLoanMode('principal');showPage("home");resetCardInterest();
+ buildAppPages();nbeApplyLanguage(NBEStore.getItem(NBE_LANG_KEY)==="en"?"en":"ar",false);new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)nbeTranslateTree(n);else if(n.nodeType===3)nbeTranslateTree(n.parentElement);}))).observe(document.body,{childList:true,subtree:true});loadEmployeeSettings();setLoanMode('principal');showPage("home");resetCardInterest();
  loadStorage();loadFollowups();const performanceMonth=$("performanceMonth");if(performanceMonth)performanceMonth.value=today().slice(0,7);currentDate=today();
  if(!reports[currentDate])reports[currentDate]=blank(currentDate);
  fillInfo();renderAll();setAppTheme(NBEStore.getItem("nbe_sales_theme")==="light"?"light":"dark");
