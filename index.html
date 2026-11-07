@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="NBE Sales">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NBE | Daily Sales Report</title>
+<title>NBE | Professional Sales Portfolio</title>
 <style>
 :root{
  --green:#087443;--green2:#0b9860;--navy:#102d3c;
@@ -599,6 +599,78 @@ body.dark .loan-calculator-section #loanResultNote{background:rgba(44,150,96,.12
  .loan-calculator-section>.actions:first-of-type .btn{font-size:12px;padding:10px 7px}
 }
 
+
+/* NBE PREMIUM BANKING IDENTITY — visual layer only; existing app logic/data untouched */
+:root{
+ --green:#006341;--green2:#0b8055;--navy:#123b32;--gold:#c5a15a;
+ --bg:#f3f6f3;--card:#ffffff;--text:#19342c;--muted:#718078;
+ --border:#dce6df;--shadow:0 10px 30px rgba(13,55,38,.065);
+}
+body.dark{
+ --bg:#101b18;--card:#192823;--text:#edf5ef;--muted:#a8b8ae;
+ --border:#30453b;--shadow:0 12px 32px rgba(0,0,0,.22);
+}
+body{font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;letter-spacing:0}
+.container{max-width:1360px;padding:clamp(12px,2.2vw,28px)}
+.header{
+ position:relative;overflow:hidden;isolation:isolate;
+ background:linear-gradient(118deg,#063b2b 0%,#006341 52%,#0b7650 100%);
+ border:1px solid rgba(255,255,255,.14);border-radius:22px;
+ padding:clamp(20px,3vw,34px);box-shadow:0 18px 42px rgba(0,64,42,.16)
+}
+.header:before{content:"";position:absolute;z-index:-1;width:340px;height:340px;border:1px solid rgba(220,190,125,.2);border-radius:50%;inset:auto -110px -230px auto;box-shadow:0 0 0 28px rgba(220,190,125,.035),0 0 0 58px rgba(220,190,125,.025)}
+.header:after{content:"";position:absolute;z-index:-1;width:180px;height:180px;border:1px solid rgba(255,255,255,.08);border-radius:50%;inset:-115px auto auto 28%}
+.logo{width:76px;height:76px;border-radius:19px;padding:9px;box-shadow:0 7px 20px #002d1d55}
+.brand{gap:18px}
+.brand h1{font-size:clamp(20px,2.2vw,27px);font-weight:800;letter-spacing:.1px}
+.brand p{letter-spacing:.7px}
+.brand p:last-child{font-size:13px;font-weight:600;color:#f1dfb8}
+.nbe-identity-strip{display:flex;flex-direction:column;gap:6px;padding:12px 17px;border-right:2px solid #c9aa6b;background:rgba(255,255,255,.075);border-radius:12px;min-width:190px;color:#fff}
+.nbe-identity-strip .identity-label{font-size:10px;letter-spacing:1.5px;color:#e5c98f;font-weight:800}
+.nbe-identity-strip strong{font-size:14px}
+.nbe-identity-strip i{font-style:normal;color:#d5b879;padding:0 4px}
+.nbe-identity-strip small{font-size:10px;color:#d9e8df;letter-spacing:1px}
+.nbe-identity-strip small b{color:#f1d59c;font-size:12px}
+.header-actions button{border-radius:11px;backdrop-filter:blur(8px);font-weight:700}
+.section,.stat,.dash-kpi,.dash-panel,.settings-panel{border-radius:18px;border-color:var(--border);box-shadow:var(--shadow)}
+.section{padding:clamp(15px,2vw,23px)}
+.section-title h2,.page-heading h2,.dash-head h2{font-weight:800;letter-spacing:.1px}
+.section-title .badge,.badge{font-weight:800;letter-spacing:.25px}
+input,select,textarea{border-radius:11px;transition:border-color .18s,box-shadow .18s}
+input:focus,select:focus,textarea:focus{border-color:var(--green2);box-shadow:0 0 0 3px rgba(0,99,65,.10)}
+.btn,.tab,.nav-btn{transition:transform .18s ease,filter .18s ease,background .18s ease}
+.btn{border-radius:11px;font-weight:750}
+.primary,.tab.active{background:linear-gradient(135deg,#006341,#0b8055);border-color:#006341}
+.secondary{background:#173e34}
+.gold-btn{background:linear-gradient(135deg,#d5b878,#b99043);color:#18352a}
+.stat,.dash-kpi{position:relative;overflow:hidden}
+.stat:after,.dash-kpi:after{content:"";position:absolute;top:0;right:0;width:4px;height:100%;background:var(--gold);opacity:.85}
+#mainNav{backdrop-filter:blur(18px);background:color-mix(in srgb,var(--card) 92%,transparent);border-color:var(--border);box-shadow:0 -8px 30px rgba(10,50,32,.10)}
+.nav-btn{border-radius:12px;font-weight:750}
+.nav-btn.active{background:rgba(0,99,65,.11);color:var(--green)}
+table{border-collapse:separate;border-spacing:0;overflow:hidden}
+th{background:#eaf2ec;color:#07583c;font-weight:800}
+body.dark th{background:#20392e;color:#c8e3d2}
+td,th{border-bottom:1px solid var(--border)}
+tr:hover td{background:rgba(0,99,65,.045)}
+.crm-card,.archive-item,.target-box,.followup-stat{border-radius:14px}
+.page-heading{padding-top:20px}
+.footer{letter-spacing:.2px}
+@media(max-width:800px){
+ .nbe-identity-strip{order:3;flex:1 1 100%;min-width:0;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px}
+ .nbe-identity-strip .identity-label{font-size:9px}
+ .nbe-identity-strip strong{font-size:12px}
+ .nbe-identity-strip small{font-size:9px;text-align:left}
+ .header{gap:14px}
+}
+@media(max-width:520px){
+ .logo{width:60px;height:60px}
+ .brand{gap:12px}
+ .brand p{font-size:10px}
+ .nbe-identity-strip{padding:10px 12px}
+ .section-title h2{font-size:16px}
+}
+
 </style>
 </head>
 <body>
@@ -617,6 +689,7 @@ body.dark .loan-calculator-section #loanResultNote{background:rgba(44,150,96,.12
    <p style="margin-top:6px">نظام التقارير اليومية للمبيعات</p>
   </div>
  </div>
+ <div class="nbe-identity-strip"><span class="identity-label">RETAIL BANKING</span><strong>Credit Cards <i>•</i> Personal Loans</strong><small>RASHID BRANCH <b>394</b></small></div>
  <div class="header-actions no-print">
   
   <button onclick="exportBackup()">⬇ نسخة احتياطية</button>
