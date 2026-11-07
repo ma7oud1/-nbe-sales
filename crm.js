@@ -106,15 +106,28 @@ function renderVisitReports(){
   '<div class="crm-actions no-print"><button class="btn light-btn" type="button" data-visit-edit="'+safe(v.id)+'">تعديل</button><button class="btn light-btn" type="button" data-visit-print="'+safe(v.id)+'">طباعة التقرير</button><button class="btn danger small-btn" type="button" data-visit-delete="'+safe(v.id)+'">حذف</button></div></article>';
  }).join("");
 }
+function printHtmlInCurrentPage(html){
+ const frame=document.createElement("iframe");
+ frame.setAttribute("aria-hidden","true");
+ frame.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";
+ document.body.appendChild(frame);
+ const doc=frame.contentDocument||frame.contentWindow.document;
+ doc.open();doc.write(html);doc.close();
+ frame.onload=function(){
+  const win=frame.contentWindow;
+  if(!win)return;
+  win.onafterprint=function(){frame.remove();};
+  win.focus();
+  win.print();
+ };
+}
 function printVisitReport(id){
  const v=visitReports.find(x=>String(x.id)===String(id));if(!v)return;
  const customer=customers.find(c=>String(c.id)===String(v.customerId));
  const fields=[["اسم العميل",customer?.name||v.customerName||"—"],["رقم الهاتف",v.customerPhone||customer?.phone||"—"],["الفرع","رشيد - 394"],["جهة العمل",v.entity||customer?.employer||"—"],["نوع المنتج",v.product||"—"],["نتيجة الزيارة",v.outcome||"—"],["تاريخ الزيارة",v.visitDate||"—"],["ملاحظات",v.notes||"—"]];
  const esc=x=>String(x??"—").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
- const w=window.open("","_blank","width=850,height=900");
- if(!w){alert("اسمح بفتح نافذة الطباعة لهذا الموقع ثم حاول مرة أخرى.");return;}
- w.document.write('<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>تقرير زيارة</title><style>body{font-family:Tahoma,Arial;padding:32px;color:#18352b}header{background:#087443;color:#fff;padding:22px;border-radius:14px}h1{font-size:22px;margin:0 0 8px}p{margin:0}.staff-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.staff-meta div{border:1px solid #dce5df;padding:10px;border-radius:6px}.staff-meta small{display:block;color:#718087;margin-bottom:6px}.staff-meta strong{font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}.item{border:1px solid #dce7e0;border-radius:9px;padding:13px;min-height:45px}.label{font-size:12px;color:#718087;margin-bottom:8px}.value{font-size:15px;white-space:pre-wrap;line-height:1.7}.wide{grid-column:1/-1}@media print{body{padding:12mm}}</style><header><h1>تقرير زيارة – NBE MY SALES PORTFOLIO</h1><p>بيانات الزيارة المسجلة</p></header><div class="staff-meta"><div><small>اسم الموظف</small><strong>محمود محمد رزق</strong></div><div><small>رقم السيلز</small><strong>479511</strong></div><div><small>الفرع</small><strong>رشيد - 394</strong></div></div><div class="grid">'+fields.map((f,i)=>'<div class="item '+(i>=7?"wide":"")+'"><div class="label">'+esc(f[0])+'</div><div class="value">'+esc(f[1])+'</div></div>').join("")+'</div><script>window.onload=()=>window.print()<\\/script></html>');
- w.document.close();
+ const html='<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>تقرير زيارة</title><style>body{font-family:Tahoma,Arial;padding:32px;color:#18352b}header{background:#087443;color:#fff;padding:22px;border-radius:14px}h1{font-size:22px;margin:0 0 8px}p{margin:0}.staff-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.staff-meta div{border:1px solid #dce5df;padding:10px;border-radius:6px}.staff-meta small{display:block;color:#718087;margin-bottom:6px}.staff-meta strong{font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}.item{border:1px solid #dce7e0;border-radius:9px;padding:13px;min-height:45px}.label{font-size:12px;color:#718087;margin-bottom:8px}.value{font-size:15px;white-space:pre-wrap;line-height:1.7}.wide{grid-column:1/-1}@media print{body{padding:12mm}}</style><header><h1>تقرير زيارة – NBE MY SALES PORTFOLIO</h1><p>بيانات الزيارة المسجلة</p></header><div class="staff-meta"><div><small>اسم الموظف</small><strong>محمود محمد رزق</strong></div><div><small>رقم السيلز</small><strong>479511</strong></div><div><small>الفرع</small><strong>رشيد - 394</strong></div></div><div class="grid">'+fields.map((f,i)=>'<div class="item '+(i>=7?"wide":"")+'"><div class="label">'+esc(f[0])+'</div><div class="value">'+esc(f[1])+'</div></div>').join("")+'</div></html>';
+ printHtmlInCurrentPage(html);
 }
 function printAllVisitReports(){
  const query=(el("visitSearch")?.value||"").trim().toLowerCase();
@@ -122,10 +135,8 @@ function printAllVisitReports(){
  if(!rows.length){alert("لا توجد زيارات لطباعتها.");return;}
  const esc=x=>String(x??"—").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
  const body=rows.map((v,i)=>{const customer=customers.find(c=>String(c.id)===String(v.customerId));return '<tr><td>'+(i+1)+'</td><td>'+esc(v.visitDate)+'</td><td>'+esc(customer?.name||v.customerName)+'</td><td>'+esc(v.customerPhone||customer?.phone||"—")+'</td><td>رشيد - 394</td><td>'+esc(v.entity||customer?.employer||"—")+'</td><td>'+esc(v.product)+'</td><td>'+esc(v.outcome||"—")+'</td><td>'+esc(v.notes||"—")+'</td></tr>';}).join("");
- const w=window.open("","_blank","width=1100,height=850");
- if(!w){alert("اسمح بفتح نافذة الطباعة لهذا الموقع ثم حاول مرة أخرى.");return;}
- w.document.write('<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>سجل الزيارات</title><style>body{font-family:Tahoma,Arial;padding:24px;color:#18352b}h1{color:#087443}p{color:#64756c}.staff-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.staff-meta div{border:1px solid #dce5df;padding:10px;border-radius:6px}.staff-meta small{display:block;color:#718087;margin-bottom:6px}.staff-meta strong{font-size:13px}table{width:100%;border-collapse:collapse;margin-top:20px;font-size:12px}th,td{border:1px solid #dce7e0;padding:9px;text-align:right;vertical-align:top;white-space:pre-wrap}th{background:#087443;color:white}tr:nth-child(even){background:#f2f7f4}@media print{body{padding:0}}</style><h1>سجل الزيارات – NBE MY SALES PORTFOLIO</h1><div class="staff-meta"><div><small>اسم الموظف</small><strong>محمود محمد رزق</strong></div><div><small>رقم السيلز</small><strong>479511</strong></div><div><small>الفرع</small><strong>رشيد - 394</strong></div></div><p>عدد الزيارات: '+rows.length+'</p><table><thead><tr><th>م</th><th>التاريخ</th><th>اسم العميل</th><th>رقم الهاتف</th><th>الفرع</th><th>جهة العمل</th><th>نوع المنتج</th><th>نتيجة الزيارة</th><th>ملاحظات</th></tr></thead><tbody>'+body+'</tbody></table><script>window.onload=()=>window.print()<\\/script></html>');
- w.document.close();
+ const html='<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>سجل الزيارات</title><style>body{font-family:Tahoma,Arial;padding:24px;color:#18352b}h1{color:#087443}.staff-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.staff-meta div{border:1px solid #dce5df;padding:10px;border-radius:6px}.staff-meta small{display:block;color:#718087;margin-bottom:6px}.staff-meta strong{font-size:13px}table{width:100%;border-collapse:collapse;margin-top:20px;font-size:12px}th,td{border:1px solid #dce7e0;padding:9px;text-align:right;vertical-align:top;white-space:pre-wrap}th{background:#087443;color:white}tr:nth-child(even){background:#f2f7f4}@media print{body{padding:0}}</style><h1>سجل الزيارات – NBE MY SALES PORTFOLIO</h1><div class="staff-meta"><div><small>اسم الموظف</small><strong>محمود محمد رزق</strong></div><div><small>رقم السيلز</small><strong>479511</strong></div><div><small>الفرع</small><strong>رشيد - 394</strong></div></div><p>عدد الزيارات: '+rows.length+'</p><table><thead><tr><th>م</th><th>التاريخ</th><th>اسم العميل</th><th>رقم الهاتف</th><th>الفرع</th><th>جهة العمل</th><th>نوع المنتج</th><th>نتيجة الزيارة</th><th>ملاحظات</th></tr></thead><tbody>'+body+'</tbody></table></html>';
+ printHtmlInCurrentPage(html);
 }
 function editVisit(id){
  const v=visitReports.find(x=>String(x.id)===String(id));if(!v)return;
