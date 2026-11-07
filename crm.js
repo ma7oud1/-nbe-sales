@@ -136,7 +136,7 @@ function editVisit(id){
  el("visitEmployer").value=linked?.employer||v.entity||"";
  el("visitBranch").value="رشيد - 394";
  el("visitDate").value=v.visitDate||"";el("visitEntity").value=v.entity||"";el("visitContact").value=v.contact||"";
- el("visitType").value=v.visitType||"زيارة تسويقية";el("visitProduct").value=v.product||"كارت ائتمان";
+ el("visitType").value=v.visitType||"زيارة تسويقية";el("visitProduct").value=v.product==="قرض"?"قرض":"كريدت";
  el("visitExpected").value=v.expected??"";el("visitOutcome").value=v.outcome||"";el("visitNextDate").value=v.nextDate||"";
  el("visitNotes").value=v.notes||"";el("visitFormTitle").textContent="تعديل تقرير الزيارة";
  el("visitSave").textContent="حفظ التعديلات";el("visitForm").scrollIntoView({behavior:"smooth",block:"start"});
@@ -157,7 +157,7 @@ visitsPage.insertAdjacentHTML("beforeend",''+
 '<div class="field"><label>اسم الجهة / الشركة *</label><input id="visitEntity" required maxlength="150" placeholder="اسم جهة العمل أو الشركة"></div>'+
 '<div class="field"><label>المسؤول الذي تمت مقابلته</label><input id="visitContact" maxlength="120"></div>'+
 '<div class="field"><label>نوع الزيارة</label><select id="visitType"><option>زيارة تسويقية</option><option>زيارة متابعة</option><option>زيارة استكمال مستندات</option><option>زيارة تعاقد / تفعيل</option><option>زيارة أخرى</option></select></div>'+
-'<div class="field"><label>المنتج الذي تم تسويقه</label><select id="visitProduct"><option>كارت ائتمان</option><option>قرض شخصي</option><option>كارت ائتمان وقرض شخصي</option><option>منتج آخر</option></select></div>'+
+'<div class="field"><label>نوع المنتج *</label><select id="visitProduct" required><option value="كريدت">كريدت</option><option value="قرض">قرض</option></select></div>'+
 '<div class="field"><label>عدد العملاء المتوقعين</label><input id="visitExpected" type="number" min="0" step="1" placeholder="0"></div>'+
 '<div class="field"><label>موعد المتابعة القادمة</label><input id="visitNextDate" type="date"></div>'+
 '<div class="field" style="grid-column:1/-1"><label>نتيجة الزيارة</label><input id="visitOutcome" maxlength="500" placeholder="ملخص ما تم خلال الزيارة"></div>'+
