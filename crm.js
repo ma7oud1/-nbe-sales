@@ -77,8 +77,10 @@ function loadVisitReports(){
  catch(_){visitReports=[];}
  renderVisitCustomerOptions();
  renderVisitReports();
+ if(typeof window.refreshNbeBusinessOverview==="function")window.refreshNbeBusinessOverview();
 }
-function saveVisitReports(){NBEStore.setItem(VISIT_KEY,JSON.stringify(visitReports));renderVisitReports();}
+function saveVisitReports(){NBEStore.setItem(VISIT_KEY,JSON.stringify(visitReports));renderVisitReports();if(typeof window.refreshNbeBusinessOverview==="function")window.refreshNbeBusinessOverview();}
+window.NBEVisitCustomerCount=function(){const seen=new Set();visitReports.forEach(v=>{const key=v.customerId?"id:"+v.customerId:v.customerNational?"national:"+v.customerNational:v.customerPhone?"phone:"+v.customerPhone:v.customerName?"name:"+String(v.customerName).trim().toLowerCase():"";if(key)seen.add(key);});return seen.size;};
 window.refreshNbeVisits=loadVisitReports;
 function renderVisitCustomerOptions(selected){
  const select=el("visitCustomer");if(!select)return;
