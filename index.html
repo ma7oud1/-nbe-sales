@@ -1689,9 +1689,14 @@ window.NBEStorageReady.then(()=>{
  if(!reports[currentDate])reports[currentDate]=blank(currentDate);
  fillInfo();renderAll();NBEStore.setItem("nbe_sales_theme","dark");document.body.classList.add("dark");
  if(typeof window.refreshNbeCrm==="function")window.refreshNbeCrm();
+ const crmScript=document.createElement("script");
+ crmScript.src="./crm.js";
+ crmScript.onload=()=>console.log("NBE CRM and visit reports loaded");
+ crmScript.onerror=()=>console.error("Unable to load NBE CRM module");
+ document.body.appendChild(crmScript);
 }).catch(error=>{console.error("NBE startup error:",error);alert("تعذر تجهيز قاعدة البيانات المحلية. أعد فتح البرنامج.");});
 </script>
-<script src="./crm.js"></script>
+<!-- CRM is loaded only after the app pages and local database are ready -->
 
 
 <script>
