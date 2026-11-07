@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "nbe-sales-v75";
+const CACHE_NAME = "nbe-sales-v76";
 
 const FILES_TO_CACHE = [
   "/-nbe-sales/",
