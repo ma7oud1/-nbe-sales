@@ -166,7 +166,7 @@ el("visitForm").addEventListener("submit",function(e){
  e.preventDefault();
  const name=el("visitName").value.trim(),national=normalizeDigits(el("visitNational").value.trim()),phone=el("visitPhone").value.trim();
  el("visitNational").value=national;
- if(!name||!/^\\d{14}$/.test(national)||!phone){alert("أدخل اسم العميل والرقم القومي المكوّن من 14 رقمًا ورقم الهاتف.");return;}
+ if(!name||!/^\d{14}$/.test(national)||!phone){alert("أدخل اسم العميل والرقم القومي المكوّن من 14 رقمًا ورقم الهاتف.");return;}
  if(!el("visitDate").value){alert("أدخل تاريخ الزيارة.");return;}
  const now=new Date().toISOString();
  let customer=customers.find(c=>String(c.national)===national);
