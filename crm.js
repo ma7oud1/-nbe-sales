@@ -90,7 +90,7 @@ function renderVisitCustomerOptions(selected){
 function resetVisitForm(){
  const form=el("visitForm");if(!form)return;
  form.reset();visitEditId="";
- el("visitDate").value=new Date().toISOString().slice(0,10);
+ el("visitDate").value=localVisitDate();
  el("visitFormTitle").textContent="تسجيل زيارة جديدة";el("visitSave").textContent="حفظ الزيارة";
 }
 function renderVisitReports(){
@@ -190,7 +190,7 @@ visitsPage.insertAdjacentHTML("beforeend",''+
 '<div class="crm-toolbar visit-daily-toolbar"><input id="visitDayFilter" type="date" aria-label="اختر يوم الزيارات"><input id="visitSearch" type="search" placeholder="بحث باسم العميل أو جهة العمل أو نتيجة الزيارة أو الملاحظات"><button class="btn light-btn no-print" type="button" id="visitAllDays">عرض كل الأيام</button></div><div id="visitDaySummary" class="crm-warning" aria-live="polite">عرض زيارات اليوم</div>'+
 '<div id="visitList" class="crm-list"></div></section>');
 style.textContent += ".visit-section{margin-top:22px}.visit-card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.visit-card-head strong{color:var(--muted);font-size:12px}.visit-section .crm-form select{width:100%;min-width:0;padding:13px 14px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text)}.visit-section .crm-form input{background:var(--card)}@media print{.visit-section{display:none!important}}";
-el("visitDate").value=new Date().toISOString().slice(0,10);
+el("visitDate").value=localVisitDate();
 el("visitForm").addEventListener("submit",function(e){
  e.preventDefault();
  const name=el("visitName").value.trim(),national=normalizeDigits(el("visitNational").value.trim()),phone=el("visitPhone").value.trim();
