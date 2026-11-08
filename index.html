@@ -2033,6 +2033,23 @@ function buildAppPages(){
    <div class="stat red"><small>إجمالي المدفوعات</small><strong id="loanResultTotal">0.00</strong></div>
   </div>
   <div class="note" id="loanResultNote" aria-live="polite">اختر نوع الحساب وأدخل البيانات ثم اضغط «احسب الآن».</div>
+  <section id="loanScheduleWrap" style="display:none;margin-top:18px;border:1px solid var(--border);border-radius:16px;padding:14px;background:var(--card)">
+   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+    <div><h3 style="margin:0 0 4px;font-size:17px">جدول تفصيلي بالأقساط</h3><small class="muted">تفصيل الفائدة وأصل القرض والرصيد بعد كل حركة</small></div>
+    <div class="actions no-print" style="display:flex;gap:8px;flex-wrap:wrap;margin:0">
+     <button class="btn light-btn small-btn" type="button" onclick="exportLoanScheduleCSV()">تصدير Excel / CSV</button>
+     <button class="btn primary small-btn" type="button" onclick="printLoanSchedule()">طباعة الجدول</button>
+    </div>
+   </div>
+   <div style="overflow:auto;max-height:560px;border:1px solid var(--border);border-radius:12px">
+    <table id="loanScheduleTable" style="width:100%;min-width:920px;border-collapse:collapse;font-size:12px;text-align:center">
+     <thead style="position:sticky;top:0;background:var(--green);color:white;z-index:1"><tr>
+      <th style="padding:11px">م</th><th style="padding:11px">نوع الحركة</th><th style="padding:11px">تاريخ الاستحقاق</th><th style="padding:11px">رقم القسط</th><th style="padding:11px">الرصيد قبل القسط</th><th style="padding:11px">الفائدة</th><th style="padding:11px">قيمة السداد</th><th style="padding:11px">المسدد من الأصل</th><th style="padding:11px">الرصيد بعد السداد</th>
+     </tr></thead><tbody id="loanScheduleBody"></tbody>
+    </table>
+   </div>
+   <div id="loanScheduleSummary" class="note" style="margin-top:10px"></div>
+  </section>
   <div class="footer">تم إنشاء الحاسبة بواسطة محمود محمد رزق | تليفون: <a href="tel:01555051532" style="color:inherit;text-decoration:none;direction:ltr;unicode-bidi:isolate">01555051532</a></div>
  `;
  pages["loan-calculator"].append(loanCalculator);
@@ -2583,21 +2600,28 @@ function simulateLoan(principal,monthly,term,annualRate,extras,annualIncrease=0)
  });
  events.sort((a,b)=>a.date-b.date||(a.type==="monthly"?-1:1));
  let balance=principal,interest=0,totalPaid=0,previous=base,monthlyCount=0;
- const daily=extras.length>0,yearlyInstallments=[];
+ const daily=extras.length>0,yearlyInstallments=[],schedule=[];
  for(const event of events){
   if(balance<=0.005)break;
+  const openingBalance=balance;
   const days=Math.max(0,Math.round((event.date-previous)/86400000));
   const accrued=daily?balance*(annualRate/100)*days/360:balance*(annualRate/100)/12;
   balance+=accrued;interest+=accrued;previous=event.date;
   const paid=Math.min(balance,event.amount);
   balance-=paid;totalPaid+=paid;
+  const principalPaid=Math.max(0,paid-accrued);
   if(event.type==="monthly"){
    monthlyCount++;
    const year=Math.floor((event.month-1)/12)+1;
    yearlyInstallments[year-1]={year,installment:event.installment,count:(yearlyInstallments[year-1]?.count||0)+1};
   }
+  schedule.push({
+   number:schedule.length+1,kind:event.type==="monthly"?"قسط شهري":"سداد إضافي",
+   date:loanDateValue(event.date),monthlyNumber:event.type==="monthly"?monthlyCount:"",
+   openingBalance,interest:accrued,payment:paid,principalPaid,closingBalance:balance
+  });
  }
- return {paidOff:balance<=0.02,balance,interest,totalPaid,monthlyCount,yearlyInstallments};
+ return {paidOff:balance<=0.02,balance,interest,totalPaid,monthlyCount,yearlyInstallments,schedule};
 }
 function calculateLoan(){
  try{
@@ -2628,14 +2652,43 @@ function calculateLoan(){
   }
  }catch(e){alert(e.message||"تعذر إجراء الحساب.");}
 }
+let lastLoanSchedule=[];
 function showLoanResult(principal,monthly,result,extraCount,method="fixed",increase=0){
  $("loanResults").style.display="grid";
  $("loanResultPrincipal").textContent=money(principal)+" جنيه";
  $("loanResultMonthly").textContent=money(monthly)+" جنيه";
  $("loanResultInterest").textContent=money(result.interest)+" جنيه";
  $("loanResultTotal").textContent=money(result.totalPaid)+" جنيه";
- const schedule=method==="increasing"?" جدول الأقساط السنوية: "+result.yearlyInstallments.map(x=>"السنة "+x.year+": "+money(x.installment)+" جنيه ("+x.count+" قسط)").join(" | ")+". الزيادة السنوية "+increase+"% من قسط السنة السابقة.":"";
- $("loanResultNote").textContent="تم الحساب بنجاح. عدد الأقساط الشهرية حتى إغلاق المديونية: "+result.monthlyCount+". "+(extraCount?"تم تطبيق السداد الإضافي بطريقة الأيام الفعلية / 360.":"تم احتساب العائد شهريًا على الرصيد المتبقي.")+schedule+" إجمالي السداد يشمل الأقساط الشهرية والدفعات الإضافية.";
+ const annualNote=method==="increasing"?" جدول الأقساط السنوية: "+result.yearlyInstallments.map(x=>"السنة "+x.year+": "+money(x.installment)+" جنيه ("+x.count+" قسط)").join(" | ")+". الزيادة السنوية "+increase+"% من قسط السنة السابقة.":"";
+ $("loanResultNote").textContent="تم الحساب بنجاح. عدد الأقساط الشهرية حتى إغلاق المديونية: "+result.monthlyCount+". "+(extraCount?"تم تطبيق السداد الإضافي بطريقة الأيام الفعلية / 360.":"تم احتساب العائد شهريًا على الرصيد المتبقي.")+annualNote+" إجمالي السداد يشمل الأقساط الشهرية والدفعات الإضافية.";
+ lastLoanSchedule=Array.isArray(result.schedule)?result.schedule:[];
+ const wrap=$("loanScheduleWrap"),body=$("loanScheduleBody");
+ if(wrap&&body){
+  body.innerHTML=lastLoanSchedule.map((x,i)=>'<tr style="background:'+(i%2?'var(--bg)':'var(--card)')+';border-bottom:1px solid var(--border)">'+
+   '<td style="padding:9px">'+x.number+'</td><td style="padding:9px;font-weight:700">'+x.kind+'</td><td style="padding:9px;direction:ltr">'+x.date+'</td>'+
+   '<td style="padding:9px">'+(x.monthlyNumber||"—")+'</td><td style="padding:9px">'+money(x.openingBalance)+'</td><td style="padding:9px">'+money(x.interest)+'</td>'+
+   '<td style="padding:9px;font-weight:700">'+money(x.payment)+'</td><td style="padding:9px">'+money(x.principalPaid)+'</td><td style="padding:9px;font-weight:700">'+money(x.closingBalance)+'</td></tr>').join("");
+  $("loanScheduleSummary").textContent="عدد الحركات: "+lastLoanSchedule.length+" | إجمالي الفوائد: "+money(result.interest)+" جنيه | إجمالي المدفوع: "+money(result.totalPaid)+" جنيه | الرصيد النهائي: "+money(result.balance)+" جنيه.";
+  wrap.style.display=lastLoanSchedule.length?"block":"none";
+ }
+}
+function exportLoanScheduleCSV(){
+ if(!lastLoanSchedule.length){alert("احسب القرض أولاً لعرض جدول الأقساط.");return;}
+ const headers=["م","نوع الحركة","تاريخ الاستحقاق","رقم القسط","الرصيد قبل الحركة","الفائدة","قيمة السداد","المسدد من الأصل","الرصيد بعد السداد"];
+ const rows=lastLoanSchedule.map(x=>[x.number,x.kind,x.date,x.monthlyNumber,money(x.openingBalance),money(x.interest),money(x.payment),money(x.principalPaid),money(x.closingBalance)]);
+ const csv="\\uFEFF"+[headers,...rows].map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\\r\\n");
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+ const url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="NBE_Loan_Installment_Schedule.csv";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+function printLoanSchedule(){
+ if(!lastLoanSchedule.length){alert("احسب القرض أولاً لعرض جدول الأقساط.");return;}
+ const headers=["م","نوع الحركة","تاريخ الاستحقاق","رقم القسط","الرصيد قبل الحركة","الفائدة","قيمة السداد","المسدد من الأصل","الرصيد بعد السداد"];
+ const rows=lastLoanSchedule.map(x=>[x.number,x.kind,x.date,x.monthlyNumber||"—",money(x.openingBalance),money(x.interest),money(x.payment),money(x.principalPaid),money(x.closingBalance)]);
+ const win=window.open("","_blank");
+ if(!win){alert("اسمح بفتح النوافذ المنبثقة لطباعة الجدول.");return;}
+ win.document.write('<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>جدول أقساط القرض</title><style>body{font-family:Tahoma,Arial;padding:20px;color:#19342c}h2{text-align:center;color:#006341}table{width:100%;border-collapse:collapse;font-size:11px}th,td{border:1px solid #ccd8d0;padding:7px;text-align:center}th{background:#006341;color:#fff}tr:nth-child(even){background:#f2f6f3}@media print{body{padding:0}@page{size:landscape;margin:10mm}}</style><h2>جدول تفصيلي بأقساط القرض</h2><table><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join("")+'</tr></thead><tbody>'+rows.map(row=>'<tr>'+row.map(v=>'<td>'+String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</td>').join("")+'</tr>').join("")+'</tbody></table><script>window.onload=function(){window.print()}<\\/script></html>');
+ win.document.close();
 }
 function resetLoanCalculator(){
  $("loanPrincipal").value="";
@@ -2648,6 +2701,10 @@ function resetLoanCalculator(){
  $("loanMonthsPart").value="0";
  $("loanExtraRows").innerHTML="";
  $("loanResults").style.display="none";
+ $("loanScheduleWrap").style.display="none";
+ $("loanScheduleBody").innerHTML="";
+ $("loanScheduleSummary").textContent="";
+ lastLoanSchedule=[];
  $("loanResultNote").textContent="اختر نوع الحساب وأدخل البيانات ثم اضغط «احسب الآن».";
  setLoanMode("principal");
 }
