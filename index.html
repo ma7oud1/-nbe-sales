@@ -2610,7 +2610,8 @@ function calculateLoan(){
   if(loanMode==="principal"){
    const monthly=Number($("loanMonthly").value);
    if(!Number.isFinite(monthly)||monthly<=0)throw new Error("أدخل قيمة القسط الشهري بشكل صحيح.");
-   let low=0,high=monthly*term+extras.reduce((sum,x)=>sum+x.amount*Math.ceil(term/x.interval),0);
+   const scheduledBase=Array.from({length:term},(_,i)=>monthly*Math.pow(1+increase/100,Math.floor(i/12))).reduce((sum,x)=>sum+x,0);
+   let low=0,high=scheduledBase+extras.reduce((sum,x)=>sum+x.amount*Math.ceil(term/x.interval),0);
    for(let i=0;i<90;i++){const mid=(low+high)/2;if(simulateLoan(mid,monthly,term,rate,extras,increase).paidOff)low=mid;else high=mid;}
    if(low<=0.01)throw new Error("القسط غير كافٍ لسداد قرض بهذه المدة وسعر العائد.");
    const result=simulateLoan(low,monthly,term,rate,extras,increase);
