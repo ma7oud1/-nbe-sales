@@ -2695,71 +2695,7 @@ function printLoanSchedule(){
  const rows=lastLoanSchedule.map(x=>[x.number,x.kind,x.date,x.monthlyNumber||"—",money(x.openingBalance),money(x.interest),money(x.payment),money(x.principalPaid),money(x.closingBalance)]);
  const win=window.open("","_blank");
  if(!win){alert("اسمح بفتح النوافذ المنبثقة لطباعة الجدول.");return;}
- win.document.write('<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>جدول أقساط القرض</title><style>body{font-family:Tahoma,Arial;padding:20px;color:#19342c}h2{text-align:center;color:#006341}table{width:100%;border-collapse:collapse;font-size:11px}th,td{border:1px solid #ccd8d0;padding:7px;text-align:center}th{background:#006341;color:#fff}tr:nth-child(even){background:#f2f6f3}@media print{body{padding:0}@page{size:landscape;margin:10mm}}
-/* FINAL PRINT PREVIEW OVERRIDES — daily ledger */
-@media print{
- @page{size:A4 portrait;margin:4mm}
- html,body{width:100%!important;margin:0!important;padding:0!important}
- body.print-ledger{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
- body.print-ledger .print-staff-banner{display:none!important}
- body.print-ledger .container{width:100%!important;max-width:none!important;padding:0!important;margin:0!important}
- body.print-ledger .ledger-section{
-  display:block!important;width:100%!important;margin:0!important;padding:0!important;
-  border:0!important;border-radius:0!important;box-shadow:none!important;background:#fff!important
- }
- body.print-ledger .ledger-section .print-heading{
-  display:block!important;margin:0 0 4px!important;padding:0!important
- }
- body.print-ledger .ledger-section .print-heading>div:first-child{
-  display:flex!important;align-items:center!important;justify-content:space-between!important;
-  gap:8px!important;padding:0 0 5px!important;border-bottom:2px solid #087443!important
- }
- body.print-ledger .ledger-section .print-heading>div:first-child>div:first-child{
-  display:flex!important;align-items:center!important;gap:6px!important
- }
- body.print-ledger .ledger-section .print-heading img{width:30px!important;height:28px!important}
- body.print-ledger .ledger-section .print-heading [style*="font-size:19px"]{font-size:12px!important}
- body.print-ledger .ledger-section .print-heading [style*="font-size:15px"]{font-size:9px!important}
- body.print-ledger .ledger-section .print-heading [style*="font-size:12px"]{font-size:7px!important}
- body.print-ledger .ledger-section .print-heading [style*="margin-top:16px"]{margin-top:4px!important}
- body.print-ledger .ledger-section .print-heading>div:nth-child(2){
-  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  gap:3px 5px!important;margin-top:4px!important
- }
- body.print-ledger .ledger-section .print-heading>div:nth-child(2)>div{
-  padding:3px 6px!important;border:1px solid #e0e8e2!important;border-radius:3px!important
- }
- body.print-ledger .ledger-section .print-heading>div:nth-child(2)>div>div{font-size:7px!important}
- body.print-ledger .ledger-section .print-heading>div:nth-child(2) strong{font-size:8px!important}
- body.print-ledger .ledger-section .print-heading>div:nth-child(3){display:none!important}
- body.print-ledger .ledger-section .section-title,
- body.print-ledger .ledger-section>.tabs,
- body.print-ledger .ledger-section .ledger-tools,
- body.print-ledger .ledger-section .delete-col{display:none!important}
- body.print-ledger .ledger-section .table-wrap{
-  display:block!important;width:100%!important;overflow:visible!important;
-  margin:0!important;padding:0!important;border:0!important;border-radius:0!important
- }
- body.print-ledger .ledger-section table{
-  display:table!important;width:100%!important;min-width:0!important;table-layout:fixed!important;
-  border-collapse:collapse!important;border-spacing:0!important;margin:0!important
- }
- body.print-ledger .ledger-section thead{display:table-header-group!important}
- body.print-ledger .ledger-section tbody{display:table-row-group!important}
- body.print-ledger .ledger-section tr{break-inside:avoid!important;page-break-inside:avoid!important}
- body.print-ledger .ledger-section th{
-  padding:3px 1px!important;font-size:6px!important;line-height:1.1!important;
-  white-space:normal!important;overflow-wrap:anywhere!important;background:#087443!important;
-  color:#fff!important;border:1px solid #087443!important
- }
- body.print-ledger .ledger-section td{
-  padding:2px 1px!important;font-size:6px!important;line-height:1.1!important;
-  white-space:normal!important;overflow-wrap:anywhere!important;word-break:break-word!important;
-  vertical-align:middle!important;color:#172b32!important;border:1px solid #dce5df!important
- }
- body.print-ledger .ledger-section tr:nth-child(even) td{background:#f1f7f3!important}
-}
-</style><h2>جدول تفصيلي بأقساط القرض</h2><table><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join("")+'</tr></thead><tbody>'+rows.map(row=>'<tr>'+row.map(v=>'<td>'+String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</td>').join("")+'</tr>').join("")+'</tbody></table><script>window.onload=function(){window.print()}<\/script></html>');
+ win.document.write('<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>جدول أقساط القرض</title><style>body{font-family:Tahoma,Arial;padding:20px;color:#19342c}h2{text-align:center;color:#006341}table{width:100%;border-collapse:collapse;font-size:11px}th,td{border:1px solid #ccd8d0;padding:7px;text-align:center}th{background:#006341;color:#fff}tr:nth-child(even){background:#f2f6f3}@media print{body{padding:0}@page{size:landscape;margin:10mm}}</style><h2>جدول تفصيلي بأقساط القرض</h2><table><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join("")+'</tr></thead><tbody>'+rows.map(row=>'<tr>'+row.map(v=>'<td>'+String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</td>').join("")+'</tr>').join("")+'</tbody></table><script>window.onload=function(){window.print()}<\/script></html>');
  win.document.close();
 }
 function resetLoanCalculator(){
