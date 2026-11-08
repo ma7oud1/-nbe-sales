@@ -2045,6 +2045,7 @@ Object.assign(NBE_EN,{
 "ابحث بالاسم أو الرقم أو الهاتف أو جهة العمل أو كود العميل":"Search by name, ID, phone, employer or customer code"
 });
 
+Object.assign(NBE_EN,{"＋ إضافة متابعة":"＋ Add Follow-up","إضافة متابعة":"Add Follow-up","الحالة":"Status","أرشيف التقارير اليومية":"Daily Reports Archive","اختر نوع الحساب وأدخل البيانات ثم اضغط «احسب الآن».":"Choose a calculation mode, enter the details, then select Calculate Now.","جدول أقساط القرض":"Loan Installment Schedule"});
 const NBE_TRANSLATION_KEYS=Object.keys(NBE_EN).sort((a,b)=>b.length-a.length);
 function nbeTranslateValue(value){let out=String(value??"");for(const key of NBE_TRANSLATION_KEYS){if(out.includes(key))out=out.split(key).join(NBE_EN[key]);}return out;}
 const NBE_ORIGINAL_TEXT=new WeakMap();
