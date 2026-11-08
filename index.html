@@ -1616,6 +1616,46 @@ body.dark #pageHost .home-page>.info-section>.grid>.field input{background:#1a29
 @media(max-width:800px){.alltime-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:420px){.alltime-overview{padding:14px}.alltime-kpi{padding:12px}.alltime-kpi small{font-size:10px}.alltime-kpi strong{font-size:22px}.alltime-heading h2{font-size:16px}}
 @media print{.alltime-overview{display:none!important}}
+
+/* تحسين سجل المبيعات فقط — لا يؤثر على بقية أقسام التطبيق */
+@media screen{
+ .ledger-section{overflow:hidden;border-top:4px solid var(--green)}
+ .ledger-section .print-heading{display:block!important;background:linear-gradient(135deg,#fff 0%,#f3f8f5 100%);border:1px solid #dce8e0;border-radius:13px;padding:18px;margin-bottom:18px;color:#18382c}
+ body.dark .ledger-section .print-heading{background:linear-gradient(135deg,#1a292f,#203832);border-color:#3b5148;color:#edf5f0}
+ .ledger-section .print-heading>div:first-child{align-items:center!important;padding-bottom:13px!important;border-bottom:2px solid #087443!important}
+ .ledger-section .print-heading>div:first-child>div:first-child{gap:13px!important}
+ .ledger-section .print-heading img{width:58px!important;height:54px!important}
+ .ledger-section .print-heading>div:nth-child(2){grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:9px!important;margin-top:13px!important}
+ .ledger-section .print-heading>div:nth-child(2)>div{background:#fff;border:1px solid #dce8e0!important;border-radius:9px!important;padding:10px!important;min-width:0}
+ body.dark .ledger-section .print-heading>div:nth-child(2)>div{background:#17262b;border-color:#3b5148!important}
+ .ledger-section .print-heading>div:nth-child(2) strong{display:block;margin-top:5px;overflow-wrap:anywhere}
+ .ledger-section .print-heading>div:nth-child(3){border-radius:9px;margin-top:11px!important;padding:11px!important;flex-wrap:wrap;justify-content:space-around!important;font-size:13px;font-weight:700}
+ .ledger-section>.section-title{margin:5px 0 14px}
+ .ledger-section>.tabs{padding:5px;background:var(--bg);border:1px solid var(--border);border-radius:11px;width:max-content;max-width:100%;margin-bottom:12px}
+ .ledger-section .ledger-tools{margin:0 0 12px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:10px}
+ .ledger-section .ledger-tools input{background:var(--card)}
+ .ledger-section .table-wrap{border:1px solid var(--border);border-radius:11px;margin-top:0!important}
+ .ledger-section table{min-width:900px}
+ .ledger-section th{background:#eaf3ed;color:#075c39;padding:12px 9px}
+ body.dark .ledger-section th{background:#243a32;color:#c8ead7}
+ .ledger-section td{padding:11px 9px}
+}
+@media screen and (max-width:700px){
+ .ledger-section .print-heading{padding:13px}
+ .ledger-section .print-heading>div:first-child{gap:8px!important}
+ .ledger-section .print-heading img{width:43px!important;height:42px!important}
+ .ledger-section .print-heading [style*="font-size:19px"]{font-size:15px!important}
+ .ledger-section .print-heading [style*="font-size:15px"]{font-size:11px!important}
+ .ledger-section .print-heading>div:nth-child(2){grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .ledger-section .print-heading>div:nth-child(3){justify-content:space-between!important;gap:7px!important;font-size:11px!important}
+ .ledger-section>.tabs{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+ .ledger-section>.tabs .tab{padding:9px 5px;font-size:12px}
+}
+@media screen and (max-width:390px){
+ .ledger-section .print-heading>div:first-child{flex-wrap:wrap}
+ .ledger-section .print-heading>div:first-child>div:last-child{text-align:right!important;width:100%}
+}
+
 </style>
 </head>
 <body>
@@ -1816,14 +1856,14 @@ body.dark #pageHost .home-page>.info-section>.grid>.field input{background:#1a29
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px">
    <div style="border:1px solid #dce5df;padding:10px;border-radius:6px">
     <div style="font-size:10px;color:#718087">اسم الموظف</div>
-    <strong style="font-size:13px">محمود محمد رزق</strong>
+    <strong id="ledgerEmployeeName" style="font-size:13px">—</strong>
    </div>
    <div style="border:1px solid #dce5df;padding:10px;border-radius:6px">
     <div style="font-size:10px;color:#718087">رقم السيلز</div>
-    <strong style="font-size:13px">479511</strong>
+    <strong id="ledgerSalesNumber" style="font-size:13px">—</strong>
    </div>
    <div style="border:1px solid #dce5df;padding:10px;border-radius:6px">
-    <div style="font-size:10px;color:#718087">الفرع</div><strong style="font-size:13px">رشيد - 394</strong>
+    <div style="font-size:10px;color:#718087">الفرع</div><strong id="ledgerBranchName" style="font-size:13px">رشيد - 394</strong>
    </div>
    <div style="border:1px solid #dce5df;padding:10px;border-radius:6px">
     <div style="font-size:10px;color:#718087">تاريخ التقرير</div>
@@ -2379,6 +2419,10 @@ function allRows(r){
 }
 function renderLedger(){
  const r=getReport();
+ const employeeNode=$("ledgerEmployeeName");if(employeeNode)employeeNode.textContent=EMPLOYEE||"—";
+ const salesNode=$("ledgerSalesNumber");if(salesNode)salesNode.textContent=SALES_NO||"—";
+ const branchNode=$("ledgerBranchName");if(branchNode)branchNode.textContent=(typeof BRANCH_NAME!=="undefined"?BRANCH_NAME:"رشيد")+" - "+(typeof BRANCH_CODE!=="undefined"?BRANCH_CODE:"394");
+ const dateNode=$("printDate");if(dateNode)dateNode.textContent=formatReportDate(currentDate);
  let rows=allRows(r);
  const search=(document.getElementById("ledgerSearch")?.value||"").trim().toLowerCase();
  if(search)rows=rows.filter(x=>[x.kind,x.name,x.national,x.mobile,x.employer,x.branch,x.detail,x.code].some(v=>String(v??"").toLowerCase().includes(search)));
