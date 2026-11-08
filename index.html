@@ -2047,7 +2047,7 @@ Object.assign(NBE_EN,{
 
 Object.assign(NBE_EN,{"＋ إضافة متابعة":"＋ Add Follow-up","إضافة متابعة":"Add Follow-up","الحالة":"Status","أرشيف التقارير اليومية":"Daily Reports Archive","اختر نوع الحساب وأدخل البيانات ثم اضغط «احسب الآن».":"Choose a calculation mode, enter the details, then select Calculate Now.","جدول أقساط القرض":"Loan Installment Schedule"});
 const NBE_TRANSLATION_KEYS=Object.keys(NBE_EN).sort((a,b)=>b.length-a.length);
-function nbeTranslateValue(value){let out=String(value??"");for(const key of NBE_TRANSLATION_KEYS){if(out.includes(key))out=out.split(key).join(NBE_EN[key]);}return out;}
+function nbeTranslateValue(value){let out=String(value??"");for(const key of NBE_TRANSLATION_KEYS){if(key.length===1){if(out.trim()===key)out=NBE_EN[key];continue;}if(out.includes(key))out=out.split(key).join(NBE_EN[key]);}return out;}
 const NBE_ORIGINAL_TEXT=new WeakMap();
 function nbeTranslateTree(root){
  if(!root)return;
@@ -2830,7 +2830,7 @@ function showLoanResult(principal,monthly,result,extraCount,method="fixed",incre
 }
 function exportLoanScheduleCSV(){
  if(!lastLoanSchedule.length){alert("احسب القرض أولاً لعرض جدول الأقساط.");return;}
- const headers=["م","نوع الحركة","تاريخ الاستحقاق","رقم القسط","الرصيد قبل الحركة","الفائدة","قيمة السداد","المسدد من الأصل","الرصيد بعد السداد"].map(x=>document.documentElement.lang==="en"?nbeTranslateValue(x):x);
+ const headers=["م","نوع الحركة","تاريخ الاستحقاق","رقم القسط","الرصيد قبل الحركة","الفائدة","قيمة السداد","المسدد من الأصل","الرصيد بعد السداد"].map(x=>document.documentElement.lang==="en"?(x==="م"?"No.":nbeTranslateValue(x)):x);
  const rows=lastLoanSchedule.map(x=>[x.number,document.documentElement.lang==="en"?nbeTranslateValue(x.kind):x.kind,x.date,x.monthlyNumber,money(x.openingBalance),money(x.interest),money(x.payment),money(x.principalPaid),money(x.closingBalance)]);
  const csv="\uFEFF"+[headers,...rows].map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");
  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
@@ -2898,7 +2898,7 @@ function exportLedgerImage(){
  const english=document.documentElement.lang==="en";
  const tr=value=>english?nbeTranslateValue(value):value;
  const columns=[
-  {title:tr("م"),key:"index",width:58},
+  {title:english?"No.":tr("م"),key:"index",width:58},
   {title:tr("نوع العملية"),key:"kind",width:145},
   {title:tr("اسم العميل"),key:"name",width:230},
   {title:tr("الرقم القومي"),key:"national",width:190},
