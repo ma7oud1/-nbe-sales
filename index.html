@@ -219,22 +219,22 @@ tr:hover td{background:rgba(8,116,67,.035)}
 
 /* Compact daily sales ledger: fit more customer rows on each printed page */
 @media print{
- @page{size:A4 landscape;margin:6mm}
+ @page{size:A4 landscape;margin:4mm}
  body.print-ledger{font-family:Tahoma,Arial,sans-serif!important}
- body.print-ledger .ledger-section{font-size:8px!important}
- body.print-ledger .ledger-section .print-heading{margin:0 0 5px!important}
+ body.print-ledger .ledger-section{font-size:7px!important}
+ body.print-ledger .ledger-section .print-heading{margin:0 0 3px!important}
  body.print-ledger .ledger-section .print-heading>div:first-child{
-  padding-bottom:5px!important;border-bottom-width:2px!important
+  padding-bottom:3px!important;border-bottom-width:1px!important
  }
  body.print-ledger .ledger-section .print-heading img{
-  width:38px!important;height:34px!important
+  width:30px!important;height:27px!important
  }
  body.print-ledger .ledger-section .print-heading [style*="font-size:19px"]{font-size:12px!important}
  body.print-ledger .ledger-section .print-heading [style*="font-size:15px"]{font-size:10px!important}
  body.print-ledger .ledger-section .print-heading [style*="font-size:12px"]{font-size:8px!important}
- body.print-ledger .ledger-section .print-heading [style*="margin-top:16px"]{margin-top:5px!important}
- body.print-ledger .ledger-section .print-heading [style*="padding:10px"]{padding:4px!important}
- body.print-ledger .ledger-section .print-heading [style*="padding:12px"]{padding:5px!important}
+ body.print-ledger .ledger-section .print-heading [style*="margin-top:16px"]{margin-top:2px!important}
+ body.print-ledger .ledger-section .print-heading [style*="padding:10px"]{padding:2px!important}
+ body.print-ledger .ledger-section .print-heading [style*="padding:12px"]{padding:3px!important}
  body.print-ledger .ledger-section .print-heading strong{font-size:9px!important}
  body.print-ledger .ledger-section table{
   width:100%!important;table-layout:fixed!important;border-collapse:collapse!important;
@@ -246,11 +246,11 @@ tr:hover td{background:rgba(8,116,67,.035)}
   page-break-inside:avoid!important;break-inside:avoid!important
  }
  body.print-ledger .ledger-section th{
-  padding:3px 2px!important;font-size:7px!important;line-height:1.15!important;
+  padding:2px 1px!important;font-size:6.5px!important;line-height:1.05!important;
   height:auto!important;white-space:normal!important;overflow-wrap:anywhere!important
  }
  body.print-ledger .ledger-section td{
-  padding:2.5px 2px!important;font-size:7px!important;line-height:1.18!important;
+  padding:1.5px 1px!important;font-size:6.5px!important;line-height:1.05!important;
   white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important;
   vertical-align:middle!important
  }
@@ -274,9 +274,6 @@ tr:hover td{background:rgba(8,116,67,.035)}
  body.print-ledger .ledger-section td:nth-child(9){width:12%!important}
  body.print-ledger .ledger-section th:nth-child(10),
  body.print-ledger .ledger-section td:nth-child(10){width:10%!important}
- body.print-ledger .ledger-section .print-heading~.print-heading{
-  margin-top:7px!important;padding-top:4px!important;font-size:7px!important
- }
 }
 
 /* عمليات السداد المتعددة في حاسبة الكارت */
@@ -1846,12 +1843,6 @@ body.dark #pageHost .home-page>.info-section>.grid>.field input{background:#1a29
    </tr></thead>
    <tbody id="ledgerBody"><tr><td colspan="10" class="empty">لا توجد عمليات مسجلة لهذا اليوم</td></tr></tbody>
   </table>
- </div>
- <div class="print-heading" style="margin-top:28px;padding-top:12px;border-top:1px solid #c6a45b;text-align:center;font-size:11px;color:#53666b">
-  إعداد: محمود محمد رزق | رقم السيلز: 479511
-  <div style="margin-top:15px;font-size:9px;color:#888">
-   سجل شخصي لتنظيم المبيعات - ليس مستندًا رسميًا صادرًا عن البنك
-  </div>
  </div>
 </div>
 
