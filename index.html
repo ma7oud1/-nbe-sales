@@ -3243,7 +3243,7 @@ if ("serviceWorker" in navigator) {
 <script>
 const cardScannerState={front:null,back:null,rotation:0,queue:[]},CS_OUT_W=1011,CS_OUT_H=638,CS_RATIO=1011/638;
 function csGet(id){return document.getElementById(id);}
-function csLoadSide(side,file){if(!file)return;if(!file.type||!file.type.startsWith("image/")){alert("Please choose an image file.");return;}const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{cardScannerState[side]={image:img,source:reader.result,processed:null};cardScannerRenderSide(side);};img.onerror=()=>alert("This image could not be opened. Try another photo.");img.src=reader.result;};reader.onerror=()=>alert("Unable to read this image.");reader.readAsDataURL(file);}
+function csLoadSide(side,file){if(!file)return;if(!file.type||!file.type.startsWith("image/")){alert("Please choose an image file.");return;}const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{cardScannerState[side]={image:img,source:reader.result,processed:null};cardScannerRenderSide(side);cardScannerAutoOnUpload(side);};img.onerror=()=>alert("This image could not be opened. Try another photo.");img.src=reader.result;};reader.onerror=()=>alert("Unable to read this image.");reader.readAsDataURL(file);}
 
 let csCvPromise=null;
 function csLoadOpenCV(){
@@ -3294,7 +3294,7 @@ async function csAutoProcess(side){
    if(ap.rows===4&&cv.isContourConvex(ap)){
     const area=Math.abs(cv.contourArea(ap));
     if(area>bestArea&&area>small.width*small.height*.035){
-     const pts=[];for(let j=0;j<4;j++)pts.push({x:ap.intAt(j,0),y:ap.intAt(j,1)});
+     const pts=[];for(let j=0;j<4;j++)pts.push({x:ap.data32S[j*2],y:ap.data32S[j*2+1]});
      const ordered=csOrderCorners(pts),w=(Math.hypot(ordered[1].x-ordered[0].x,ordered[1].y-ordered[0].y)+Math.hypot(ordered[2].x-ordered[3].x,ordered[2].y-ordered[3].y))/2;
      const h=(Math.hypot(ordered[3].x-ordered[0].x,ordered[3].y-ordered[0].y)+Math.hypot(ordered[2].x-ordered[1].x,ordered[2].y-ordered[1].y))/2;
      const ratio=Math.max(w,h)/Math.max(1,Math.min(w,h));
@@ -3318,6 +3318,7 @@ async function csAutoProcess(side){
   [src,gray,blur,edges,contours,hierarchy,transform,warped].forEach(m=>{if(m&&m.delete)m.delete();});
  }
 }
+function cardScannerAutoOnUpload(side){const status=csGet("csAutoStatus");if(status)status.textContent="Automatically detecting "+side+" side…";csAutoProcess(side).then(ok=>{if(ok){cardScannerState[side].processed=cardScannerState[side].source;if(status)status.textContent="✓ "+side+" side auto-corrected. Add the other side or review the result.";}}).catch(e=>{if(status)status.textContent="Auto scan could not detect this side: "+e.message+" You can adjust it manually or try Auto Scan again.";});}
 async function cardScannerAutoAll(){
  const btn=csGet("csAutoBtn");if(btn){btn.disabled=true;btn.textContent="Scanning…";}
  try{
