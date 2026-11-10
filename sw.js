@@ -1,9 +1,10 @@
 
-const CACHE_NAME = "nbe-sales-v107";
+const CACHE_NAME = "nbe-sales-v108";
 
 const FILES_TO_CACHE = [
   "/-nbe-sales/",
   "/-nbe-sales/index.html",
+  "/-nbe-sales/rates.html",
   "/-nbe-sales/manifest.json",
   "/-nbe-sales/crm.js",
 ];
