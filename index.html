@@ -2177,29 +2177,8 @@ function buildAppPages(){
  });
 
  pages.scanner.insertAdjacentHTML("beforeend",`
- <div class="scanner-workspace"><style>
-.cs-camera-stage{position:relative;width:100%;max-width:760px;margin:0 auto;background:#050807;border-radius:14px;overflow:hidden;aspect-ratio:16/10;display:grid;place-items:center}
-.cs-camera-stage video{width:100%;height:100%;object-fit:contain;display:none}
-.cs-camera-stage.active video{display:block}
-.cs-camera-placeholder{position:absolute;color:#9CB8AA;font-size:13px;text-align:center;padding:16px}
-.cs-camera-stage.active .cs-camera-placeholder{display:none}
-.cs-camera-guide{position:absolute;inset:12%;border:2px solid rgba(81,238,173,.9);border-radius:12px;box-shadow:0 0 0 999px rgba(0,0,0,.14);pointer-events:none}
-.cs-camera-guide:before,.cs-camera-guide:after{content:"";position:absolute;background:#51EEAD}
-.cs-camera-guide:before{width:24px;height:3px;left:-2px;top:-2px;box-shadow:calc(100% + 4px) 0 #51EEAD}
-.cs-camera-guide:after{height:24px;width:3px;left:-2px;top:-2px;box-shadow:0 calc(100% + 4px) #51EEAD}
-.cs-camera-controls{display:flex;align-items:end;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:14px}
-.cs-camera-controls label{display:grid;gap:6px;color:var(--muted);font-size:12px;font-weight:700}
-.cs-camera-controls select{min-height:42px;padding:8px 12px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text)}
-.cs-camera-controls button:disabled{opacity:.45;cursor:not-allowed}
-@media(max-width:650px){.cs-camera-stage{aspect-ratio:4/3}.cs-camera-controls{display:grid;grid-template-columns:1fr 1fr}.cs-camera-controls label{grid-column:1/-1}}
-</style>
+ <div class="scanner-workspace">
   <div class="scanner-privacy"><span>🔒</span><div><strong>Private on this device</strong><small>Camera and gallery images are processed locally in your browser. Nothing is uploaded or saved to the app database.</small></div></div>
-  <section class="scanner-panel cs-camera-panel">
-   <div class="scanner-panel-title"><span class="scanner-step">📷</span><div><h3>Live document camera</h3><p>Position the full document inside the frame, then capture. Automatic edge correction runs after capture.</p></div></div>
-   <div class="cs-camera-stage" id="csCameraStage"><video id="csCameraVideo" playsinline autoplay muted></video><div class="cs-camera-guide"><span></span></div><div class="cs-camera-placeholder" id="csCameraPlaceholder">Camera preview will appear here</div></div>
-   <div class="cs-camera-controls"><label>Capture for<select id="csCameraSide"><option value="front">Front side</option><option value="back">Back side</option></select></label><button type="button" class="btn primary" id="csStartCamera" onclick="cardScannerStartCamera()">Start camera</button><button type="button" class="btn primary" id="csCapturePhoto" onclick="cardScannerCapturePhoto()" disabled>● Capture</button><button type="button" class="btn light-btn" id="csStopCamera" onclick="cardScannerStopCamera()" disabled>Stop camera</button></div>
-   <p class="scanner-hint" id="csCameraStatus">Allow camera access when prompted. Use the rear camera for best results.</p>
-  </section>
   <div class="scanner-grid">
    <section class="scanner-panel"><div class="scanner-panel-title"><span class="scanner-step">01</span><div><h3>Capture document</h3><p>Choose a document type, then capture or upload each side.</p></div></div>
     <div class="scanner-fields"><label>Document type<select id="csType"><option>National ID</option><option>Bank card</option><option>Card-sized document</option></select></label><label>Document name (optional)<input id="csName" type="text" maxlength="60" placeholder="e.g. Customer document"></label></div>
@@ -3263,35 +3242,6 @@ if ("serviceWorker" in navigator) {
 
 <script>
 const cardScannerState={front:null,back:null,rotation:0,queue:[]},CS_OUT_W=1011,CS_OUT_H=638,CS_RATIO=1011/638;
-let csCameraStream=null;
-async function cardScannerStartCamera(){
- const status=csGet("csCameraStatus"),video=csGet("csCameraVideo"),stage=csGet("csCameraStage");
- if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){if(status)status.textContent="Camera access is unavailable in this browser. Use a secure HTTPS connection or choose an image from the gallery.";return;}
- try{
-  cardScannerStopCamera();
-  csCameraStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:1920},height:{ideal:1080}}});
-  video.srcObject=csCameraStream;await video.play();stage.classList.add("active");
-  csGet("csStartCamera").disabled=true;csGet("csCapturePhoto").disabled=false;csGet("csStopCamera").disabled=false;
-  if(status)status.textContent="Camera ready. Keep all document edges inside the green frame.";
- }catch(e){if(status)status.textContent="Could not start camera: "+(e.name==="NotAllowedError"?"Allow camera permission in your browser settings.":e.message);}
-}
-function cardScannerStopCamera(){
- if(csCameraStream){csCameraStream.getTracks().forEach(track=>track.stop());csCameraStream=null;}
- const video=csGet("csCameraVideo");if(video)video.srcObject=null;
- const stage=csGet("csCameraStage");if(stage)stage.classList.remove("active");
- if(csGet("csStartCamera"))csGet("csStartCamera").disabled=false;
- if(csGet("csCapturePhoto"))csGet("csCapturePhoto").disabled=true;
- if(csGet("csStopCamera"))csGet("csStopCamera").disabled=true;
-}
-function cardScannerCapturePhoto(){
- const video=csGet("csCameraVideo");if(!video||!video.videoWidth){alert("Start the camera first.");return;}
- const canvas=document.createElement("canvas"),max=2400,scale=Math.min(1,max/video.videoWidth);
- canvas.width=Math.round(video.videoWidth*scale);canvas.height=Math.round(video.videoHeight*scale);
- canvas.getContext("2d").drawImage(video,0,0,canvas.width,canvas.height);
- const side=csGet("csCameraSide").value;
- canvas.toBlob(blob=>{if(!blob)return;const file=new File([blob],"NBE-"+side+"-"+Date.now()+".jpg",{type:"image/jpeg"});csLoadSide(side,file);const status=csGet("csCameraStatus");if(status)status.textContent="Photo captured. Automatic edge detection and enhancement are processing.";}, "image/jpeg",.96);
-}
-
 function csGet(id){return document.getElementById(id);}
 function csLoadSide(side,file){
  if(!file)return;
@@ -3402,7 +3352,7 @@ function cardScannerInit(){
  cardScannerRenderQueue();
 }
 const csObserver=new MutationObserver(()=>{if(csGet("csQueue")){cardScannerInit();csObserver.disconnect();}
-window.addEventListener("pagehide",cardScannerStopCamera);});
+});
 csObserver.observe(document.body,{childList:true,subtree:true});
 if(csGet("csQueue")){cardScannerInit();csObserver.disconnect();}
 </script>
