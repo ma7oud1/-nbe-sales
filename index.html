@@ -2177,18 +2177,39 @@ function buildAppPages(){
  });
 
  pages.scanner.insertAdjacentHTML("beforeend",`
- <div class="scanner-workspace">
-  <div class="scanner-privacy"><span>🔒</span><div><strong>Private on this device</strong><small>Images are processed in your browser only. They are not uploaded or saved to the app database.</small></div></div>
+ <div class="scanner-workspace"><style>
+.cs-camera-stage{position:relative;width:100%;max-width:760px;margin:0 auto;background:#050807;border-radius:14px;overflow:hidden;aspect-ratio:16/10;display:grid;place-items:center}
+.cs-camera-stage video{width:100%;height:100%;object-fit:contain;display:none}
+.cs-camera-stage.active video{display:block}
+.cs-camera-placeholder{position:absolute;color:#9CB8AA;font-size:13px;text-align:center;padding:16px}
+.cs-camera-stage.active .cs-camera-placeholder{display:none}
+.cs-camera-guide{position:absolute;inset:12%;border:2px solid rgba(81,238,173,.9);border-radius:12px;box-shadow:0 0 0 999px rgba(0,0,0,.14);pointer-events:none}
+.cs-camera-guide:before,.cs-camera-guide:after{content:"";position:absolute;background:#51EEAD}
+.cs-camera-guide:before{width:24px;height:3px;left:-2px;top:-2px;box-shadow:calc(100% + 4px) 0 #51EEAD}
+.cs-camera-guide:after{height:24px;width:3px;left:-2px;top:-2px;box-shadow:0 calc(100% + 4px) #51EEAD}
+.cs-camera-controls{display:flex;align-items:end;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:14px}
+.cs-camera-controls label{display:grid;gap:6px;color:var(--muted);font-size:12px;font-weight:700}
+.cs-camera-controls select{min-height:42px;padding:8px 12px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text)}
+.cs-camera-controls button:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:650px){.cs-camera-stage{aspect-ratio:4/3}.cs-camera-controls{display:grid;grid-template-columns:1fr 1fr}.cs-camera-controls label{grid-column:1/-1}}
+</style>
+  <div class="scanner-privacy"><span>🔒</span><div><strong>Private on this device</strong><small>Camera and gallery images are processed locally in your browser. Nothing is uploaded or saved to the app database.</small></div></div>
+  <section class="scanner-panel cs-camera-panel">
+   <div class="scanner-panel-title"><span class="scanner-step">📷</span><div><h3>Live document camera</h3><p>Position the full document inside the frame, then capture. Automatic edge correction runs after capture.</p></div></div>
+   <div class="cs-camera-stage" id="csCameraStage"><video id="csCameraVideo" playsinline autoplay muted></video><div class="cs-camera-guide"><span></span></div><div class="cs-camera-placeholder" id="csCameraPlaceholder">Camera preview will appear here</div></div>
+   <div class="cs-camera-controls"><label>Capture for<select id="csCameraSide"><option value="front">Front side</option><option value="back">Back side</option></select></label><button type="button" class="btn primary" id="csStartCamera" onclick="cardScannerStartCamera()">Start camera</button><button type="button" class="btn primary" id="csCapturePhoto" onclick="cardScannerCapturePhoto()" disabled>● Capture</button><button type="button" class="btn light-btn" id="csStopCamera" onclick="cardScannerStopCamera()" disabled>Stop camera</button></div>
+   <p class="scanner-hint" id="csCameraStatus">Allow camera access when prompted. Use the rear camera for best results.</p>
+  </section>
   <div class="scanner-grid">
    <section class="scanner-panel"><div class="scanner-panel-title"><span class="scanner-step">01</span><div><h3>Capture document</h3><p>Choose a document type, then capture or upload each side.</p></div></div>
     <div class="scanner-fields"><label>Document type<select id="csType"><option>National ID</option><option>Bank card</option><option>Card-sized document</option></select></label><label>Document name (optional)<input id="csName" type="text" maxlength="60" placeholder="e.g. Customer document"></label></div>
     <div class="scanner-capture-grid">
-     <div class="scanner-side-card"><div class="scanner-side-head"><strong>Front side</strong><span>FRONT</span></div><label class="scanner-upload" for="csFrontFile"><span class="scanner-upload-icon">＋</span><strong>Capture / Upload front</strong><small>Use camera or choose an image</small></label><input class="scanner-file" id="csFrontFile" type="file" accept="image/*" capture="environment"><div class="scanner-preview" id="csFrontPreview"><span>No front image selected</span></div></div>
-     <div class="scanner-side-card"><div class="scanner-side-head"><strong>Back side</strong><span>BACK</span></div><label class="scanner-upload" for="csBackFile"><span class="scanner-upload-icon">＋</span><strong>Capture / Upload back</strong><small>Optional for one-sided documents</small></label><input class="scanner-file" id="csBackFile" type="file" accept="image/*" capture="environment"><div class="scanner-preview" id="csBackPreview"><span>No back image selected</span></div></div>
+     <div class="scanner-side-card"><div class="scanner-side-head"><strong>Front side</strong><span>FRONT</span></div><label class="scanner-upload" for="csFrontFile"><span class="scanner-upload-icon">🖼️</span><strong>Choose front from gallery</strong><small>Upload an existing photo</small></label><input class="scanner-file" id="csFrontFile" type="file" accept="image/*"><div class="scanner-preview" id="csFrontPreview"><span>No front image selected</span></div></div>
+     <div class="scanner-side-card"><div class="scanner-side-head"><strong>Back side</strong><span>BACK</span></div><label class="scanner-upload" for="csBackFile"><span class="scanner-upload-icon">🖼️</span><strong>Choose back from gallery</strong><small>Optional for one-sided documents</small></label><input class="scanner-file" id="csBackFile" type="file" accept="image/*"><div class="scanner-preview" id="csBackPreview"><span>No back image selected</span></div></div>
     </div><div class="scanner-note">Tip: place the document on a contrasting, flat surface and keep all four edges visible. Rotate or adjust the crop if needed.</div>
    </section>
    <section class="scanner-panel"><div class="scanner-panel-title"><span class="scanner-step">02</span><div><h3>Image correction</h3><p>Crop to card proportions, straighten orientation and improve readability.</p></div></div>
-    <div class="scanner-adjustments"><label>Zoom / crop <output id="csZoomOut">1.0×</output><input id="csZoom" type="range" min="1" max="2.5" step="0.05" value="1"></label><label>Horizontal position<input id="csX" type="range" min="-50" max="50" value="0"></label><label>Vertical position<input id="csY" type="range" min="-50" max="50" value="0"></label><label>Brightness <output id="csBrightOut">108%</output><input id="csBright" type="range" min="70" max="140" value="108"></label><label>Contrast <output id="csContrastOut">112%</output><input id="csContrast" type="range" min="70" max="160" value="112"></label></div>
+    <div class="scanner-adjustments"><label>Enhancement filter<select id="csFilter"><option value="auto">Auto enhance</option><option value="original">Original</option><option value="magic">Magic color</option><option value="gray">Grayscale</option><option value="bw">Black & white</option></select></label><label>Zoom / crop <output id="csZoomOut">1.0×</output><input id="csZoom" type="range" min="1" max="2.5" step="0.05" value="1"></label><label>Horizontal position<input id="csX" type="range" min="-50" max="50" value="0"></label><label>Vertical position<input id="csY" type="range" min="-50" max="50" value="0"></label><label>Brightness <output id="csBrightOut">108%</output><input id="csBright" type="range" min="70" max="140" value="108"></label><label>Contrast <output id="csContrastOut">112%</output><input id="csContrast" type="range" min="70" max="160" value="112"></label></div>
     <div class="scanner-tools"><button type="button" class="btn primary" id="csAutoBtn" onclick="cardScannerAutoAll()">✨ Auto Scan & Enhance</button><button type="button" class="btn light-btn" onclick="cardScannerRotate()">↻ Rotate 90°</button><button type="button" class="btn light-btn" onclick="cardScannerResetAdjustments()">Reset adjustments</button><label class="scanner-check"><input id="csGray" type="checkbox"> Grayscale</label></div>
     <div class="scanner-actions"><button type="button" class="btn primary" onclick="cardScannerAdd()">＋ Add to print queue</button><button type="button" class="btn light-btn" onclick="cardScannerClearCurrent()">Clear current</button></div>
     <p class="scanner-hint" id="csAutoStatus">Auto Scan detects document edges, corrects perspective and balances lighting. Keep all four edges visible for best results.</p>
@@ -3242,6 +3263,35 @@ if ("serviceWorker" in navigator) {
 
 <script>
 const cardScannerState={front:null,back:null,rotation:0,queue:[]},CS_OUT_W=1011,CS_OUT_H=638,CS_RATIO=1011/638;
+let csCameraStream=null;
+async function cardScannerStartCamera(){
+ const status=csGet("csCameraStatus"),video=csGet("csCameraVideo"),stage=csGet("csCameraStage");
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){if(status)status.textContent="Camera access is unavailable in this browser. Use a secure HTTPS connection or choose an image from the gallery.";return;}
+ try{
+  cardScannerStopCamera();
+  csCameraStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:1920},height:{ideal:1080}}});
+  video.srcObject=csCameraStream;await video.play();stage.classList.add("active");
+  csGet("csStartCamera").disabled=true;csGet("csCapturePhoto").disabled=false;csGet("csStopCamera").disabled=false;
+  if(status)status.textContent="Camera ready. Keep all document edges inside the green frame.";
+ }catch(e){if(status)status.textContent="Could not start camera: "+(e.name==="NotAllowedError"?"Allow camera permission in your browser settings.":e.message);}
+}
+function cardScannerStopCamera(){
+ if(csCameraStream){csCameraStream.getTracks().forEach(track=>track.stop());csCameraStream=null;}
+ const video=csGet("csCameraVideo");if(video)video.srcObject=null;
+ const stage=csGet("csCameraStage");if(stage)stage.classList.remove("active");
+ if(csGet("csStartCamera"))csGet("csStartCamera").disabled=false;
+ if(csGet("csCapturePhoto"))csGet("csCapturePhoto").disabled=true;
+ if(csGet("csStopCamera"))csGet("csStopCamera").disabled=true;
+}
+function cardScannerCapturePhoto(){
+ const video=csGet("csCameraVideo");if(!video||!video.videoWidth){alert("Start the camera first.");return;}
+ const canvas=document.createElement("canvas"),max=2400,scale=Math.min(1,max/video.videoWidth);
+ canvas.width=Math.round(video.videoWidth*scale);canvas.height=Math.round(video.videoHeight*scale);
+ canvas.getContext("2d").drawImage(video,0,0,canvas.width,canvas.height);
+ const side=csGet("csCameraSide").value;
+ canvas.toBlob(blob=>{if(!blob)return;const file=new File([blob],"NBE-"+side+"-"+Date.now()+".jpg",{type:"image/jpeg"});csLoadSide(side,file);const status=csGet("csCameraStatus");if(status)status.textContent="Photo captured. Automatic edge detection and enhancement are processing.";}, "image/jpeg",.96);
+}
+
 function csGet(id){return document.getElementById(id);}
 function csLoadSide(side,file){if(!file)return;if(!file.type||!file.type.startsWith("image/")){alert("Please choose an image file.");return;}const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{cardScannerState[side]={image:img,source:reader.result,processed:null};cardScannerRenderSide(side);cardScannerAutoOnUpload(side);};img.onerror=()=>alert("This image could not be opened. Try another photo.");img.src=reader.result;};reader.onerror=()=>alert("Unable to read this image.");reader.readAsDataURL(file);}
 
@@ -3329,7 +3379,7 @@ async function cardScannerAutoAll(){
  finally{if(btn){btn.disabled=false;btn.textContent="✨ Auto Scan & Enhance";}}
 }
 
-function csCropDraw(img,canvas,rotation){const zoom=Number(csGet("csZoom")?.value||1),rot=document.createElement("canvas"),ctx=rot.getContext("2d"),swap=rotation%180!==0;rot.width=swap?img.naturalHeight:img.naturalWidth;rot.height=swap?img.naturalWidth:img.naturalHeight;ctx.translate(rot.width/2,rot.height/2);ctx.rotate(rotation*Math.PI/180);ctx.drawImage(img,-img.naturalWidth/2,-img.naturalHeight/2);const rw=rot.width,rh=rot.height,ra=rw/rh;let sw,sh;if(ra>CS_RATIO){sh=rh/zoom;sw=sh*CS_RATIO;}else{sw=rw/zoom;sh=sw/CS_RATIO;}const px=Number(csGet("csX")?.value||0)/100,py=Number(csGet("csY")?.value||0)/100,cx=Math.max(sw/2,Math.min(rw-sw/2,rw/2+px*(rw-sw)/2)),cy=Math.max(sh/2,Math.min(rh-sh/2,rh/2+py*(rh-sh)/2));const out=canvas.getContext("2d");out.clearRect(0,0,CS_OUT_W,CS_OUT_H);out.fillStyle="#fff";out.fillRect(0,0,CS_OUT_W,CS_OUT_H);out.filter="brightness("+Number(csGet("csBright")?.value||108)+"%) contrast("+Number(csGet("csContrast")?.value||112)+"%) "+(csGet("csGray")?.checked?"grayscale(1)":"grayscale(0)");out.drawImage(rot,cx-sw/2,cy-sh/2,sw,sh,0,0,CS_OUT_W,CS_OUT_H);out.filter="none";}
+function csCropDraw(img,canvas,rotation){const zoom=Number(csGet("csZoom")?.value||1),rot=document.createElement("canvas"),ctx=rot.getContext("2d"),swap=rotation%180!==0;rot.width=swap?img.naturalHeight:img.naturalWidth;rot.height=swap?img.naturalWidth:img.naturalHeight;ctx.translate(rot.width/2,rot.height/2);ctx.rotate(rotation*Math.PI/180);ctx.drawImage(img,-img.naturalWidth/2,-img.naturalHeight/2);const rw=rot.width,rh=rot.height,ra=rw/rh;let sw,sh;if(ra>CS_RATIO){sh=rh/zoom;sw=sh*CS_RATIO;}else{sw=rw/zoom;sh=sw/CS_RATIO;}const px=Number(csGet("csX")?.value||0)/100,py=Number(csGet("csY")?.value||0)/100,cx=Math.max(sw/2,Math.min(rw-sw/2,rw/2+px*(rw-sw)/2)),cy=Math.max(sh/2,Math.min(rh-sh/2,rh/2+py*(rh-sh)/2));const out=canvas.getContext("2d");out.clearRect(0,0,CS_OUT_W,CS_OUT_H);out.fillStyle="#fff";out.fillRect(0,0,CS_OUT_W,CS_OUT_H);const filter=csGet("csFilter")?.value||"auto";let css="brightness("+Number(csGet("csBright")?.value||108)+"%) contrast("+Number(csGet("csContrast")?.value||112)+"%)";if(filter==="gray"||csGet("csGray")?.checked)css+=" grayscale(1)";if(filter==="bw")css+=" grayscale(1) contrast(1.8)";if(filter==="magic")css+=" saturate(1.35) contrast(1.12)";out.filter=css;out.drawImage(rot,cx-sw/2,cy-sh/2,sw,sh,0,0,CS_OUT_W,CS_OUT_H);out.filter="none";if(filter==="auto"||filter==="magic")csAutoLevels(canvas);}
 function cardScannerRenderSide(side){const item=cardScannerState[side];if(!item)return;const canvas=document.createElement("canvas");canvas.width=CS_OUT_W;canvas.height=CS_OUT_H;csCropDraw(item.image,canvas,cardScannerState.rotation);item.processed=canvas.toDataURL("image/jpeg",.94);const preview=csGet(side==="front"?"csFrontPreview":"csBackPreview");if(preview)preview.innerHTML='<img alt="'+(side==="front"?"Front":"Back")+' preview" src="'+item.processed+'">';}
 function cardScannerRefresh(){["front","back"].forEach(cardScannerRenderSide);const z=csGet("csZoomOut"),b=csGet("csBrightOut"),c=csGet("csContrastOut");if(z)z.textContent=Number(csGet("csZoom").value).toFixed(1)+"×";if(b)b.textContent=csGet("csBright").value+"%";if(c)c.textContent=csGet("csContrast").value+"%";}
 function cardScannerRotate(){cardScannerState.rotation=(cardScannerState.rotation+90)%360;cardScannerRefresh();}
@@ -3346,10 +3396,11 @@ function cardScannerInit(){
  if(csInitialized||!csGet("csQueue"))return;
  csInitialized=true;
  ["csFrontFile","csBackFile"].forEach(id=>{const el=csGet(id);if(el)el.addEventListener("change",e=>csLoadSide(id==="csFrontFile"?"front":"back",e.target.files&&e.target.files[0]));});
- ["csZoom","csX","csY","csBright","csContrast","csGray"].forEach(id=>{const el=csGet(id);if(el)el.addEventListener("input",cardScannerRefresh);});
+ ["csZoom","csX","csY","csBright","csContrast","csGray","csFilter"].forEach(id=>{const el=csGet(id);if(el)el.addEventListener("input",cardScannerRefresh);});
  cardScannerRenderQueue();
 }
-const csObserver=new MutationObserver(()=>{if(csGet("csQueue")){cardScannerInit();csObserver.disconnect();}});
+const csObserver=new MutationObserver(()=>{if(csGet("csQueue")){cardScannerInit();csObserver.disconnect();}
+window.addEventListener("pagehide",cardScannerStopCamera);});
 csObserver.observe(document.body,{childList:true,subtree:true});
 if(csGet("csQueue")){cardScannerInit();csObserver.disconnect();}
 </script>
