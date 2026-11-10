@@ -2189,9 +2189,9 @@ function buildAppPages(){
    </section>
    <section class="scanner-panel"><div class="scanner-panel-title"><span class="scanner-step">02</span><div><h3>Image correction</h3><p>Crop to card proportions, straighten orientation and improve readability.</p></div></div>
     <div class="scanner-adjustments"><label>Zoom / crop <output id="csZoomOut">1.0×</output><input id="csZoom" type="range" min="1" max="2.5" step="0.05" value="1"></label><label>Horizontal position<input id="csX" type="range" min="-50" max="50" value="0"></label><label>Vertical position<input id="csY" type="range" min="-50" max="50" value="0"></label><label>Brightness <output id="csBrightOut">108%</output><input id="csBright" type="range" min="70" max="140" value="108"></label><label>Contrast <output id="csContrastOut">112%</output><input id="csContrast" type="range" min="70" max="160" value="112"></label></div>
-    <div class="scanner-tools"><button type="button" class="btn light-btn" onclick="cardScannerRotate()">↻ Rotate 90°</button><button type="button" class="btn light-btn" onclick="cardScannerResetAdjustments()">Reset adjustments</button><label class="scanner-check"><input id="csGray" type="checkbox"> Grayscale</label></div>
+    <div class="scanner-tools"><button type="button" class="btn primary" id="csAutoBtn" onclick="cardScannerAutoAll()">✨ Auto Scan & Enhance</button><button type="button" class="btn light-btn" onclick="cardScannerRotate()">↻ Rotate 90°</button><button type="button" class="btn light-btn" onclick="cardScannerResetAdjustments()">Reset adjustments</button><label class="scanner-check"><input id="csGray" type="checkbox"> Grayscale</label></div>
     <div class="scanner-actions"><button type="button" class="btn primary" onclick="cardScannerAdd()">＋ Add to print queue</button><button type="button" class="btn light-btn" onclick="cardScannerClearCurrent()">Clear current</button></div>
-    <p class="scanner-hint">Output is normalized to the standard card ratio (85.6 × 54 mm). This tool corrects crop, rotation, brightness and contrast; check the preview before printing.</p>
+    <p class="scanner-hint" id="csAutoStatus">Auto Scan detects document edges, corrects perspective and balances lighting. Keep all four edges visible for best results.</p>
    </section>
   </div>
   <section class="scanner-panel scanner-queue-panel"><div class="scanner-panel-title"><span class="scanner-step">03</span><div><h3>Print queue</h3><p>Collect multiple documents, then choose your A4 layout.</p></div><span class="scanner-queue-count" id="csQueueCount">0 documents</span></div>
@@ -3244,6 +3244,90 @@ if ("serviceWorker" in navigator) {
 const cardScannerState={front:null,back:null,rotation:0,queue:[]},CS_OUT_W=1011,CS_OUT_H=638,CS_RATIO=1011/638;
 function csGet(id){return document.getElementById(id);}
 function csLoadSide(side,file){if(!file)return;if(!file.type||!file.type.startsWith("image/")){alert("Please choose an image file.");return;}const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{cardScannerState[side]={image:img,source:reader.result,processed:null};cardScannerRenderSide(side);};img.onerror=()=>alert("This image could not be opened. Try another photo.");img.src=reader.result;};reader.onerror=()=>alert("Unable to read this image.");reader.readAsDataURL(file);}
+
+let csCvPromise=null;
+function csLoadOpenCV(){
+ if(window.cv&&window.cv.Mat)return Promise.resolve(window.cv);
+ if(csCvPromise)return csCvPromise;
+ csCvPromise=new Promise((resolve,reject)=>{
+  const script=document.createElement("script");script.async=true;script.src="https://docs.opencv.org/4.x/opencv.js";
+  script.onload=()=>{const ready=()=>{if(window.cv&&window.cv.Mat)resolve(window.cv);else{window.cv.onRuntimeInitialized=()=>resolve(window.cv);setTimeout(()=>{if(window.cv&&window.cv.Mat)resolve(window.cv);},12000);}};
+   ready();};script.onerror=()=>reject(new Error("Could not load the automatic scan engine. Check your internet connection and try again."));
+  document.head.appendChild(script);
+ });
+ return csCvPromise;
+}
+function csOrderCorners(points){
+ const c=points.reduce((a,p)=>({x:a.x+p.x/4,y:a.y+p.y/4}),{x:0,y:0});
+ points.sort((a,b)=>Math.atan2(a.y-c.y,a.x-c.x)-Math.atan2(b.y-c.y,b.x-c.x));
+ let start=0,min=Infinity;points.forEach((p,i)=>{const v=p.x+p.y;if(v<min){min=v;start=i;}});
+ let q=[0,1,2,3].map(k=>points[(start+k)%4]);
+ const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+ if(dist(q[0],q[1])<dist(q[0],q[3]))q=[q[3],q[0],q[1],q[2]];
+ return q;
+}
+function csAutoLevels(canvas){
+ const ctx=canvas.getContext("2d",{willReadFrequently:true}),im=ctx.getImageData(0,0,canvas.width,canvas.height),d=im.data,hist=new Uint32Array(256),n=d.length/4;
+ for(let i=0;i<d.length;i+=4){const y=Math.round(.299*d[i]+.587*d[i+1]+.114*d[i+2]);hist[y]++;}
+ const percentile=p=>{let target=n*p,acc=0;for(let i=0;i<256;i++){acc+=hist[i];if(acc>=target)return i;}return 255;};
+ let lo=percentile(.025),hi=percentile(.985);if(hi-lo<70)return;
+ const scale=255/(hi-lo);
+ for(let i=0;i<d.length;i+=4){for(let c=0;c<3;c++)d[i+c]=Math.max(0,Math.min(255,(d[i+c]-lo)*scale));}
+ ctx.putImageData(im,0,0);
+}
+async function csAutoProcess(side){
+ const item=cardScannerState[side];if(!item)return false;
+ const status=csGet("csAutoStatus");if(status)status.textContent="Detecting "+side+" side edges…";
+ let cv=null,src=null,gray=null,blur=null,edges=null,contours=null,hierarchy=null,approx=null,transform=null,warped=null;
+ try{
+  cv=await csLoadOpenCV();
+  const maxSide=1200,scale=Math.min(1,maxSide/Math.max(item.image.naturalWidth,item.image.naturalHeight));
+  const small=document.createElement("canvas");small.width=Math.max(1,Math.round(item.image.naturalWidth*scale));small.height=Math.max(1,Math.round(item.image.naturalHeight*scale));
+  small.getContext("2d").drawImage(item.image,0,0,small.width,small.height);
+  src=cv.imread(small);gray=new cv.Mat();blur=new cv.Mat();edges=new cv.Mat();contours=new cv.MatVector();hierarchy=new cv.Mat();
+  cv.cvtColor(src,gray,cv.COLOR_RGBA2GRAY);cv.GaussianBlur(gray,blur,new cv.Size(5,5),0);cv.Canny(blur,edges,45,135);
+  cv.findContours(edges,contours,hierarchy,cv.RETR_LIST,cv.CHAIN_APPROX_SIMPLE);
+  let best=null,bestArea=0;
+  for(let i=0;i<contours.size();i++){
+   const cnt=contours.get(i),per=cv.arcLength(cnt,true),ap=new cv.Mat();
+   cv.approxPolyDP(cnt,ap,.02*per,true);
+   if(ap.rows===4&&cv.isContourConvex(ap)){
+    const area=Math.abs(cv.contourArea(ap));
+    if(area>bestArea&&area>small.width*small.height*.035){
+     const pts=[];for(let j=0;j<4;j++)pts.push({x:ap.intAt(j,0),y:ap.intAt(j,1)});
+     const ordered=csOrderCorners(pts),w=(Math.hypot(ordered[1].x-ordered[0].x,ordered[1].y-ordered[0].y)+Math.hypot(ordered[2].x-ordered[3].x,ordered[2].y-ordered[3].y))/2;
+     const h=(Math.hypot(ordered[3].x-ordered[0].x,ordered[3].y-ordered[0].y)+Math.hypot(ordered[2].x-ordered[1].x,ordered[2].y-ordered[1].y))/2;
+     const ratio=Math.max(w,h)/Math.max(1,Math.min(w,h));
+     if(ratio>1.15&&ratio<2.5){bestArea=area;best=ordered;}
+    }
+   }
+   ap.delete();cnt.delete();
+  }
+  if(!best)throw new Error("No clear four-sided document outline was found. Try a photo with all four edges visible against a contrasting background.");
+  const pts=cv.matFromArray(4,1,cv.CV_32FC2,best.flatMap(p=>[p.x,p.y]));
+  const dst=cv.matFromArray(4,1,cv.CV_32FC2,[0,0,CS_OUT_W-1,0,CS_OUT_W-1,CS_OUT_H-1,0,CS_OUT_H-1]);
+  transform=cv.getPerspectiveTransform(pts,dst);warped=new cv.Mat();
+  cv.warpPerspective(src,warped,transform,new cv.Size(CS_OUT_W,CS_OUT_H),cv.INTER_CUBIC,cv.BORDER_REPLICATE);
+  const out=document.createElement("canvas");out.width=CS_OUT_W;out.height=CS_OUT_H;cv.imshow(out,warped);csAutoLevels(out);
+  const url=out.toDataURL("image/jpeg",.96),img=new Image();
+  await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url;});
+  cardScannerState[side]={image:img,source:url,processed:null,auto:true};
+  const preview=csGet(side==="front"?"csFrontPreview":"csBackPreview");if(preview)preview.innerHTML='<img alt="Auto-corrected '+side+' preview" src="'+url+'">';
+  return true;
+ }finally{
+  [src,gray,blur,edges,contours,hierarchy,transform,warped].forEach(m=>{if(m&&m.delete)m.delete();});
+ }
+}
+async function cardScannerAutoAll(){
+ const btn=csGet("csAutoBtn");if(btn){btn.disabled=true;btn.textContent="Scanning…";}
+ try{
+  let done=0;
+  for(const side of ["front","back"]){if(cardScannerState[side]){try{if(await csAutoProcess(side))done++;}catch(e){const status=csGet("csAutoStatus");if(status)status.textContent=e.message;alert((side==="front"?"Front":"Back")+": "+e.message);}}}
+  if(done){["csZoom","csX","csY"].forEach((id,i)=>csGet(id).value=[1,0,0][i]);csGet("csBright").value=100;csGet("csContrast").value=100;csGet("csGray").checked=false;["front","back"].forEach(side=>{if(cardScannerState[side])cardScannerState[side].processed=cardScannerState[side].source;});const status=csGet("csAutoStatus");if(status)status.textContent="✓ Auto scan complete: edges, perspective and lighting corrected. Review both previews before adding to the print queue.";}
+ }catch(e){alert(e.message);const status=csGet("csAutoStatus");if(status)status.textContent=e.message;}
+ finally{if(btn){btn.disabled=false;btn.textContent="✨ Auto Scan & Enhance";}}
+}
+
 function csCropDraw(img,canvas,rotation){const zoom=Number(csGet("csZoom")?.value||1),rot=document.createElement("canvas"),ctx=rot.getContext("2d"),swap=rotation%180!==0;rot.width=swap?img.naturalHeight:img.naturalWidth;rot.height=swap?img.naturalWidth:img.naturalHeight;ctx.translate(rot.width/2,rot.height/2);ctx.rotate(rotation*Math.PI/180);ctx.drawImage(img,-img.naturalWidth/2,-img.naturalHeight/2);const rw=rot.width,rh=rot.height,ra=rw/rh;let sw,sh;if(ra>CS_RATIO){sh=rh/zoom;sw=sh*CS_RATIO;}else{sw=rw/zoom;sh=sw/CS_RATIO;}const px=Number(csGet("csX")?.value||0)/100,py=Number(csGet("csY")?.value||0)/100,cx=Math.max(sw/2,Math.min(rw-sw/2,rw/2+px*(rw-sw)/2)),cy=Math.max(sh/2,Math.min(rh-sh/2,rh/2+py*(rh-sh)/2));const out=canvas.getContext("2d");out.clearRect(0,0,CS_OUT_W,CS_OUT_H);out.fillStyle="#fff";out.fillRect(0,0,CS_OUT_W,CS_OUT_H);out.filter="brightness("+Number(csGet("csBright")?.value||108)+"%) contrast("+Number(csGet("csContrast")?.value||112)+"%) "+(csGet("csGray")?.checked?"grayscale(1)":"grayscale(0)");out.drawImage(rot,cx-sw/2,cy-sh/2,sw,sh,0,0,CS_OUT_W,CS_OUT_H);out.filter="none";}
 function cardScannerRenderSide(side){const item=cardScannerState[side];if(!item)return;const canvas=document.createElement("canvas");canvas.width=CS_OUT_W;canvas.height=CS_OUT_H;csCropDraw(item.image,canvas,cardScannerState.rotation);item.processed=canvas.toDataURL("image/jpeg",.94);const preview=csGet(side==="front"?"csFrontPreview":"csBackPreview");if(preview)preview.innerHTML='<img alt="'+(side==="front"?"Front":"Back")+' preview" src="'+item.processed+'">';}
 function cardScannerRefresh(){["front","back"].forEach(cardScannerRenderSide);const z=csGet("csZoomOut"),b=csGet("csBrightOut"),c=csGet("csContrastOut");if(z)z.textContent=Number(csGet("csZoom").value).toFixed(1)+"×";if(b)b.textContent=csGet("csBright").value+"%";if(c)c.textContent=csGet("csContrast").value+"%";}
