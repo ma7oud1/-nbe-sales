@@ -2176,7 +2176,7 @@ function buildAppPages(){
   host.append(page);pages[id]=page;
  });
 
- pages.scanner.insertAdjacentHTML("beforeend",\`
+ pages.scanner.insertAdjacentHTML("beforeend",`
  <div class="scanner-workspace">
   <div class="scanner-privacy"><span>🔒</span><div><strong>Private on this device</strong><small>Images are processed in your browser only. They are not uploaded or saved to the app database.</small></div></div>
   <div class="scanner-grid">
@@ -2198,7 +2198,7 @@ function buildAppPages(){
    <div id="csQueue" class="scanner-queue-empty">Your print queue is empty. Add a front or back image to get started.</div>
    <div class="scanner-print-controls"><label>Print layout<select id="csPrintMode"><option value="single">One document per A4 page — front & back together</option><option value="grid">Fit the maximum number on A4 — 4 documents per page</option></select></label><div class="scanner-print-buttons"><button type="button" class="btn primary" onclick="cardScannerPrint()" id="csPrintBtn" disabled>Print / Save as PDF</button><button type="button" class="btn light-btn" onclick="cardScannerClearQueue()" id="csClearQueueBtn" disabled>Clear queue</button></div></div>
   </section>
- </div>\`);
+ </div>`);
 
  const move=(selector,id)=>{
   const el=container.querySelector(selector);
