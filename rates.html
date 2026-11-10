@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#087443"><title>NBE Sales | Product Codes & Rates</title>
+<style>
+:root{--green:#087443;--bg:#101b20;--card:#1a292f;--text:#edf5f0;--muted:#a5b5b8;--border:#33464b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
+.wrap{max-width:1150px;margin:auto;padding:20px}.head{background:linear-gradient(120deg,#073c2a,#087443);padding:24px;border-radius:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1{font-size:22px;margin:0 0 8px}.sub{color:#d5e9df;font-size:12px}.tools{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin:18px 0}
+input,select,button{font:inherit;border-radius:9px;padding:12px;border:1px solid var(--border)}input,select{background:var(--card);color:var(--text);width:100%}button{background:#087443;color:#fff;cursor:pointer;border:0;font-weight:bold}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin:16px 0;overflow:hidden}
+h2{color:#49bd88;font-size:17px;margin:0 0 14px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:650px}th,td{text-align:right;padding:10px 9px;border-bottom:1px solid var(--border);font-size:13px}th{background:#087443;color:white}td:nth-child(2){font-weight:bold;color:#49bd88}tr:hover td{background:#08744312}.note{color:var(--muted);font-size:11px;line-height:1.8;margin-top:16px}.back{display:inline-block;color:#fff;text-decoration:none;border:1px solid #ffffff66;border-radius:9px;padding:10px 14px}
+@media(max-width:600px){.wrap{padding:10px}.tools{grid-template-columns:1fr}.panel{padding:12px}h1{font-size:18px}}
+@media print{@page{size:A4 portrait;margin:10mm}body{background:white;color:#172b32}.wrap{max-width:none;padding:0}.head{background:#087443!important;color:white!important}.tools,.back{display:none!important}.panel{background:white;color:#172b32;border:0;padding:0}.table-wrap{overflow:visible}table{min-width:0}th{background:#087443!important;color:white!important}th,td{font-size:8px;padding:6px 4px;border:1px solid #dce5df}h2{color:#087443}.note{color:#46564e}}
+</style></head>
+<body><main class="wrap">
+<header class="head"><div><h1>دليل أكواد وأسعار المنتجات</h1><div class="sub">NATIONAL BANK OF EGYPT · مرجع داخلي وفق مستند 10 نوفمبر 2026</div></div><a class="back" href="./">العودة إلى NBE Sales</a></header>
+<div class="tools"><input id="q" type="search" placeholder="ابحث بالكود أو اسم الشريحة..."><select id="cat"><option value="all">كل المنتجات</option><option value="personal">القروض الشخصية</option><option value="cars">قروض السيارات</option></select><button onclick="window.print()">طباعة الدليل</button></div>
+<section class="panel" id="personal"><h2>أولاً: القروض الشخصية النقدية</h2><div class="table-wrap"><table><thead><tr><th>الشريحة</th><th>كود المنتج</th><th>سعر العائد السنوي</th><th>الحد الأقصى للسداد</th></tr></thead><tbody id="pRows"></tbody></table></div></section>
+<section class="panel" id="cars"><h2>ثانياً: قروض السيارات</h2><div class="table-wrap"><table><thead><tr><th>كود الشريحة</th><th>وصف المنتج</th><th>حتى 5 سنوات</th><th>أكثر من 5 سنوات</th></tr></thead><tbody id="cRows"></tbody></table></div></section>
+<p class="note">تنبيه: هذا الدليل مُعاد تنظيمه من المستند المرفق بتاريخ 10 نوفمبر 2026 للاستخدام كمرجع سريع، ولا يُعد بديلاً عن التعليمات والتسعير المعتمدين لدى البنك. يُرجى مراجعة المستند الأصلي عند وجود وصف غير واضح أو استثناء خاص.</p>
+</main>
+<script>
+const personal=[
+["القطاع العام – حكومة وقطاع عام","PL12","22.25%","12 سنة"],["القطاع العام – أعضاء الهيئات القضائية","PL17","22.25%","12 سنة"],["متعددة الجنسيات والمساهمة المدرجة","PL06","22.50%","12 سنة"],["البترول والغاز","PL03","22.00%","12 سنة"],
+["القطاع العام – حكومة وقطاع عام","PL32","22.00%","12 سنة"],["القطاع العام – أعضاء الهيئات القضائية","PL39","22.00%","12 سنة"],["متعددة الجنسيات والمساهمة المدرجة","PL34","22.25%","12 سنة"],["البترول والغاز","PL36","21.75%","12 سنة"],
+["القطاع العام – مرتبات جماعية","PR08","21.75%","12 سنة"],["متعددة الجنسيات والمساهمة المدرجة – مرتبات جماعية","PR04","22.00%","12 سنة"],["البترول والغاز – مرتبات جماعية","PR02","21.50%","12 سنة"],
+["البترول والغاز – بدون تحويل","PL01","26.00%","4 سنوات"],["متعددة الجنسيات والمساهمة المدرجة – بدون تحويل","PL04","23.00%","5 سنوات"],["القطاع العام – حكومة وقطاع عام – بدون تحويل","PL10","24.50%","4 سنوات"],["موظفو البنوك – بدون تحويل","PL07","21.50%","10 سنوات"],
+["أعضاء القوات المسلحة – بضمان تحويل المرتب","PE32","22.00%","12 سنة"],["أصحاب الأعمال والمهن الحرة","PL40","23.50%","7 سنوات"],["أصحاب الأعمال والمهن الحرة – بضمانة","PL41","23.50%","7 سنوات"],
+["أصحاب المعاشات للقوات المسلحة","PL31","21.50%","10 سنوات"],["أصحاب المعاشات المدنية","PL45","21.50%","10 سنوات"],["مستفيدي معاشات القوات المسلحة","PL48","23.50%","5 سنوات"],
+["المرابحة – أفراد شخصي","ML01","يُحدد وفق الشريحة","12 سنة"],["ضمان القيمة الإيجارية لعقار مؤجر","PL44","22.50%","10 سنوات"],["بدائل الدخل – أرصدة المدخرات","PL50","24.00%","7 سنوات"],["بدائل الدخل – استلام الأمانات","PL51","24.00%","7 سنوات"],["بدائل الدخل – الأطباء","PL52","24.00%","7 سنوات"]];
+const cars=[
+["AT01","سيارات موظفين بتحويل راتب","21.00%","20.50%"],["AT24","سيارات موظفين بتحويل راتب 100% مقدم","21.50%","21.00%"],["AT02","سيارات موظفين بإثبات دخل","22.50%","22.00%"],["AT13","سيارات شركات بمواصفات خاصة مرتبطة بالراتب","—","20.50%"],["AT25","سيارات شركات بدون حظر للترخيص","—","20.50%"],["AT11","سيارات موظفين – الوصف كما ورد بالمستند","—","22.00%"],["AT04","سيارات أعمال حرة ومهن حرة","23.25%","—"],["AT12","سيارات أعمال ومهن حرة","23.00%","—"],["AT10","سيارات تمويل 100% بضمانة إضافية","22.50%","22.00%"]];
+const esc=v=>String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+function render(){const q=document.getElementById("q").value.trim().toLowerCase(),cat=document.getElementById("cat").value;
+document.getElementById("personal").hidden=cat==="cars";document.getElementById("cars").hidden=cat==="personal";
+const p=personal.filter(r=>r.join(" ").toLowerCase().includes(q)),c=cars.filter(r=>r.join(" ").toLowerCase().includes(q));
+document.getElementById("pRows").innerHTML=p.length?p.map(r=>"<tr>"+r.map(v=>"<td>"+esc(v)+"</td>").join("")+"</tr>").join(""):'<tr><td colspan="4">لا توجد نتائج مطابقة</td></tr>';
+document.getElementById("cRows").innerHTML=c.length?c.map(r=>"<tr>"+r.map(v=>"<td>"+esc(v)+"</td>").join("")+"</tr>").join(""):'<tr><td colspan="4">لا توجد نتائج مطابقة</td></tr>';}
+document.getElementById("q").addEventListener("input",render);document.getElementById("cat").addEventListener("change",render);render();
+</script></body></html>
