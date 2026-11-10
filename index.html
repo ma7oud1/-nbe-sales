@@ -1656,6 +1656,18 @@ body.dark #pageHost .home-page>.info-section>.grid>.field input{background:#1a29
  .ledger-section .print-heading>div:first-child>div:last-child{text-align:right!important;width:100%}
 }
 
+
+/* Compact primary navigation: four essentials; all other tools stay in the hamburger menu. */
+#mainNav{position:fixed;z-index:1000;left:50%;right:auto;bottom:0;transform:translateX(-50%);width:min(calc(100% - 24px),620px);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--card) 94%,transparent);border:1px solid var(--border);border-bottom:0;border-radius:18px 18px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,.14);backdrop-filter:blur(18px)}
+#mainNav .nav-btn{position:relative;min-width:0;min-height:56px;padding:6px 3px;border:0;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:transparent;color:var(--muted);font-size:11px;font-weight:800;line-height:1.2;white-space:nowrap}
+#mainNav .nav-btn .nav-icon{font-size:20px;line-height:1}
+#mainNav .nav-btn.active{background:rgba(0,99,65,.12);color:var(--green)}
+#mainNav .nav-btn.active:before{content:"";position:absolute;top:3px;left:50%;transform:translateX(-50%);width:18px;height:3px;border-radius:4px;background:var(--gold)}
+body.dark #mainNav{background:rgba(27,42,34,.97);border-color:var(--border)}
+body.dark #mainNav .nav-btn.active{background:rgba(32,169,108,.18);color:#b8e7cc}
+@media(min-width:801px){#mainNav{width:min(calc(100% - 48px),620px)}}
+@media(max-width:420px){#mainNav{width:calc(100% - 12px);gap:3px;padding:6px 5px calc(6px + env(safe-area-inset-bottom))}#mainNav .nav-btn{min-height:53px;font-size:10px}#mainNav .nav-btn .nav-icon{font-size:19px}}
+@media print{#mainNav{display:none!important}}
 </style>
 </head>
 <body>
@@ -2278,6 +2290,7 @@ function showPage(id){
  closeSidebar();
  document.querySelectorAll(".app-page").forEach(page=>page.classList.toggle("active",page.dataset.page===id));
  document.querySelectorAll(".sidebar-item[data-page]").forEach(btn=>btn.classList.toggle("active",btn.dataset.page===id));
+ document.querySelectorAll("#mainNav .nav-btn[data-page]").forEach(btn=>btn.classList.toggle("active",btn.dataset.page===id));
  window.scrollTo({top:0,behavior:"smooth"});
 }
 
@@ -3141,5 +3154,12 @@ if ("serviceWorker" in navigator) {
  });
 }
 </script>
+
+<nav id="mainNav" class="bottom-nav no-print" aria-label="التنقل السريع">
+ <button type="button" class="nav-btn active" data-page="home" onclick="showPage('home')" aria-label="الرئيسية"><span class="nav-icon" aria-hidden="true">⌂</span><span>الرئيسية</span></button>
+ <button type="button" class="nav-btn" data-page="sales" onclick="showPage('sales')" aria-label="المبيعات"><span class="nav-icon" aria-hidden="true">▤</span><span>المبيعات</span></button>
+ <button type="button" class="nav-btn" data-page="customers" onclick="showPage('customers')" aria-label="العملاء"><span class="nav-icon" aria-hidden="true">♙</span><span>العملاء</span></button>
+ <button type="button" class="nav-btn" data-page="followups" onclick="showPage('followups')" aria-label="المتابعة"><span class="nav-icon" aria-hidden="true">◷</span><span>المتابعة</span></button>
+</nav>
 </body>
 </html>
