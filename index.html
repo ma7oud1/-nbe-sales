@@ -1668,6 +1668,59 @@ body.dark #mainNav .nav-btn.active{background:rgba(32,169,108,.18);color:#b8e7cc
 @media(min-width:801px){#mainNav{width:min(calc(100% - 48px),620px)}}
 @media(max-width:420px){#mainNav{width:calc(100% - 12px);gap:3px;padding:6px 5px calc(6px + env(safe-area-inset-bottom))}#mainNav .nav-btn{min-height:53px;font-size:10px}#mainNav .nav-btn .nav-icon{font-size:19px}}
 @media print{#mainNav{display:none!important}}
+/* EMERALD BANKING — final theme override (v110) */
+:root{
+ --green:#19B77A!important;--green2:#35D69A!important;--navy:#173D30!important;
+ --gold:#68D6A4!important;--bg:#080E0D!important;--card:#14231E!important;
+ --text:#E8F5EE!important;--muted:#9CB8AA!important;--border:#29463B!important;
+ --shadow:0 10px 30px rgba(0,0,0,.28)!important;
+}
+body,body.dark{
+ background:radial-gradient(ellipse at 90% 0%,rgba(25,183,122,.14),transparent 36%),#080E0D!important;
+ color:#E8F5EE!important;
+ --bg:#080E0D!important;--card:#14231E!important;--text:#E8F5EE!important;
+ --muted:#9CB8AA!important;--border:#29463B!important;
+ --green:#19B77A!important;--green2:#35D69A!important;--navy:#173D30!important;
+ --gold:#68D6A4!important;--shadow:0 10px 30px rgba(0,0,0,.28)!important;
+}
+.header,.header[style]{
+ background:linear-gradient(118deg,#071F18 0%,#0D4935 52%,#16A875 100%)!important;
+}
+.section,.stat,.dash-kpi,.dash-panel,.settings-panel,.settings-data-card,
+.target-box,.followup-stat,.archive-item,.quick-shortcuts-menu{
+ background:#14231E!important;border-color:#29463B!important;color:#E8F5EE!important;
+}
+.section-title h2,.page-heading h2,.stat strong,.followup-stat strong,
+.target-box strong,.section-title .badge{color:#35D69A!important}
+input,select,textarea,#pageHost .app-page input,#pageHost .app-page select{
+ background:#0D1914!important;color:#E8F5EE!important;border-color:#345747!important;
+}
+input:focus,select:focus,textarea:focus{border-color:#35D69A!important;box-shadow:0 0 0 3px rgba(53,214,154,.15)!important}
+.primary,.tab.active,.settings-page .header-actions button{
+ background:linear-gradient(135deg,#19B77A,#0D8054)!important;color:#04170F!important;border-color:#19B77A!important;
+}
+.secondary,.dash-quick-grid .btn:not(:first-child){background:#214638!important;color:#E8F5EE!important}
+.gold-btn{background:linear-gradient(135deg,#75DDB0,#36B982)!important;color:#082016!important}
+.light-btn,.tab{background:#1B3027!important;color:#DDF2E6!important;border-color:#345747!important}
+#mainNav,body.dark #mainNav{
+ background:rgba(20,35,30,.97)!important;border-color:#29463B!important;
+}
+#mainNav .nav-btn{color:#9CB8AA!important}
+#mainNav .nav-btn.active,body.dark #mainNav .nav-btn.active{
+ background:rgba(25,183,122,.18)!important;color:#65E0AC!important;
+}
+th,body.dark th{background:#203A2E!important;color:#BDEBD3!important}
+td,th{border-color:#29463B!important}
+tr:hover td{background:rgba(53,214,154,.07)!important}
+.badge,.follow-status{background:rgba(25,183,122,.16)!important;color:#75E0B1!important}
+.badge.pending{background:rgba(230,174,65,.16)!important;color:#F0C979!important}
+.badge.rejected,.follow-status.late{background:rgba(211,85,75,.16)!important;color:#F19A91!important}
+.progress-track{background:#29463B!important}
+.progress-fill{background:linear-gradient(90deg,#19B77A,#68D6A4)!important}
+.note{background:#102019!important;color:#A9C6B6!important}
+.footer{color:#829F90!important}
+
+
 </style>
 </head>
 <body>
@@ -2860,60 +2913,7 @@ function printLoanSchedule(){
  const rows=lastLoanSchedule.map(x=>[x.number,x.kind,x.date,x.monthlyNumber||"—",money(x.openingBalance),money(x.interest),money(x.payment),money(x.principalPaid),money(x.closingBalance)]);
  const win=window.open("","_blank");
  if(!win){alert("اسمح بفتح النوافذ المنبثقة لطباعة الجدول.");return;}
- let printHtml='<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>جدول أقساط القرض</title><style>body{font-family:Tahoma,Arial;padding:20px;color:#19342c}h2{text-align:center;color:#0D6B4A}table{width:100%;border-collapse:collapse;font-size:11px}th,td{border:1px solid #ccd8d0;padding:7px;text-align:center}th{background:#0D6B4A;color:#fff}tr:nth-child(even){background:#f2f6f3}@media print{body{padding:0}@page{size:landscape;margin:10mm}}
-/* EMERALD BANKING — final theme override (v110) */
-:root{
- --green:#19B77A!important;--green2:#35D69A!important;--navy:#173D30!important;
- --gold:#68D6A4!important;--bg:#080E0D!important;--card:#14231E!important;
- --text:#E8F5EE!important;--muted:#9CB8AA!important;--border:#29463B!important;
- --shadow:0 10px 30px rgba(0,0,0,.28)!important;
-}
-body,body.dark{
- background:radial-gradient(ellipse at 90% 0%,rgba(25,183,122,.14),transparent 36%),#080E0D!important;
- color:#E8F5EE!important;
- --bg:#080E0D!important;--card:#14231E!important;--text:#E8F5EE!important;
- --muted:#9CB8AA!important;--border:#29463B!important;
- --green:#19B77A!important;--green2:#35D69A!important;--navy:#173D30!important;
- --gold:#68D6A4!important;--shadow:0 10px 30px rgba(0,0,0,.28)!important;
-}
-.header,.header[style]{
- background:linear-gradient(118deg,#071F18 0%,#0D4935 52%,#16A875 100%)!important;
-}
-.section,.stat,.dash-kpi,.dash-panel,.settings-panel,.settings-data-card,
-.target-box,.followup-stat,.archive-item,.quick-shortcuts-menu{
- background:#14231E!important;border-color:#29463B!important;color:#E8F5EE!important;
-}
-.section-title h2,.page-heading h2,.stat strong,.followup-stat strong,
-.target-box strong,.section-title .badge{color:#35D69A!important}
-input,select,textarea,#pageHost .app-page input,#pageHost .app-page select{
- background:#0D1914!important;color:#E8F5EE!important;border-color:#345747!important;
-}
-input:focus,select:focus,textarea:focus{border-color:#35D69A!important;box-shadow:0 0 0 3px rgba(53,214,154,.15)!important}
-.primary,.tab.active,.settings-page .header-actions button{
- background:linear-gradient(135deg,#19B77A,#0D8054)!important;color:#04170F!important;border-color:#19B77A!important;
-}
-.secondary,.dash-quick-grid .btn:not(:first-child){background:#214638!important;color:#E8F5EE!important}
-.gold-btn{background:linear-gradient(135deg,#75DDB0,#36B982)!important;color:#082016!important}
-.light-btn,.tab{background:#1B3027!important;color:#DDF2E6!important;border-color:#345747!important}
-#mainNav,body.dark #mainNav{
- background:rgba(20,35,30,.97)!important;border-color:#29463B!important;
-}
-#mainNav .nav-btn{color:#9CB8AA!important}
-#mainNav .nav-btn.active,body.dark #mainNav .nav-btn.active{
- background:rgba(25,183,122,.18)!important;color:#65E0AC!important;
-}
-th,body.dark th{background:#203A2E!important;color:#BDEBD3!important}
-td,th{border-color:#29463B!important}
-tr:hover td{background:rgba(53,214,154,.07)!important}
-.badge,.follow-status{background:rgba(25,183,122,.16)!important;color:#75E0B1!important}
-.badge.pending{background:rgba(230,174,65,.16)!important;color:#F0C979!important}
-.badge.rejected,.follow-status.late{background:rgba(211,85,75,.16)!important;color:#F19A91!important}
-.progress-track{background:#29463B!important}
-.progress-fill{background:linear-gradient(90deg,#19B77A,#68D6A4)!important}
-.note{background:#102019!important;color:#A9C6B6!important}
-.footer{color:#829F90!important}
-
-</style><h2>جدول تفصيلي بأقساط القرض</h2><table><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join("")+'</tr></thead><tbody>'+rows.map(row=>'<tr>'+row.map(v=>'<td>'+String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</td>').join("")+'</tr>').join("")+'</tbody></table><script>window.onload=function(){window.print()}<\/script></html>';
+ let printHtml='<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>جدول أقساط القرض</title><style>body{font-family:Tahoma,Arial;padding:20px;color:#19342c}h2{text-align:center;color:#0D6B4A}table{width:100%;border-collapse:collapse;font-size:11px}th,td{border:1px solid #ccd8d0;padding:7px;text-align:center}th{background:#0D6B4A;color:#fff}tr:nth-child(even){background:#f2f6f3}@media print{body{padding:0}@page{size:landscape;margin:10mm}}</style><h2>جدول تفصيلي بأقساط القرض</h2><table><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join("")+'</tr></thead><tbody>'+rows.map(row=>'<tr>'+row.map(v=>'<td>'+String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</td>').join("")+'</tr>').join("")+'</tbody></table><script>window.onload=function(){window.print()}<\/script></html>';
  if(document.documentElement.lang==="en")printHtml=nbeTranslateValue(printHtml).replace('lang="ar" dir="rtl"','lang="en" dir="ltr"');
  win.document.write(printHtml);
  win.document.close();
