@@ -16,6 +16,7 @@
  <div class="section-title"><div><h2 style="margin:0">Certificate Rate Updates</h2><p class="mini" id="rateStatus" style="margin:6px 0 0">Rates are indicative reference values. Verify every change against an official NBE source.</p></div><button class="btn primary" id="manualRateBtn" type="button">Manual Rate Update</button></div>
  <div id="manualRatePanel" class="hidden" style="margin-top:16px">
   <p class="note">Enter rates only after confirming them through an official NBE announcement or the approved internal system. Saved manual rates apply in this browser only; they do not change the shared app for other users.</p>
+  <div class="field" style="margin:12px 0"><label for="rateSource">Official Source / Circular Reference (optional)</label><input id="rateSource" type="text" maxlength="240" placeholder="e.g. NBE official announcement or circular number"></div>
   <div id="manualRateFields" class="grid"></div>
   <div class="actions"><button class="btn primary" id="saveManualRates" type="button">Save Rates</button><button class="btn secondary" id="cancelManualRates" type="button">Cancel</button><button class="btn secondary" id="restoreDefaultRates" type="button">Restore Reference Rates</button></div>
   <p class="mini" id="manualRateMessage" aria-live="polite"></p>
@@ -94,10 +95,13 @@ function loadSavedRates(){
 function updateRateStatus(){
  let saved=null;try{saved=JSON.parse(localStorage.getItem(RATE_STORAGE_KEY)||"null")}catch(e){}
  const checked=saved&&saved.updatedAt?new Date(saved.updatedAt):null;
- $("rateStatus").textContent=checked&&!isNaN(checked)?"Last manual update: "+checked.toLocaleString("en-EG")+" · Saved on this browser only.":"No manual rate update saved in this browser. Reference rates are indicative only.";
+ const source=saved&&saved.source?" · Source: "+saved.source:"";
+ $("rateStatus").textContent=checked&&!isNaN(checked)?"Last manual update: "+checked.toLocaleString("en-EG")+source+" · Saved on this browser only.":"No manual rate update saved in this browser. Reference rates are indicative only.";
 }
 function openManualRateEditor(){
  $("manualRateFields").innerHTML=Object.entries(products).map(([key,p])=>'<div class="product-card"><h3>'+p.name+'</h3>'+p.rates.map((rate,i)=>'<div class="field" style="margin-top:8px"><label>Year '+(i+1)+' rate (%)</label><input type="number" min="0" max="100" step=".01" data-rate-key="'+key+'" data-rate-index="'+i+'" value="'+rate+'"></div>').join("")+'</div>').join("");
+ let saved=null;try{saved=JSON.parse(localStorage.getItem(RATE_STORAGE_KEY)||"null")}catch(e){}
+ $("rateSource").value=saved&&saved.source?saved.source:"";
  $("manualRateMessage").textContent="";
  $("manualRatePanel").classList.remove("hidden");
 }
@@ -109,7 +113,7 @@ function saveManualRates(){
   if(input.value.trim()===""||!Number.isFinite(value)||value<0||value>100)throw new Error("Enter a valid rate between 0 and 100 for every field.");
   next[key][index]=value;
  });
- const record={rates:next,updatedAt:new Date().toISOString()};
+ const record={rates:next,source:$("rateSource").value.trim(),updatedAt:new Date().toISOString()};
  localStorage.setItem(RATE_STORAGE_KEY,JSON.stringify(record));
  Object.entries(next).forEach(([key,rates])=>products[key].rates=rates);
  renderCatalog();calc();updateRateStatus();
