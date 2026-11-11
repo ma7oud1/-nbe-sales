@@ -65,12 +65,12 @@
 (()=>{
 const $=id=>document.getElementById(id), money=n=>(Number(n)||0).toLocaleString("en-EG",{minimumFractionDigits:2,maximumFractionDigits:2})+" EGP";
 const products={
- fixedشهري:{name:"Platinum ثابت · شهري",term:3,frequency:"شهري",rates:[18.75,18.75,18.75],type:"ثابت",status:"Reference rate — verify live"},
- fixedربع سنوي:{name:"Platinum ثابت · ربع سنوي",term:3,frequency:"ربع سنوي",rates:[18.85,18.85,18.85],type:"ثابت",status:"Reference rate — verify live"},
- stepشهري:{name:"Platinum متناقص · شهري",term:3,frequency:"شهري",rates:[21,16.25,12],type:"متناقص",status:"Reference schedule — verify live"},
- stepسنوي:{name:"Platinum متناقص · سنوي",term:3,frequency:"سنوي",rates:[22,17.5,13],type:"متناقص",status:"Reference schedule — verify live"},
- variable:{name:"Platinum متغير · شهري",term:3,frequency:"شهري",rates:[20.5,20.5,20.5],type:"متغير",status:"Indicative only — rate can change"},
- fiveالسنة:{name:"Five-السنة ثابت · شهري",term:5,frequency:"شهري",rates:[14.25,14.25,14.25,14.25,14.25],type:"ثابت",status:"Reference rate — verify live"}
+ "fixedشهري":{name:"Platinum ثابت · شهري",term:3,frequency:"شهري",rates:[18.75,18.75,18.75],type:"ثابت",status:"Reference rate — verify live"},
+ "fixedربع سنوي":{name:"Platinum ثابت · ربع سنوي",term:3,frequency:"ربع سنوي",rates:[18.85,18.85,18.85],type:"ثابت",status:"Reference rate — verify live"},
+ "stepشهري":{name:"Platinum متناقص · شهري",term:3,frequency:"شهري",rates:[21,16.25,12],type:"متناقص",status:"Reference schedule — verify live"},
+ "stepسنوي":{name:"Platinum متناقص · سنوي",term:3,frequency:"سنوي",rates:[22,17.5,13],type:"متناقص",status:"Reference schedule — verify live"},
+ "variable":{name:"Platinum متغير · شهري",term:3,frequency:"شهري",rates:[20.5,20.5,20.5],type:"متغير",status:"Indicative only — rate can change"},
+ fiveYearMonthly:{name:"Five-السنة ثابت · شهري",term:5,frequency:"شهري",rates:[14.25,14.25,14.25,14.25,14.25],type:"ثابت",status:"Reference rate — verify live"}
 };
 let active="fixedشهري";
 function rateText(p){return p.rates.map(x=>x+"%").join(" / ")+(p.type==="متغير"?"*":"")}
@@ -84,7 +84,7 @@ function calc(){
  $("term").value=p.term+" years";$("frequency").value=p.frequency;$("rate").value=rateText(p);
  const yearly=p.rates.map(r=>amount*r/100),total=yearly.reduce((a,b)=>a+b,0),first=yearly[0];
  $("payoutLabel").textContent=p.frequency+" payment · year 1";$("payout").textContent=money(first/freq);$("yearOne").textContent=money(first);$("totalReturn").textContent=money(total);$("maturity").textContent=money(amount+total);
- $("schedule").innerHTML=p.rates.map((r,i)=>'<tr><td>'+(i+1)+'</td><td>'+r.toثابت(2)+'%</td><td>'+money(yearly[i])+'</td><td>'+money(yearly[i]/freq)+'</td><td>'+p.frequency+'</td></tr>').join("");
+ $("schedule").innerHTML=p.rates.map((r,i)=>'<tr><td>'+(i+1)+'</td><td>'+r.toFixed(2)+'%</td><td>'+money(yearly[i])+'</td><td>'+money(yearly[i]/freq)+'</td><td>'+p.frequency+'</td></tr>').join("");
  $("proposalNote").textContent=(p.type==="متغير"?"متغير-rate illustration assumes the entered reference rate remains unchanged throughout; actual returns may change. ":"")+ "يفترض الحساب صرف العائد وعدم إعادة استثماره. هذا عرض استرشادي فقط؛ تأكد من المنتج المتاح وجميع الشروط قبل الالتزام أمام العميل.";
 }
 function showTab(id){document.querySelectorAll(".tab-page").forEach(x=>x.classList.toggle("hidden",x.id!==id));document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===id));}
@@ -96,7 +96,7 @@ $("reset").addEventListener("click",()=>{$("customer").value="";$("customerRef")
 $("print").addEventListener("click",()=>{calc();window.print();});
 $("redCalc").addEventListener("click",()=>{
  const a=new Date($("issueDate").value),b=new Date($("redeemDate").value),principal=Number($("redPrincipal").value)||0,partial=$("redType").value==="partial",req=partial?Number($("redAmount").value)||0:principal,net=Number($("netSettlement").value)||0;
- const شهر=(!isNaN(a)&&!isNaN(b))?Math.max(0,(b.getFullالسنة()-a.getFullالسنة())*12+b.getMonth()-a.getMonth()):0;
+ const شهر=(!isNaN(a)&&!isNaN(b))?Math.max(0,(b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth()):0;
  $("elapsed").textContent=شهر+" شهر";$("requested").textContent=money(req);$("difference").textContent=money(net-req);$("netResult").textContent=$("netSettlement").value?money(net):"لم يتم الإدخال";
 });
 $("financeCalc").addEventListener("click",()=>{
