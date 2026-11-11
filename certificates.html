@@ -7,37 +7,51 @@
 <title>NBE Sales | Certificates</title>
 <style>
 :root{--green:#16A875;--mint:#78D9AD;--bg:#080E0D;--card:#14231E;--text:#E8F5EE;--muted:#9CB8AA;--border:#29463B;--shadow:0 8px 25px rgba(0,0,0,.2)}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Tahoma,sans-serif}.container{max-width:1100px;margin:auto;padding:18px}.hero{background:linear-gradient(120deg,#071F18,#16A875,#0D4935);border-radius:18px;padding:24px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;box-shadow:var(--shadow)}.hero h1{margin:0 0 7px;font-size:23px}.hero p{margin:0;color:#d5e9df;font-size:13px}.btn{border:0;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer}.back{background:rgba(255,255,255,.15);border:1px solid #ffffff55;color:#fff;text-decoration:none}.panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-top:18px;box-shadow:var(--shadow)}.heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}.heading h2{margin:0;color:var(--mint);font-size:18px}.badge{font-size:11px;background:#183d2e;color:#9be5c1;border-radius:20px;padding:6px 10px}.note{color:var(--muted);font-size:12px;line-height:1.8;background:#0d1915;border:1px solid var(--border);border-radius:10px;padding:12px;margin:0 0 16px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:7px}.field label{font-size:13px;color:var(--muted);font-weight:700}input,select{width:100%;padding:12px;border:1px solid var(--border);background:#0d1915;color:var(--text);border-radius:9px;font:inherit;outline:none}input:focus,select:focus{border-color:var(--green)}input[readonly]{opacity:.8;border-style:dashed}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.primary{background:var(--green);color:white}.light{background:#1c332a;border:1px solid var(--border);color:var(--text)}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}.stat{border:1px solid var(--border);background:#0d1915;border-radius:13px;padding:15px;min-width:0}.stat small{display:block;color:var(--muted);font-size:12px}.stat strong{display:block;color:var(--mint);font-size:clamp(17px,2.4vw,24px);margin-top:9px;overflow-wrap:anywhere}.stat.gold strong{color:#e6c77b}.stat.red strong{color:#e18c7c}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:650px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--border);font-size:13px}th{color:var(--mint);background:#0d1915}td{color:var(--text)}.footer{text-align:center;color:var(--muted);font-size:11px;padding:24px 10px}.small{font-size:11px;color:var(--muted);line-height:1.7}@media(max-width:720px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.grid{grid-template-columns:1fr}.container{padding:10px}.panel{padding:14px}.hero{padding:18px}.hero h1{font-size:19px}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Tahoma,sans-serif}.container{max-width:1100px;margin:auto;padding:18px}.hero{background:linear-gradient(120deg,#071F18,#16A875,#0D4935);border-radius:18px;padding:24px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;box-shadow:var(--shadow)}.hero h1{margin:0 0 7px;font-size:23px}.hero p{margin:0;color:#d5e9df;font-size:13px}.btn{border:0;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer}.back{background:rgba(255,255,255,.15);border:1px solid #ffffff55;color:#fff;text-decoration:none}.panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-top:18px;box-shadow:var(--shadow)}.heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}.heading h2{margin:0;color:var(--mint);font-size:18px}.badge{font-size:11px;background:#183d2e;color:#9be5c1;border-radius:20px;padding:6px 10px}.note{color:var(--muted);font-size:12px;line-height:1.8;background:#0d1915;border:1px solid var(--border);border-radius:10px;padding:12px;margin:0 0 16px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:7px}.field label{font-size:13px;color:var(--muted);font-weight:700}input,select{width:100%;padding:12px;border:1px solid var(--border);background:#0d1915;color:var(--text);border-radius:9px;font:inherit;outline:none}input:focus,select:focus{border-color:var(--green)}input[readonly]{opacity:.8;border-style:dashed}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.primary{background:var(--green);color:white}.light{background:#1c332a;border:1px solid var(--border);color:var(--text)}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}.stat{border:1px solid var(--border);background:#0d1915;border-radius:13px;padding:15px;min-width:0}.stat small{display:block;color:var(--muted);font-size:12px}.stat strong{display:block;color:var(--mint);font-size:clamp(17px,2.4vw,24px);margin-top:9px;overflow-wrap:anywhere}.stat.gold strong{color:#e6c77b}.stat.red strong{color:#e18c7c}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:680px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--border);font-size:13px}th{color:var(--mint);background:#0d1915}td{color:var(--text)}.footer{text-align:center;color:var(--muted);font-size:11px;padding:24px 10px}.small{font-size:11px;color:var(--muted);line-height:1.7}@media(max-width:720px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.grid{grid-template-columns:1fr}.container{padding:10px}.panel{padding:14px}.hero{padding:18px}.hero h1{font-size:19px}}
 </style>
 </head>
 <body>
 <main class="container">
-<header class="hero">
- <div><h1>NBE Certificates</h1><p>National Bank of Egypt · Platinum Certificate calculator</p></div>
- <a class="btn back" href="./index.html">← Back to NBE Sales</a>
-</header>
+<header class="hero"><div><h1>NBE Certificates</h1><p>National Bank of Egypt · Savings certificate guide & calculator</p></div><a class="btn back" href="./index.html">← Back to NBE Sales</a></header>
 <section class="panel">
- <div class="heading"><h2>Platinum Certificate Calculator</h2><span class="badge">RATES EFFECTIVE 08 NOV 2026</span></div>
- <p class="note">Published fixed-rate Platinum Certificate rates: 18.75% annually with monthly payout, and 18.85% annually with quarterly payout. The rate can be edited below. Please reconfirm current terms before completing a customer transaction.</p>
+ <div class="heading"><h2>Certificate Calculator</h2><span class="badge">UPDATED 08 NOV 2026</span></div>
+ <p class="note">Choose a certificate to view its term, payout frequency and annual return. Rates shown are based on published November 2026 information and should be confirmed through NBE systems before any customer transaction. Variable rates may change during the certificate term.</p>
  <div class="grid">
+  <div class="field"><label for="certificate">Certificate type</label><select id="certificate">
+   <option value="fixedMonthly">Platinum Fixed · Monthly · 3 Years</option>
+   <option value="fixedQuarterly">Platinum Fixed · Quarterly · 3 Years</option>
+   <option value="stepMonthly">Platinum Step-down · Monthly · 3 Years</option>
+   <option value="stepAnnual">Platinum Step-down · Annual · 3 Years</option>
+   <option value="variable">Platinum Variable · Monthly · 3 Years</option>
+   <option value="fiveYear">Five-Year Fixed · Monthly · 5 Years</option>
+  </select></div>
   <div class="field"><label for="principal">Investment amount (EGP)</label><input id="principal" type="number" min="1" step="1000" value="100000"></div>
-  <div class="field"><label for="frequency">Payout frequency</label><select id="frequency"><option value="monthly">Monthly payout · 18.75%</option><option value="quarterly">Quarterly payout · 18.85%</option></select></div>
-  <div class="field"><label for="rate">Annual interest rate (%)</label><input id="rate" type="number" min="0" max="100" step="0.01" value="18.75"></div>
-  <div class="field"><label>Certificate term</label><input type="text" value="3 years" readonly></div>
+  <div class="field"><label>Certificate term</label><input id="term" type="text" value="3 years" readonly></div>
+  <div class="field"><label>Payout frequency</label><input id="frequency" type="text" value="Monthly" readonly></div>
+  <div class="field"><label>Annual interest rate</label><input id="rateDisplay" type="text" value="18.75%" readonly></div>
+  <div class="field"><label>Rate type</label><input id="rateType" type="text" value="Fixed" readonly></div>
  </div>
  <div class="actions"><button class="btn primary" id="calculate">Calculate return</button><button class="btn light" id="reset">Reset</button></div>
  <div class="stats">
   <div class="stat gold"><small id="payoutLabel">Monthly payout</small><strong id="payoutValue">0.00 EGP</strong></div>
-  <div class="stat"><small>Annual interest</small><strong id="annualValue">0.00 EGP</strong></div>
-  <div class="stat"><small>Total interest over 3 years</small><strong id="interestValue">0.00 EGP</strong></div>
+  <div class="stat"><small>First-year interest</small><strong id="firstYearValue">0.00 EGP</strong></div>
+  <div class="stat"><small>Total estimated interest</small><strong id="interestValue">0.00 EGP</strong></div>
   <div class="stat red"><small>Principal + total interest</small><strong id="maturityValue">0.00 EGP</strong></div>
  </div>
+ <p id="calculationNote" class="small" style="margin-top:14px"></p>
 </section>
 <section class="panel">
- <div class="heading"><h2>Compare payout options</h2><span class="badge">3-YEAR FIXED RATE</span></div>
- <div class="table-wrap"><table><thead><tr><th>Option</th><th>Annual rate</th><th>Each payout</th><th>Annual interest</th><th>3-year interest</th></tr></thead><tbody id="comparison"></tbody></table></div>
- <p class="note" style="margin-top:15px;margin-bottom:0">Illustrative calculation assumes the original principal remains unchanged and interest is paid out, not reinvested. It excludes early-redemption deductions and any applicable fees. Actual issuance and redemption terms are subject to NBE rules.</p>
- <p class="small">Source for the rates: announcements published 5–8 November 2026 reporting the NBE ALCO decision, effective 8 November 2026. This calculator is an estimate, not an official bank quotation.</p>
+ <div class="heading"><h2>NBE Certificate Terms & Rates</h2><span class="badge">EGP CERTIFICATES</span></div>
+ <div class="table-wrap"><table><thead><tr><th>Certificate</th><th>Term</th><th>Annual return</th><th>Payout</th><th>Return type</th></tr></thead><tbody>
+ <tr><td>Platinum Fixed</td><td>3 Years</td><td>18.75%</td><td>Monthly</td><td>Fixed</td></tr>
+ <tr><td>Platinum Fixed</td><td>3 Years</td><td>18.85%</td><td>Quarterly</td><td>Fixed</td></tr>
+ <tr><td>Platinum Step-down</td><td>3 Years</td><td>21% · 16.25% · 12%</td><td>Monthly</td><td>Decreasing</td></tr>
+ <tr><td>Platinum Step-down</td><td>3 Years</td><td>22% · 17.50% · 13%</td><td>Annual</td><td>Decreasing</td></tr>
+ <tr><td>Platinum Variable</td><td>3 Years</td><td>20.50%*</td><td>Monthly</td><td>Variable</td></tr>
+ <tr><td>Five-Year Fixed</td><td>5 Years</td><td>14.25%</td><td>Monthly</td><td>Fixed</td></tr>
+ </tbody></table></div>
+ <p class="note" style="margin-top:15px;margin-bottom:0">*The variable rate is indicative of the published rate found during the November 2026 review and is linked to the Central Bank deposit rate; it can change. Step-down rates are shown in order for years 1, 2 and 3. Minimum purchase amounts, early redemption and lending conditions are subject to the bank's current product rules.</p>
+ <p class="small">Sources: NBE ALCO rate announcement reported 5–8 November 2026 for the fixed Platinum rates; November 2026 certificate product summaries for other terms. This is an internal reference calculator, not an official bank quotation.</p>
 </section>
 <footer class="footer">NBE Sales · Created by Mahmoud Mohamed Rizq</footer>
 </main>
@@ -45,30 +59,29 @@
 (function(){
  const $=id=>document.getElementById(id);
  const money=n=>(Number(n)||0).toLocaleString("en-EG",{minimumFractionDigits:2,maximumFractionDigits:2})+" EGP";
- function calculate(){
-  const principal=Math.max(0,Number($("principal").value)||0);
-  const rate=Math.max(0,Number($("rate").value)||0);
-  const quarterly=$("frequency").value==="quarterly";
-  const annual=principal*rate/100;
-  const payout=annual/(quarterly?4:12);
-  const total=annual*3;
-  $("payoutLabel").textContent=quarterly?"Quarterly payout":"Monthly payout";
+ const products={
+  fixedMonthly:{term:3,frequency:"Monthly",rate:"18.75%",type:"Fixed",rates:[18.75,18.75,18.75],payouts:12},
+  fixedQuarterly:{term:3,frequency:"Quarterly",rate:"18.85%",type:"Fixed",rates:[18.85,18.85,18.85],payouts:4},
+  stepMonthly:{term:3,frequency:"Monthly",rate:"21% / 16.25% / 12%",type:"Step-down",rates:[21,16.25,12],payouts:12},
+  stepAnnual:{term:3,frequency:"Annual",rate:"22% / 17.50% / 13%",type:"Step-down",rates:[22,17.5,13],payouts:1},
+  variable:{term:3,frequency:"Monthly",rate:"20.50% (indicative)",type:"Variable",rates:[20.5,20.5,20.5],payouts:12},
+  fiveYear:{term:5,frequency:"Monthly",rate:"14.25%",type:"Fixed",rates:[14.25,14.25,14.25,14.25,14.25],payouts:12}
+ };
+ function update(){
+  const p=products[$("certificate").value],amount=Math.max(0,Number($("principal").value)||0);
+  $("term").value=p.term+" years";$("frequency").value=p.frequency;$("rateDisplay").value=p.rate;$("rateType").value=p.type;
+  const annuals=p.rates.map(r=>amount*r/100),total=annuals.reduce((a,b)=>a+b,0),first=annuals[0];
+  const payout=first/p.payouts;
+  $("payoutLabel").textContent=p.frequency+" payout (year 1)";
   $("payoutValue").textContent=money(payout);
-  $("annualValue").textContent=money(annual);
+  $("firstYearValue").textContent=money(first);
   $("interestValue").textContent=money(total);
-  $("maturityValue").textContent=money(principal+total);
-  $("comparison").innerHTML=["monthly","quarterly"].map(kind=>{
-   const r=kind==="monthly"?18.75:18.85;
-   const yearly=principal*r/100;
-   const each=yearly/(kind==="monthly"?12:4);
-   return "<tr><td>"+(kind==="monthly"?"Monthly":"Quarterly")+"</td><td>"+r.toFixed(2)+"%</td><td>"+money(each)+"</td><td>"+money(yearly)+"</td><td>"+money(yearly*3)+"</td></tr>";
-  }).join("");
+  $("maturityValue").textContent=money(amount+total);
+  $("calculationNote").textContent=p.type==="Variable"?"Estimate assumes the current indicative rate remains unchanged for the full term. Actual returns will vary if the bank changes the rate.":(p.type==="Step-down"?"Estimated total adds each year's interest using that year's rate; displayed payout is for year 1. ":"Estimated total assumes the rate remains fixed and the principal is not reinvested. ")+"Interest is assumed to be paid out, not compounded.";
  }
- $("frequency").addEventListener("change",()=>{$("rate").value=$("frequency").value==="quarterly"?"18.85":"18.75";calculate();});
- ["principal","rate"].forEach(id=>$(id).addEventListener("input",calculate));
- $("calculate").addEventListener("click",calculate);
- $("reset").addEventListener("click",()=>{$("principal").value=100000;$("frequency").value="monthly";$("rate").value="18.75";calculate();});
- calculate();
+ $("certificate").addEventListener("change",update);$("principal").addEventListener("input",update);$("calculate").addEventListener("click",update);
+ $("reset").addEventListener("click",()=>{$("principal").value=100000;$("certificate").value="fixedMonthly";update();});
+ update();
 })();
 </script>
 </body>
