@@ -3418,7 +3418,7 @@ async function csDetectAndWarp(img,rotation){
   source.width=source.height=1;work.width=work.height=1;
  }
 }
-async function csAutoProcess(side){
+async async function csAutoProcess(side){
  const item=cardScannerState[side];if(!item)return false;
  const status=csGet("csAutoStatus");if(status)status.textContent="Detecting document edges…";
  let canvas=null,detected=false;
