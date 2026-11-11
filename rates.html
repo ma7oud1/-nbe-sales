@@ -26,14 +26,14 @@ table{width:100%;border-collapse:collapse;min-width:650px}th,td{text-align:left;
 <div class="mode"><button type="button" id="toFinance" class="active">Installment → Finance</button><button type="button" id="toInstallment">Finance → Installment</button></div>
 <div class="grid">
 <div class="field"><label for="product">Product</label><select id="product"></select></div>
-<div class="field"><label for="rate">Annual flat rate (%)</label><input id="rate" type="number" min="0" max="100" step="0.01"></div>
+<div class="field"><label for="rate">Annual flat rate (%)</label><input id="rate" type="number" min="0" max="100" step="0.01" readonly aria-readonly="true"></div>
 <div class="field"><label for="years">Years</label><input id="years" type="number" min="0" max="40" value="5"></div>
 <div class="field"><label for="months">Additional months</label><input id="months" type="number" min="0" max="11" value="0"></div>
 <div class="field" id="installmentField"><label for="installment">Monthly installment (EGP)</label><input id="installment" type="number" min="0" step="0.01" value="5000"></div>
 <div class="field" id="financeField" hidden><label for="finance">Finance amount (EGP)</label><input id="finance" type="number" min="0" step="0.01" value="125000"></div>
 </div>
 <div class="result"><div class="muted" id="resultLabel">Estimated finance amount</div><div class="big" id="mainResult">—</div><div class="stats"><div class="stat"><small>Total repayment</small><b id="total">—</b></div><div class="stat"><small>Total flat interest</small><b id="interest">—</b></div><div class="stat"><small>Monthly equivalent rate</small><b id="monthlyRate">—</b></div></div></div>
-<p class="muted">Calculation method: fixed / flat rate. Total interest = finance amount × annual rate × term in years. This is an indicative calculator and does not replace the bank's approved offer, fees, insurance, or eligibility rules. You can manually override the selected product rate for a what-if calculation.</p>
+<p class="muted">Calculation method: fixed / flat rate. Total interest = finance amount × annual rate × term in years. The annual flat rate is loaded automatically from the selected product and cannot be edited here. This indicative calculation does not replace the bank's approved offer, fees, insurance, or eligibility rules.</p>
 </section>
 <section class="panel archive"><h2>Monthly Rate Archive</h2><div id="archiveList"></div><p class="muted">Monthly snapshots are saved in this browser on this device only. They are not synchronized with other employees or devices.</p></section>
 <p class="muted">Reference data transcribed from the supplied document dated 10 November 2026. Verify the latest approved bank circular before quoting or processing any customer application.</p>
