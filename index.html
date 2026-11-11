@@ -3354,14 +3354,12 @@ function csLoadOpenCV(){
  return csCvPromise;
 }
 function csOrderCorners(points){
- const c=points.reduce((a,p)=>({x:a.x+p.x/4,y:a.y+p.y/4}),{x:0,y:0});
- points.sort((a,b)=>Math.atan2(a.y-c.y,a.x-c.x)-Math.atan2(b.y-c.y,b.x-c.x));
- let start=0,min=Infinity;points.forEach((p,i)=>{const v=p.x+p.y;if(v<min){min=v;start=i;}});
- let q=[0,1,2,3].map(k=>points[(start+k)%4]);
- const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
- if(dist(q[0],q[1])<dist(q[0],q[3]))q=[q[3],q[0],q[1],q[2]];
- return q;
+ const sum=p=>p.x+p.y,diff=p=>p.y-p.x;
+ const tl=points.reduce((a,p)=>sum(p)<sum(a)?p:a),br=points.reduce((a,p)=>sum(p)>sum(a)?p:a);
+ const tr=points.reduce((a,p)=>diff(p)<diff(a)?p:a),bl=points.reduce((a,p)=>diff(p)>diff(a)?p:a);
+ return [tl,tr,br,bl];
 }
+
 function csAutoLevels(canvas){
  const ctx=canvas.getContext("2d",{willReadFrequently:true}),im=ctx.getImageData(0,0,canvas.width,canvas.height),d=im.data,hist=new Uint32Array(256),n=d.length/4;
  for(let i=0;i<d.length;i+=4){const y=Math.round(.299*d[i]+.587*d[i+1]+.114*d[i+2]);hist[y]++;}
@@ -3416,7 +3414,7 @@ async function csDetectAndWarp(img,rotation){
   srcPts.delete();dstPts.delete();transform.delete();warped.delete();
   return output;
  }finally{
-  [src,gray,blur,edges,contours,hierarchy,kernel].forEach(m=>{if(m&&!m.isDeleted())m.delete();});
+  [src,gray,blur,edges,contours,hierarchy,kernel].forEach(m=>{if(m){try{m.delete();}catch(_){}}});
   source.width=source.height=1;work.width=work.height=1;
  }
 }
@@ -3427,7 +3425,7 @@ async function csAutoProcess(side){
  try{canvas=await csDetectAndWarp(item.image,cardScannerState.rotation);detected=!!canvas;}
  catch(e){console.warn("Automatic edge detection unavailable:",e);}
  if(!canvas){canvas=document.createElement("canvas");canvas.width=CS_OUT_W;canvas.height=CS_OUT_H;csCropDraw(item.image,canvas,cardScannerState.rotation);}
- const ctx=canvas.getContext("2d");if(ctx){ctx.filter="contrast(1.08)";ctx.drawImage(canvas,0,0);ctx.filter="none";if((csGet("csFilter")?.value||"auto")==="auto")csAutoLevels(canvas);}
+ const ctx=canvas.getContext("2d");if(ctx){if((csGet("csFilter")?.value||"auto")==="auto")csAutoLevels(canvas);}
  const url=canvas.toDataURL("image/jpeg",.93),img=new Image();
  await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url;});
  cardScannerState[side]={image:img,source:url,processed:url,auto:true,edgeDetected:detected};
@@ -3436,13 +3434,13 @@ async function csAutoProcess(side){
  if(status)status.textContent=detected?"✓ Document edges detected and perspective corrected.":"Could not find all four edges — showing the original framing. Try a clearer photo with the whole page visible.";
  return true;
 }
-function cardScannerAutoOnUpload(side){const status=csGet("csAutoStatus");if(status)status.textContent="Automatically enhancing "+side+" side…";csAutoProcess(side).then(ok=>{if(ok){cardScannerState[side].processed=cardScannerState[side].source;if(status)status.textContent="✓ "+side+" side auto-corrected. Add the other side or review the result.";}}).catch(e=>{if(status)status.textContent="Auto scan could not detect this side: "+e.message+" You can adjust it manually or try Auto Scan again.";});}
+function cardScannerAutoOnUpload(side){const status=csGet("csAutoStatus");if(status)status.textContent="Automatically enhancing "+side+" side…";csAutoProcess(side).then(ok=>{if(ok){cardScannerState[side].processed=cardScannerState[side].source;if(status)status.textContent=cardScannerState[side].edgeDetected?"✓ "+side+" side edges detected and cropped automatically.":"✓ "+side+" side loaded; edges were not clear enough for automatic crop."; }}).catch(e=>{if(status)status.textContent="Auto scan could not detect this side: "+e.message+" You can adjust it manually or try Auto Scan again.";});}
 async function cardScannerAutoAll(){
  const btn=csGet("csAutoBtn");if(btn){btn.disabled=true;btn.textContent="Scanning…";}
  try{
   let done=0;
   for(const side of ["front","back"]){if(cardScannerState[side]){try{if(await csAutoProcess(side))done++;}catch(e){const status=csGet("csAutoStatus");if(status)status.textContent=e.message;alert((side==="front"?"Front":"Back")+": "+e.message);}}}
-  if(done){["csZoom","csX","csY"].forEach((id,i)=>csGet(id).value=[1,0,0][i]);csGet("csBright").value=100;csGet("csContrast").value=100;csGet("csGray").checked=false;["front","back"].forEach(side=>{if(cardScannerState[side])cardScannerState[side].processed=cardScannerState[side].source;});const status=csGet("csAutoStatus");if(status)status.textContent="✓ Auto enhancement complete: card framing, brightness and contrast adjusted. Review both previews before adding to the print queue.";}
+  if(done){["csZoom","csX","csY"].forEach((id,i)=>csGet(id).value=[1,0,0][i]);csGet("csBright").value=100;csGet("csContrast").value=100;csGet("csGray").checked=false;["front","back"].forEach(side=>{if(cardScannerState[side])cardScannerState[side].processed=cardScannerState[side].source;});const status=csGet("csAutoStatus");if(status)status.textContent="✓ Automatic scan complete. Review the cropped previews before saving.";}
  }catch(e){alert(e.message);const status=csGet("csAutoStatus");if(status)status.textContent=e.message;}
  finally{if(btn){btn.disabled=false;btn.textContent="✨ Auto Scan & Enhance";}}
 }
