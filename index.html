@@ -2254,7 +2254,7 @@ function buildAppPages(){
     <div class="scanner-tools"><button type="button" class="btn primary" id="csAutoBtn" onclick="cardScannerAutoAll()">Auto enhance</button><button type="button" class="btn light-btn" onclick="cardScannerRotate()">Rotate</button><button type="button" class="btn light-btn" onclick="cardScannerResetAdjustments()">Reset</button><label class="scanner-check"><input id="csGray" type="checkbox"> Grayscale</label></div>
    </details>
    <div class="scanner-actions"><button type="button" class="btn primary" onclick="cardScannerAdd()">Save document</button></div>
-   <p class="scanner-hint" id="csAutoStatus">Ready to scan.</p>
+   <p class="scanner-hint" id="csAutoStatus">Auto edge detection starts after each photo.</p>
   </section>
   <section class="scanner-panel scanner-saved-panel"><div class="scanner-section-heading"><h3>Recent documents</h3></div><div id="csSavedDocs" class="scanner-queue-empty">Loading…</div></section>
   <details class="scanner-panel scanner-queue-panel"><summary class="scanner-section-heading"><h3>Print queue</h3><span class="scanner-count-pill" id="csQueueCount">0 documents</span></summary><div id="csQueue" class="scanner-queue-empty">No documents added to print queue.</div><div class="scanner-print-controls"><label>Page layout<select id="csPrintMode"><option value="single">One document per A4 page</option><option value="grid">Up to 4 documents per page</option></select></label><div class="scanner-print-buttons"><button type="button" class="btn primary" onclick="cardScannerPrint()" id="csPrintBtn" disabled>Print / PDF</button><button type="button" class="btn light-btn" onclick="cardScannerClearQueue()" id="csClearQueueBtn" disabled>Clear</button></div></div></details>
@@ -3371,17 +3371,69 @@ function csAutoLevels(canvas){
  for(let i=0;i<d.length;i+=4){for(let c=0;c<3;c++)d[i+c]=Math.max(0,Math.min(255,(d[i+c]-lo)*scale));}
  ctx.putImageData(im,0,0);
 }
+function csRotateForDetection(img,rotation){
+ const c=document.createElement("canvas"),swap=rotation%180!==0;
+ c.width=swap?img.naturalHeight:img.naturalWidth;c.height=swap?img.naturalWidth:img.naturalHeight;
+ const x=c.getContext("2d");x.translate(c.width/2,c.height/2);x.rotate(rotation*Math.PI/180);x.drawImage(img,-img.naturalWidth/2,-img.naturalHeight/2);return c;
+}
+async function csDetectAndWarp(img,rotation){
+ const cv=await csLoadOpenCV(),source=csRotateForDetection(img,rotation);
+ const max=1100,scale=Math.min(1,max/Math.max(source.width,source.height));
+ const work=document.createElement("canvas");work.width=Math.max(1,Math.round(source.width*scale));work.height=Math.max(1,Math.round(source.height*scale));
+ work.getContext("2d").drawImage(source,0,0,work.width,work.height);
+ let src=null,gray=null,blur=null,edges=null,contours=null,hierarchy=null,kernel=null,best=null;
+ try{
+  src=cv.imread(work);gray=new cv.Mat();blur=new cv.Mat();edges=new cv.Mat();contours=new cv.MatVector();hierarchy=new cv.Mat();
+  cv.cvtColor(src,gray,cv.COLOR_RGBA2GRAY);cv.GaussianBlur(gray,blur,new cv.Size(5,5),0);
+  cv.Canny(blur,edges,45,135);kernel=cv.Mat.ones(3,3,cv.CV_8U);cv.dilate(edges,edges,kernel);
+  cv.findContours(edges,contours,hierarchy,cv.RETR_LIST,cv.CHAIN_APPROX_SIMPLE);
+  let bestArea=0,bestPoints=null;
+  for(let i=0;i<contours.size();i++){
+   const contour=contours.get(i),peri=cv.arcLength(contour,true),approx=new cv.Mat();
+   cv.approxPolyDP(contour,approx,.02*peri,true);
+   if(approx.rows===4&&cv.isContourConvex(approx)){
+    const area=Math.abs(cv.contourArea(approx));
+    if(area>bestArea&&area>work.width*work.height*.12){
+     const pts=[];for(let j=0;j<4;j++)pts.push({x:approx.intAt(j,0),y:approx.intAt(j,1)});
+     bestArea=area;bestPoints=csOrderCorners(pts);
+    }
+   }
+   approx.delete();contour.delete();
+  }
+  if(!bestPoints)return null;
+  const pts=bestPoints.map(p=>({x:p.x/scale,y:p.y/scale}));
+  const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+  const width=Math.max(dist(pts[0],pts[1]),dist(pts[3],pts[2]));
+  const height=Math.max(dist(pts[0],pts[3]),dist(pts[1],pts[2]));
+  const ratio=width/Math.max(1,height);
+  const outW=ratio>=1?1200:Math.max(600,Math.round(1200*ratio));
+  const outH=ratio>=1?Math.max(600,Math.round(1200/ratio)):1200;
+  const srcPts=cv.matFromArray(4,1,cv.CV_32FC2,[pts[0].x,pts[0].y,pts[1].x,pts[1].y,pts[2].x,pts[2].y,pts[3].x,pts[3].y]);
+  const dstPts=cv.matFromArray(4,1,cv.CV_32FC2,[0,0,outW-1,0,outW-1,outH-1,0,outH-1]);
+  const transform=cv.getPerspectiveTransform(srcPts,dstPts),warped=new cv.Mat();
+  cv.warpPerspective(src,warped,transform,new cv.Size(outW,outH),cv.INTER_CUBIC,cv.BORDER_REPLICATE);
+  const output=document.createElement("canvas");output.width=outW;output.height=outH;cv.imshow(output,warped);
+  srcPts.delete();dstPts.delete();transform.delete();warped.delete();
+  return output;
+ }finally{
+  [src,gray,blur,edges,contours,hierarchy,kernel].forEach(m=>{if(m&&!m.isDeleted())m.delete();});
+  source.width=source.height=1;work.width=work.height=1;
+ }
+}
 async function csAutoProcess(side){
  const item=cardScannerState[side];if(!item)return false;
- const status=csGet("csAutoStatus");if(status)status.textContent="Enhancing "+side+" side…";
- // Lightweight canvas-only processing: avoid loading the large OpenCV/WebAssembly engine on mobile.
- const canvas=document.createElement("canvas");canvas.width=CS_OUT_W;canvas.height=CS_OUT_H;
- csCropDraw(item.image,canvas,cardScannerState.rotation);
- const url=canvas.toDataURL("image/jpeg",.90),img=new Image();
+ const status=csGet("csAutoStatus");if(status)status.textContent="Detecting document edges…";
+ let canvas=null,detected=false;
+ try{canvas=await csDetectAndWarp(item.image,cardScannerState.rotation);detected=!!canvas;}
+ catch(e){console.warn("Automatic edge detection unavailable:",e);}
+ if(!canvas){canvas=document.createElement("canvas");canvas.width=CS_OUT_W;canvas.height=CS_OUT_H;csCropDraw(item.image,canvas,cardScannerState.rotation);}
+ const ctx=canvas.getContext("2d");if(ctx){ctx.filter="contrast(1.08)";ctx.drawImage(canvas,0,0);ctx.filter="none";if((csGet("csFilter")?.value||"auto")==="auto")csAutoLevels(canvas);}
+ const url=canvas.toDataURL("image/jpeg",.93),img=new Image();
  await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url;});
- cardScannerState[side]={image:img,source:url,processed:url,auto:true};
+ cardScannerState[side]={image:img,source:url,processed:url,auto:true,edgeDetected:detected};
  const preview=csGet(side==="front"?"csFrontPreview":"csBackPreview");
- if(preview)preview.innerHTML='<img alt="Enhanced '+side+' preview" src="'+url+'">';
+ if(preview)preview.innerHTML='<img alt="Auto cropped '+side+' preview" src="'+url+'">';
+ if(status)status.textContent=detected?"✓ Document edges detected and perspective corrected.":"Could not find all four edges — showing the original framing. Try a clearer photo with the whole page visible.";
  return true;
 }
 function cardScannerAutoOnUpload(side){const status=csGet("csAutoStatus");if(status)status.textContent="Automatically enhancing "+side+" side…";csAutoProcess(side).then(ok=>{if(ok){cardScannerState[side].processed=cardScannerState[side].source;if(status)status.textContent="✓ "+side+" side auto-corrected. Add the other side or review the result.";}}).catch(e=>{if(status)status.textContent="Auto scan could not detect this side: "+e.message+" You can adjust it manually or try Auto Scan again.";});}
