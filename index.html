@@ -2256,7 +2256,7 @@ function buildAppPages(){
    <div class="scanner-actions"><button type="button" class="btn primary" onclick="cardScannerAdd()">Save document</button></div>
    <p class="scanner-hint" id="csAutoStatus">Ready to scan.</p>
   </section>
-  <section class="scanner-panel scanner-saved-panel"><div class="scanner-section-heading"><h3>Recent documents</h3><span class="scanner-count-pill" id="csSavedCountAlt">Library</span></div><div id="csSavedDocs" class="scanner-queue-empty">Loading…</div></section>
+  <section class="scanner-panel scanner-saved-panel"><div class="scanner-section-heading"><h3>Recent documents</h3></div><div id="csSavedDocs" class="scanner-queue-empty">Loading…</div></section>
   <details class="scanner-panel scanner-queue-panel"><summary class="scanner-section-heading"><h3>Print queue</h3><span class="scanner-count-pill" id="csQueueCount">0 documents</span></summary><div id="csQueue" class="scanner-queue-empty">No documents added to print queue.</div><div class="scanner-print-controls"><label>Page layout<select id="csPrintMode"><option value="single">One document per A4 page</option><option value="grid">Up to 4 documents per page</option></select></label><div class="scanner-print-buttons"><button type="button" class="btn primary" onclick="cardScannerPrint()" id="csPrintBtn" disabled>Print / PDF</button><button type="button" class="btn light-btn" onclick="cardScannerClearQueue()" id="csClearQueueBtn" disabled>Clear</button></div></div></details>
  </div>`);
 
