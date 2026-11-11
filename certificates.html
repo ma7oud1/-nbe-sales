@@ -14,17 +14,14 @@
 <nav class="tabs no-print"><button class="tab active" data-tab="desk">خدمة العميل</button><button class="tab" data-tab="catalog">دليل الشهادات</button><button class="tab" data-tab="redemption">استرداد الشهادة</button><button class="tab" data-tab="finance">التمويل بضمان الشهادة</button><button class="tab" data-tab="guide">دليل الإجراءات</button></nav>
 
 <section id="desk" class="tab-page">
-<div class="panel"><h2>بيانات العميل وطلب شراء الشهادة</h2><div class="grid">
-<div class="field"><label>اسم العميل بالكامل</label><input id="customer" placeholder="اسم العميل"></div>
-<div class="field"><label>مرجع العميل (اختياري)</label><input id="customerRef" placeholder="مرجع داخلي فقط"></div>
-<div class="field"><label>تاريخ العرض</label><input id="proposalDate" type="date"></div>
+<div class="panel"><h2>حاسبة عائد شهادات الجنيه المصري</h2><div class="grid">
 <div class="field"><label>نوع الشهادة</label><select id="product"></select></div>
 <div class="field"><label>مبلغ الشراء (جنيه مصري)</label><input id="amount" type="number" min="0" step="1000" value="100000"></div>
 <div class="field"><label>تاريخ بداية احتساب العائد (تقديري)</label><input id="startDate" type="date"></div>
 <div class="field"><label>مدة الشهادة</label><input id="term" readonly></div>
 <div class="field"><label>دورية صرف العائد</label><input id="frequency" readonly></div>
 <div class="field"><label>سعر العائد السنوي / جدول العائد</label><input id="rate" readonly></div>
-</div><div class="actions no-print"><button class="btn primary" id="calc">احسب العرض</button><button class="btn secondary" id="print">طباعة عرض العميل</button><button class="btn secondary" id="reset">إعادة ضبط</button></div>
+</div><div class="actions no-print"><button class="btn primary" id="calc">احسب العائد</button><button class="btn secondary" id="print">طباعة نتيجة الحساب</button><button class="btn secondary" id="reset">إعادة ضبط</button></div>
 <div class="stats"><div class="stat gold"><small id="payoutLabel">قيمة العائد التقديرية</small><strong id="payout">0.00 EGP</strong></div><div class="stat"><small>إجمالي عائد السنة الأولى</small><strong id="yearOne">0.00 EGP</strong></div><div class="stat"><small>إجمالي العائد التقديري</small><strong id="totalReturn">0.00 EGP</strong></div><div class="stat red"><small>أصل المبلغ + العائد التقديري</small><strong id="maturity">0.00 EGP</strong></div></div>
 <div class="section-title" style="margin-top:20px"><h2>جدول التدفقات النقدية السنوية</h2><span class="tag">حساب استرشادي</span></div><div class="table-wrap"><table><thead><tr><th>السنة</th><th>سعر العائد السنوي</th><th>قيمة العائد السنوي</th><th>قيمة العائد التقديرية each period</th><th>دورية الصرف</th></tr></thead><tbody id="schedule"></tbody></table></div>
 <p class="note" id="proposalNote" style="margin-top:14px">الحاسبة استرشادية وليست عرض سعر أو تأكيد تنفيذ. يجب مراجعة الشهادة المتاحة وسعر العائد وتاريخ البداية ومواعيد الصرف والرسوم إن وجدت وشروط الاستحقاق على أنظمة البنك المعتمدة قبل التنفيذ.</p>
@@ -90,9 +87,9 @@ function calc(){
 function showTab(id){document.querySelectorAll(".tab-page").forEach(x=>x.classList.toggle("hidden",x.id!==id));document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===id));}
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
 options();renderCatalog();
-const today=new Date().toISOString().slice(0,10);$("proposalDate").value=today;$("startDate").value=today;$("issueDate").value=today;$("redeemDate").value=today;
+const today=new Date().toISOString().slice(0,10);$("startDate").value=today;$("issueDate").value=today;$("redeemDate").value=today;
 $("product").addEventListener("change",calc);$("amount").addEventListener("input",calc);$("calc").addEventListener("click",calc);calc();
-$("reset").addEventListener("click",()=>{$("customer").value="";$("customerRef").value="";$("amount").value=100000;$("product").value="fixedشهري";calc();});
+$("reset").addEventListener("click",()=>{$("amount").value=100000;$("product").value="fixedشهري";calc();});
 $("print").addEventListener("click",()=>{calc();window.print();});
 $("redCalc").addEventListener("click",()=>{
  const a=new Date($("issueDate").value),b=new Date($("redeemDate").value),principal=Number($("redPrincipal").value)||0,partial=$("redType").value==="partial",req=partial?Number($("redAmount").value)||0:principal,net=Number($("netSettlement").value)||0;
