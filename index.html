@@ -3399,7 +3399,7 @@ async function csDetectAndWarp(img,rotation){
    approx.delete();contour.delete();
   }
   if(!bestPoints)return null;
-  const pts=bestPoints.map(p=>({x:p.x/scale,y:p.y/scale}));
+  const pts=bestPoints;
   const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
   const width=Math.max(dist(pts[0],pts[1]),dist(pts[3],pts[2]));
   const height=Math.max(dist(pts[0],pts[3]),dist(pts[1],pts[2]));
