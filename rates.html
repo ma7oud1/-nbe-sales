@@ -1,27 +1,45 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#087443"><title>NBE Sales | Product Codes & Rates</title>
 <style>
-:root{--green:#087443;--bg:#101b20;--card:#1a292f;--text:#edf5f0;--muted:#a5b5b8;--border:#33464b}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
-.wrap{max-width:1150px;margin:auto;padding:20px}.head{background:linear-gradient(120deg,#073c2a,#087443);padding:24px;border-radius:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-h1{font-size:22px;margin:0 0 8px}.sub{color:#d5e9df;font-size:12px}.tools{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin:18px 0}
-input,select,button{font:inherit;border-radius:9px;padding:12px;border:1px solid var(--border)}input,select{background:var(--card);color:var(--text);width:100%}button{background:#087443;color:#fff;cursor:pointer;border:0;font-weight:bold}
-.panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin:16px 0;overflow:hidden}
-h2{color:#49bd88;font-size:17px;margin:0 0 14px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:650px}th,td{text-align:right;padding:10px 9px;border-bottom:1px solid var(--border);font-size:13px}th{background:#087443;color:white}td:nth-child(2){font-weight:bold;color:#49bd88}tr:hover td{background:#08744312}.note{color:var(--muted);font-size:11px;line-height:1.8;margin-top:16px}.back{display:inline-block;color:#fff;text-decoration:none;border:1px solid #ffffff66;border-radius:9px;padding:10px 14px}
-@media(max-width:600px){.wrap{padding:10px}.tools{grid-template-columns:1fr}.panel{padding:12px}h1{font-size:18px}}
-@media print{@page{size:A4 portrait;margin:10mm}body{background:white;color:#172b32}.wrap{max-width:none;padding:0}.head{background:#087443!important;color:white!important}.tools,.back{display:none!important}.panel{background:white;color:#172b32;border:0;padding:0}.table-wrap{overflow:visible}table{min-width:0}th{background:#087443!important;color:white!important}th,td{font-size:8px;padding:6px 4px;border:1px solid #dce5df}h2{color:#087443}.note{color:#46564e}}
+:root{--green:#087443;--bg:#101b20;--card:#1a292f;--text:#edf5f0;--muted:#a5b5b8;--border:#33464b;--accent:#49bd88}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Tahoma,sans-serif}.wrap{max-width:1150px;margin:auto;padding:20px}
+.head{background:linear-gradient(120deg,#073c2a,#087443);padding:24px;border-radius:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1{font-size:22px;margin:0 0 8px}.sub{color:#d5e9df;font-size:12px}.back,.btn{display:inline-block;color:#fff;text-decoration:none;border:0;border-radius:9px;padding:11px 14px;background:var(--green);cursor:pointer;font-weight:bold}
+.tools{display:grid;grid-template-columns:2fr 1fr auto;gap:12px;margin:18px 0}input,select{font:inherit;border-radius:9px;padding:12px;border:1px solid var(--border);background:var(--card);color:var(--text);width:100%}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin:16px 0;overflow:hidden}h2{color:var(--accent);font-size:17px;margin:0 0 14px}.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:650px}th,td{text-align:left;padding:10px 9px;border-bottom:1px solid var(--border);font-size:13px}th{background:#087443;color:white}td:nth-child(2){font-weight:bold;color:var(--accent)}tr:hover td{background:#08744312}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:grid;gap:7px}.field label{font-size:12px;color:var(--muted)}.mode{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.mode button{background:#26383d;border:1px solid var(--border)}.mode button.active{background:var(--green);border-color:var(--green)}
+.result{background:#102c23;border:1px solid #276b4d;border-radius:12px;padding:16px;margin-top:16px}.big{font-size:28px;font-weight:800;color:#65d9a2;margin:7px 0}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:#142329;border-radius:10px;padding:12px}.stat small{display:block;color:var(--muted);margin-bottom:7px}.stat b{font-size:15px}
+.muted{color:var(--muted);font-size:12px;line-height:1.7}.archive-item{display:flex;justify-content:space-between;gap:10px;padding:12px;border-bottom:1px solid var(--border)}.tag{font-size:11px;color:#65d9a2}
+@media(max-width:650px){.wrap{padding:10px}.tools,.grid{grid-template-columns:1fr}.panel{padding:13px}.stats{grid-template-columns:1fr}.big{font-size:23px}}
+@media print{@page{size:A4 portrait;margin:10mm}body{background:white;color:#172b32}.wrap{max-width:none;padding:0}.head{background:#087443!important;color:white!important}.tools,.back,.calculator,.archive{display:none!important}.panel{background:white;color:#172b32;border:0;padding:0}.table-wrap{overflow:visible}table{min-width:0}th{background:#087443!important;color:white!important}th,td{font-size:8px;padding:6px 4px;border:1px solid #dce5df}h2{color:#087443}}
 </style></head>
 <body><main class="wrap">
-<header class="head"><div><h1>دليل أكواد وأسعار المنتجات</h1><div class="sub">NATIONAL BANK OF EGYPT · مرجع داخلي وفق مستند 10 نوفمبر 2026</div></div><a class="back" href="./">العودة إلى NBE Sales</a></header>
-<div class="tools"><input id="q" type="search" placeholder="ابحث بالكود أو اسم الشريحة..."><select id="cat"><option value="all">كل المنتجات</option><option value="personal">القروض الشخصية</option><option value="cars">قروض السيارات</option></select><button onclick="window.print()">طباعة الدليل</button></div>
-<section class="panel" id="personal"><h2>أولاً: القروض الشخصية النقدية</h2><div class="table-wrap"><table><thead><tr><th>الشريحة</th><th>كود المنتج</th><th>سعر العائد السنوي</th><th>الحد الأقصى للسداد</th></tr></thead><tbody id="pRows"></tbody></table></div></section>
-<section class="panel" id="cars"><h2>ثانياً: قروض السيارات</h2><div class="table-wrap"><table><thead><tr><th>كود الشريحة</th><th>وصف المنتج</th><th>حتى 5 سنوات</th><th>أكثر من 5 سنوات</th></tr></thead><tbody id="cRows"></tbody></table></div></section>
-<p class="note">تنبيه: هذا الدليل مُعاد تنظيمه من المستند المرفق بتاريخ 10 نوفمبر 2026 للاستخدام كمرجع سريع، ولا يُعد بديلاً عن التعليمات والتسعير المعتمدين لدى البنك. يُرجى مراجعة المستند الأصلي عند وجود وصف غير واضح أو استثناء خاص.</p>
+<header class="head"><div><h1>Product Codes & Rates</h1><div class="sub">NATIONAL BANK OF EGYPT · Internal reference · 10 November 2026</div></div><a class="back" href="./">Back to NBE Sales</a></header>
+<div class="tools"><input id="q" type="search" placeholder="Search by product name or code..."><select id="cat"><option value="all">All products</option><option value="personal">Personal loans</option><option value="cars">Auto loans</option></select><button class="btn" onclick="window.print()">Print guide</button></div>
+<section class="panel" id="personal"><h2>Personal Cash Loans</h2><div class="table-wrap"><table><thead><tr><th>Segment</th><th>Product Code</th><th>Annual Flat Rate</th><th>Maximum Tenure</th></tr></thead><tbody id="pRows"></tbody></table></div></section>
+<section class="panel" id="cars"><h2>Auto Loans</h2><div class="table-wrap"><table><thead><tr><th>Segment Code</th><th>Product Description</th><th>Rate up to 5 years</th><th>Rate above 5 years</th></tr></thead><tbody id="cRows"></tbody></table></div></section>
+<section class="panel calculator"><h2>Flat Rate Finance Calculator</h2>
+<div class="mode"><button type="button" id="toFinance" class="active">Installment → Finance</button><button type="button" id="toInstallment">Finance → Installment</button></div>
+<div class="grid">
+<div class="field"><label for="product">Product</label><select id="product"></select></div>
+<div class="field"><label for="rate">Annual flat rate (%)</label><input id="rate" type="number" min="0" max="100" step="0.01"></div>
+<div class="field"><label for="years">Years</label><input id="years" type="number" min="0" max="40" value="5"></div>
+<div class="field"><label for="months">Additional months</label><input id="months" type="number" min="0" max="11" value="0"></div>
+<div class="field" id="installmentField"><label for="installment">Monthly installment (EGP)</label><input id="installment" type="number" min="0" step="0.01" value="5000"></div>
+<div class="field" id="financeField" hidden><label for="finance">Finance amount (EGP)</label><input id="finance" type="number" min="0" step="0.01" value="125000"></div>
+</div>
+<div class="result"><div class="muted" id="resultLabel">Estimated finance amount</div><div class="big" id="mainResult">—</div><div class="stats"><div class="stat"><small>Total repayment</small><b id="total">—</b></div><div class="stat"><small>Total flat interest</small><b id="interest">—</b></div><div class="stat"><small>Monthly equivalent rate</small><b id="monthlyRate">—</b></div></div></div>
+<p class="muted">Calculation method: fixed / flat rate. Total interest = finance amount × annual rate × term in years. This is an indicative calculator and does not replace the bank's approved offer, fees, insurance, or eligibility rules. You can manually override the selected product rate for a what-if calculation.</p>
+</section>
+<section class="panel archive"><h2>Monthly Rate Archive</h2><div id="archiveList"></div><p class="muted">Monthly snapshots are saved in this browser on this device only. They are not synchronized with other employees or devices.</p></section>
+<p class="muted">Reference data transcribed from the supplied document dated 10 November 2026. Verify the latest approved bank circular before quoting or processing any customer application.</p>
 </main>
 <script>
+
 const personal=[
 ["القطاع العام – حكومة وقطاع عام","PL12","22.25%","12 سنة"],["القطاع العام – أعضاء الهيئات القضائية","PL17","22.25%","12 سنة"],["متعددة الجنسيات والمساهمة المدرجة","PL06","22.50%","12 سنة"],["البترول والغاز","PL03","22.00%","12 سنة"],
 ["القطاع العام – حكومة وقطاع عام","PL32","22.00%","12 سنة"],["القطاع العام – أعضاء الهيئات القضائية","PL39","22.00%","12 سنة"],["متعددة الجنسيات والمساهمة المدرجة","PL34","22.25%","12 سنة"],["البترول والغاز","PL36","21.75%","12 سنة"],
@@ -32,11 +50,22 @@ const personal=[
 ["المرابحة – أفراد شخصي","ML01","يُحدد وفق الشريحة","12 سنة"],["ضمان القيمة الإيجارية لعقار مؤجر","PL44","22.50%","10 سنوات"],["بدائل الدخل – أرصدة المدخرات","PL50","24.00%","7 سنوات"],["بدائل الدخل – استلام الأمانات","PL51","24.00%","7 سنوات"],["بدائل الدخل – الأطباء","PL52","24.00%","7 سنوات"]];
 const cars=[
 ["AT01","سيارات موظفين بتحويل راتب","21.00%","20.50%"],["AT24","سيارات موظفين بتحويل راتب 100% مقدم","21.50%","21.00%"],["AT02","سيارات موظفين بإثبات دخل","22.50%","22.00%"],["AT13","سيارات شركات بمواصفات خاصة مرتبطة بالراتب","—","20.50%"],["AT25","سيارات شركات بدون حظر للترخيص","—","20.50%"],["AT11","سيارات موظفين – الوصف كما ورد بالمستند","—","22.00%"],["AT04","سيارات أعمال حرة ومهن حرة","23.25%","—"],["AT12","سيارات أعمال ومهن حرة","23.00%","—"],["AT10","سيارات تمويل 100% بضمانة إضافية","22.50%","22.00%"]];
+
 const esc=v=>String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
-function render(){const q=document.getElementById("q").value.trim().toLowerCase(),cat=document.getElementById("cat").value;
-document.getElementById("personal").hidden=cat==="cars";document.getElementById("cars").hidden=cat==="personal";
-const p=personal.filter(r=>r.join(" ").toLowerCase().includes(q)),c=cars.filter(r=>r.join(" ").toLowerCase().includes(q));
-document.getElementById("pRows").innerHTML=p.length?p.map(r=>"<tr>"+r.map(v=>"<td>"+esc(v)+"</td>").join("")+"</tr>").join(""):'<tr><td colspan="4">لا توجد نتائج مطابقة</td></tr>';
-document.getElementById("cRows").innerHTML=c.length?c.map(r=>"<tr>"+r.map(v=>"<td>"+esc(v)+"</td>").join("")+"</tr>").join(""):'<tr><td colspan="4">لا توجد نتائج مطابقة</td></tr>';}
+function render(){const q=document.getElementById("q").value.trim().toLowerCase(),cat=document.getElementById("cat").value;document.getElementById("personal").hidden=cat==="cars";document.getElementById("cars").hidden=cat==="personal";const p=personal.filter(r=>r.join(" ").toLowerCase().includes(q)),c=cars.filter(r=>r.join(" ").toLowerCase().includes(q));document.getElementById("pRows").innerHTML=p.length?p.map(r=>"<tr>"+r.map(v=>"<td>"+esc(v)+"</td>").join("")+"</tr>").join(""):'<tr><td colspan="4">No matching results</td></tr>';document.getElementById("cRows").innerHTML=c.length?c.map(r=>"<tr>"+r.map(v=>"<td>"+esc(v)+"</td>").join("")+"</tr>").join(""):'<tr><td colspan="4">No matching results</td></tr>';}
 document.getElementById("q").addEventListener("input",render);document.getElementById("cat").addEventListener("change",render);render();
+const product=document.getElementById("product");
+const choices=[...personal.filter(r=>/^\d+(\.\d+)?%$/.test(r[2])).map(r=>({label:r[1]+" · "+r[0],rate:parseFloat(r[2])})),...cars.flatMap(r=>[r[2],r[3]].filter(v=>/^\d+(\.\d+)?%$/.test(v)).map(v=>({label:r[0]+" · "+r[1]+" · "+v,rate:parseFloat(v)})))];
+product.innerHTML=choices.map((x,i)=>'<option value="'+i+'">'+esc(x.label)+'</option>').join("");
+const $=id=>document.getElementById(id);let direction="finance";
+function setDirection(d){direction=d;$("toFinance").classList.toggle("active",d==="finance");$("toInstallment").classList.toggle("active",d==="installment");$("installmentField").hidden=d!=="finance";$("financeField").hidden=d!=="installment";$("resultLabel").textContent=d==="finance"?"Estimated finance amount":"Estimated monthly installment";calculate();}
+$("toFinance").onclick=()=>setDirection("finance");$("toInstallment").onclick=()=>setDirection("installment");
+product.addEventListener("change",()=>{$("rate").value=choices[+product.value].rate;calculate();});
+$("rate").value=choices[0]?.rate??0;
+["rate","years","months","installment","finance"].forEach(id=>$(id).addEventListener("input",calculate));
+function money(v){return Number.isFinite(v)?v.toLocaleString("en-US",{style:"currency",currency:"EGP",maximumFractionDigits:2}):"—";}
+function calculate(){const rate=Number($("rate").value)/100,termYears=Number($("years").value)+Number($("months").value)/12,n=Math.round(termYears*12);if(!Number.isFinite(rate)||rate<0||n<=0){$("mainResult").textContent="Enter a valid rate and term";return;}const factor=1+rate*termYears;let principal,payment;if(direction==="finance"){payment=Number($("installment").value);principal=payment*n/factor;}else{principal=Number($("finance").value);payment=principal*factor/n;}if(!Number.isFinite(principal)||principal<0||!Number.isFinite(payment)){return;}const interest=principal*rate*termYears,total=principal+interest;$("mainResult").textContent=money(direction==="finance"?principal:payment);$("total").textContent=money(total);$("interest").textContent=money(interest);$("monthlyRate").textContent=(rate/12*100).toFixed(4)+"%";}
+function saveMonthlySnapshot(){const key="nbeProductRatesArchive";let archive=[];try{archive=JSON.parse(localStorage.getItem(key)||"[]");}catch(e){}const month=new Date().toISOString().slice(0,7);if(!archive.some(x=>x.month===month)){archive.unshift({month,personal,cars,savedAt:new Date().toISOString()});localStorage.setItem(key,JSON.stringify(archive.slice(0,24)));}renderArchive();}
+function renderArchive(){let archive=[];try{archive=JSON.parse(localStorage.getItem("nbeProductRatesArchive")||"[]");}catch(e){}$("archiveList").innerHTML=archive.length?archive.map((x,i)=>'<div class="archive-item"><b>'+esc(x.month)+'</b><span class="tag">'+(i===0?"Saved snapshot":"Previous snapshot")+'</span></div>').join(""):'<div class="muted">No monthly snapshots saved yet.</div>';}
+saveMonthlySnapshot();setDirection("finance");
 </script></body></html>
