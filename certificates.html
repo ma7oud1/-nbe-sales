@@ -12,6 +12,15 @@
 <body><main class="container">
 <header class="hero"><div><h1>EGP Certificate Management</h1><p>National Bank of Egypt - Certificate Guide & Return Calculator</p></div><a class="btn back" href="./index.html">Back to NBE Sales App ←</a></header>
 <nav class="tabs no-print"><button class="tab active" data-tab="desk">Calculator</button><button class="tab" data-tab="catalog">Certificate Catalog</button><button class="tab" data-tab="redemption">Early Redemption</button><button class="tab" data-tab="finance">Finance Against Certificate</button><button class="tab" data-tab="guide">Operations Guide</button></nav>
+<section class="panel no-print" id="rateUpdateBar" style="margin-top:14px">
+ <div class="section-title"><div><h2 style="margin:0">Certificate Rate Updates</h2><p class="mini" id="rateStatus" style="margin:6px 0 0">Rates are indicative reference values. Verify every change against an official NBE source.</p></div><button class="btn primary" id="manualRateBtn" type="button">Manual Rate Update</button></div>
+ <div id="manualRatePanel" class="hidden" style="margin-top:16px">
+  <p class="note">Enter rates only after confirming them through an official NBE announcement or the approved internal system. Saved manual rates apply in this browser only; they do not change the shared app for other users.</p>
+  <div id="manualRateFields" class="grid"></div>
+  <div class="actions"><button class="btn primary" id="saveManualRates" type="button">Save Rates</button><button class="btn secondary" id="cancelManualRates" type="button">Cancel</button><button class="btn secondary" id="restoreDefaultRates" type="button">Restore Reference Rates</button></div>
+  <p class="mini" id="manualRateMessage" aria-live="polite"></p>
+ </div>
+</section>
 
 <section id="desk" class="tab-page">
 <div class="panel"><h2>EGP Certificate Return Calculator</h2><div class="grid">
@@ -70,6 +79,47 @@ const products={
  fiveYearMonthly:{name:"Five-Year Fixed · Monthly",term:5,frequency:"Monthly",rates:[14.25,14.25,14.25,14.25,14.25],type:"Fixed",status:"Reference rate — verify live"}
 };
 let active="fixedMonthly";
+const RATE_STORAGE_KEY="nbeCertificateRates_v1";
+function loadSavedRates(){
+ try{
+  const saved=JSON.parse(localStorage.getItem(RATE_STORAGE_KEY)||"null");
+  if(!saved||!saved.rates)return;
+  Object.entries(saved.rates).forEach(([key,rates])=>{
+   if(products[key]&&Array.isArray(rates)&&rates.length===products[key].rates.length&&rates.every(v=>Number.isFinite(Number(v))&&Number(v)>=0&&Number(v)<=100)){
+    products[key].rates=rates.map(Number);
+   }
+  });
+ }catch(e){console.warn("Could not load saved certificate rates",e);}
+}
+function updateRateStatus(){
+ let saved=null;try{saved=JSON.parse(localStorage.getItem(RATE_STORAGE_KEY)||"null")}catch(e){}
+ const checked=saved&&saved.updatedAt?new Date(saved.updatedAt):null;
+ $("rateStatus").textContent=checked&&!isNaN(checked)?"Last manual update: "+checked.toLocaleString("en-EG")+" · Saved on this browser only.":"No manual rate update saved in this browser. Reference rates are indicative only.";
+}
+function openManualRateEditor(){
+ $("manualRateFields").innerHTML=Object.entries(products).map(([key,p])=>'<div class="product-card"><h3>'+p.name+'</h3>'+p.rates.map((rate,i)=>'<div class="field" style="margin-top:8px"><label>Year '+(i+1)+' rate (%)</label><input type="number" min="0" max="100" step=".01" data-rate-key="'+key+'" data-rate-index="'+i+'" value="'+rate+'"></div>').join("")+'</div>').join("");
+ $("manualRateMessage").textContent="";
+ $("manualRatePanel").classList.remove("hidden");
+}
+function saveManualRates(){
+ const next={};
+ document.querySelectorAll("#manualRateFields input[data-rate-key]").forEach(input=>{
+  const key=input.dataset.rateKey,index=Number(input.dataset.rateIndex),value=Number(input.value);
+  if(!next[key])next[key]=products[key].rates.slice();
+  if(input.value.trim()===""||!Number.isFinite(value)||value<0||value>100)throw new Error("Enter a valid rate between 0 and 100 for every field.");
+  next[key][index]=value;
+ });
+ const record={rates:next,updatedAt:new Date().toISOString()};
+ localStorage.setItem(RATE_STORAGE_KEY,JSON.stringify(record));
+ Object.entries(next).forEach(([key,rates])=>products[key].rates=rates);
+ renderCatalog();calc();updateRateStatus();
+ $("manualRateMessage").textContent="Rates saved on this browser. Confirmed official source details should be retained separately.";
+ $("manualRatePanel").classList.add("hidden");
+}
+function restoreReferenceRates(){
+ localStorage.removeItem(RATE_STORAGE_KEY);
+ location.reload();
+}
 function rateText(p){return p.rates.map(x=>x+"%").join(" / ")+(p.type==="Variable"?"*":"")}
 function options(){ $("product").innerHTML=Object.entries(products).map(([k,p])=>'<option value="'+k+'">'+p.name+'</option>').join("");}
 function renderCatalog(){
@@ -86,7 +136,11 @@ function calc(){
 }
 function showTab(id){document.querySelectorAll(".tab-page").forEach(x=>x.classList.toggle("hidden",x.id!==id));document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===id));}
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
-options();renderCatalog();
+loadSavedRates();options();renderCatalog();updateRateStatus();
+$("manualRateBtn").addEventListener("click",openManualRateEditor);
+$("saveManualRates").addEventListener("click",()=>{try{saveManualRates()}catch(e){$("manualRateMessage").textContent=e.message;}});
+$("cancelManualRates").addEventListener("click",()=>$("manualRatePanel").classList.add("hidden"));
+$("restoreDefaultRates").addEventListener("click",restoreReferenceRates);
 const today=new Date().toISOString().slice(0,10);$("startDate").value=today;$("issueDate").value=today;$("redeemDate").value=today;
 $("product").addEventListener("change",calc);$("amount").addEventListener("input",calc);$("calc").addEventListener("click",calc);calc();
 $("reset").addEventListener("click",()=>{$("amount").value=100000;$("product").value="fixedMonthly";calc();});
