@@ -1863,10 +1863,6 @@ tr:hover td{background:rgba(53,214,154,.07)!important}
   <button class="sidebar-item" data-page="settings" onclick="showPage('settings')"><span class="sidebar-item-icon">⚙</span><span>الإعدادات والنسخ الاحتياطي</span></button>
  </nav>
  <div class="sidebar-divider"></div>
- <div class="sidebar-quick-title">إجراءات سريعة</div>
- <div class="sidebar-quick-actions">
-  <button type="button" onclick="quickAdd('followup')">＋ إضافة متابعة</button>
- </div>
  <button type="button" class="sidebar-theme" onclick="toggleAppTheme()"><span>◐</span><span>تغيير مظهر التطبيق</span></button>
  <div class="sidebar-footer">NATIONAL BANK OF EGYPT<br><small>RASHID BRANCH · 394</small></div>
 </aside>
@@ -2072,7 +2068,6 @@ function buildAppPages(){
   ["home","",""],
   ["calculator","حساب فائدة المديونية الشهرية","حساب فائدة المديونية الشهرية بنسبة قابلة للتعديل"],
   ["loan-calculator","حاسبة القروض","احسب قيمة القرض أو القسط الشهري مع السداد الإضافي"],
-  ["followups","متابعة العملاء","إضافة ومراجعة مواعيد ونتائج التواصل مع العملاء"],
   ["visits","تقرير الزيارات","تسجيل ومراجعة تقارير الزيارات المرتبطة بالعملاء"],
   ["scanner","Card Scanner & Print Studio","Scan, enhance and print card-sized documents locally"],
   ["settings","الإعدادات","إدارة النسخ الاحتياطية وإعدادات التطبيق"]
@@ -2087,11 +2082,10 @@ function buildAppPages(){
  });
  pages.home.innerHTML=`
  <section class="tool-launcher">
-  <div class="launcher-heading"><div><h2>كل أدوات البرنامج</h2><p>اختار الأداة اللي محتاجها وابدأ شغلك مباشرة</p></div><span class="launcher-count">9 أدوات</span></div>
+  <div class="launcher-heading"><div><h2>كل أدوات البرنامج</h2><p>اختار الأداة اللي محتاجها وابدأ شغلك مباشرة</p></div><span class="launcher-count">8 أدوات</span></div>
   <div class="launcher-grid">
    <button class="launcher-card" onclick="showPage('calculator')"><span>％</span><strong>حاسبة فوائد المديونية</strong><small>حساب الفائدة الشهرية للكارت</small></button>
    <button class="launcher-card" onclick="showPage('loan-calculator')"><span>▦</span><strong>حاسبة القروض</strong><small>حساب القسط أو مبلغ التمويل</small></button>
-   <button class="launcher-card" onclick="showPage('followups')"><span>◷</span><strong>متابعة العملاء</strong><small>مواعيد ونتائج التواصل</small></button>
    <button class="launcher-card" onclick="showPage('visits')"><span>⌖</span><strong>تقرير الزيارات</strong><small>تسجيل ومراجعة الزيارات</small></button>
    <button class="launcher-card" onclick="showPage('scanner')"><span>▧</span><strong>NBE Smart Scanner</strong><small>تصوير المستندات وتجهيزها للطباعة</small></button>
    <a class="launcher-card" href="./iscore.html"><span>⌕</span><strong>I-Score</strong><small>دليل الأكواد والاستعلام</small></a>
@@ -2134,7 +2128,7 @@ function buildAppPages(){
  };
  move(".stats","home");
  move(".info-section","home");
- move(".followup-section","followups");
+ const followupSection=container.querySelector(".followup-section");if(followupSection)followupSection.remove();
  const calculator=document.createElement("div");
  calculator.className="section calculator-section";
  calculator.innerHTML=`
@@ -2273,7 +2267,6 @@ function toggleQuickMenu(){toggleSidebar();}
 function closeQuickMenu(){closeSidebar();}
 function quickAdd(type){
  closeQuickMenu();
- if(type==="followup"){showPage("followups");setTimeout(()=>document.getElementById("fName")?.focus(),80);return;}
  showPage("sales");showForm(type);
  setTimeout(()=>{const target=document.getElementById(type==="card"?"cName":"lName");target?.focus();target?.scrollIntoView({behavior:"smooth",block:"center"});},80);
 }
@@ -3128,7 +3121,7 @@ function importBackup(event){
 window.NBEStorageReady.then(async()=>{
  await NBEStore.purgeKey("NBE_SALES_REPORTS_V1");
  buildAppPages();nbeApplyLanguage(NBEStore.getItem(NBE_LANG_KEY)==="en"?"en":"ar",false);new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)nbeTranslateTree(n);else if(n.nodeType===3)nbeTranslateTree(n.parentElement);}))).observe(document.body,{childList:true,subtree:true});loadEmployeeSettings();setLoanMode('principal');showPage("home");resetCardInterest();
- loadFollowups();const performanceMonth=$("performanceMonth");if(performanceMonth)performanceMonth.value=today().slice(0,7);renderFollowups();setAppTheme(NBEStore.getItem("nbe_sales_theme")==="light"?"light":"dark");
+ await NBEStore.purgeKey("NBE_SALES_FOLLOWUPS_V1");setAppTheme(NBEStore.getItem("nbe_sales_theme")==="light"?"light":"dark");
  await NBEStore.purgeKey("nbe_crm_demo_customers_v1");
  if(typeof window.refreshNbeCrm==="function")window.refreshNbeCrm();
  const crmScript=document.createElement("script");
@@ -3349,7 +3342,6 @@ if(csGet("csQueue")){cardScannerInit();csObserver.disconnect();}
 
 <nav id="mainNav" class="bottom-nav no-print" aria-label="التنقل السريع">
  <button type="button" class="nav-btn active" data-page="home" onclick="showPage('home')" aria-label="الرئيسية"><span class="nav-icon" aria-hidden="true">⌂</span><span>الرئيسية</span></button>
- <button type="button" class="nav-btn" data-page="followups" onclick="showPage('followups')" aria-label="المتابعة"><span class="nav-icon" aria-hidden="true">◷</span><span>المتابعة</span></button>
  <a class="nav-btn" href="./iscore.html" aria-label="أكواد I-Score" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;justify-content:center"><span class="nav-icon" aria-hidden="true">⌕</span><span>أكواد I-Score</span></a>
 </nav>
 </body>
