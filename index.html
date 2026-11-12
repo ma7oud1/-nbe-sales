@@ -310,6 +310,24 @@ body{padding-bottom:24px}
 .theme-toggle-btn span:first-child{font-size:18px;line-height:1}
 @media(max-width:520px){.theme-toggle-btn{padding:9px 11px;font-size:12px}}
 .app-page{display:none;animation:pageIn .18s ease}
+
+.tool-launcher{margin:18px 0 30px;padding:22px;background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow)}
+.launcher-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.launcher-heading h2{margin:0;color:var(--green);font-size:20px}
+.launcher-heading p{margin:6px 0 0;color:var(--muted);font-size:12px}
+.launcher-count{background:var(--bg);border:1px solid var(--border);border-radius:30px;padding:7px 12px;color:var(--green);font-size:11px;font-weight:bold;white-space:nowrap}
+.launcher-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.launcher-card{min-width:0;min-height:125px;padding:17px;text-align:right;text-decoration:none;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;cursor:pointer;transition:transform .18s,border-color .18s,background .18s}
+.launcher-card:hover{transform:translateY(-3px);border-color:var(--green);background:var(--card)}
+.launcher-card>span{width:35px;height:35px;border-radius:10px;display:grid;place-items:center;background:rgba(22,168,117,.13);color:var(--green);font-size:21px;font-weight:bold}
+.launcher-card strong{font-size:14px;line-height:1.5}
+.launcher-card small{font-size:11px;line-height:1.6;color:var(--muted)}
+body.dark .launcher-card{background:#101b17}
+body.dark .launcher-card:hover{background:#1b2d24}
+#mainNav{display:none!important}
+@media(max-width:760px){.tool-launcher{padding:15px}.launcher-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.launcher-card{min-height:116px;padding:12px}.launcher-card strong{font-size:12px}.launcher-card small{font-size:10px}}
+@media(max-width:370px){.launcher-grid{grid-template-columns:1fr 1fr}.launcher-card{padding:10px}}
+
 .app-page.active{display:block}
 .page-heading{padding:14px 4px 2px}
 .page-heading h2{margin:0;color:var(--green);font-size:19px}
@@ -2242,6 +2260,25 @@ function buildAppPages(){
   page.innerHTML=id==="home"?"":'<div class="page-heading"><h2>'+title+'</h2><p>'+description+'</p></div>';
   host.append(page);pages[id]=page;
  });
+ pages.home.innerHTML=`
+ <section class="tool-launcher">
+  <div class="launcher-heading"><div><h2>كل أدوات NBE Sales</h2><p>اختار الأداة اللي محتاجها وابدأ شغلك مباشرة</p></div><span class="launcher-count">12 أداة</span></div>
+  <div class="launcher-grid">
+   <button class="launcher-card" onclick="showPage('sales')"><span>▤</span><strong>المبيعات</strong><small>تسجيل الكروت والقروض والتقارير</small></button>
+   <button class="launcher-card" onclick="showPage('calculator')"><span>％</span><strong>حاسبة فوائد المديونية</strong><small>حساب الفائدة الشهرية للكارت</small></button>
+   <button class="launcher-card" onclick="showPage('loan-calculator')"><span>▦</span><strong>حاسبة القروض</strong><small>حساب القسط أو مبلغ التمويل</small></button>
+   <button class="launcher-card" onclick="showPage('customers')"><span>♙</span><strong>إدارة العملاء CRM</strong><small>ملفات وبيانات العملاء</small></button>
+   <button class="launcher-card" onclick="showPage('followups')"><span>◷</span><strong>متابعة العملاء</strong><small>مواعيد ونتائج التواصل</small></button>
+   <button class="launcher-card" onclick="showPage('visits')"><span>⌖</span><strong>تقرير الزيارات</strong><small>تسجيل ومراجعة الزيارات</small></button>
+   <button class="launcher-card" onclick="showPage('archive')"><span>▣</span><strong>الأرشيف</strong><small>التقارير اليومية المحفوظة</small></button>
+   <button class="launcher-card" onclick="showPage('scanner')"><span>▧</span><strong>NBE Smart Scanner</strong><small>تصوير المستندات وتجهيزها للطباعة</small></button>
+   <a class="launcher-card" href="./iscore.html"><span>⌕</span><strong>I-Score</strong><small>دليل الأكواد والاستعلام</small></a>
+   <a class="launcher-card" href="./certificates.html"><span>٪</span><strong>شهادات البنك</strong><small>المنتجات والشهادات</small></a>
+   <a class="launcher-card" href="./rates.html"><span>▤</span><strong>أكواد وأسعار المنتجات</strong><small>معلومات المنتجات والعوائد</small></a>
+   <button class="launcher-card" onclick="showPage('settings')"><span>⚙</span><strong>الإعدادات</strong><small>النسخ الاحتياطي وإعدادات البرنامج</small></button>
+  </div>
+ </section>`;
+
 
  pages.scanner.insertAdjacentHTML("beforeend",`
  <div class="scanner-workspace">
