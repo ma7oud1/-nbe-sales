@@ -2128,7 +2128,7 @@ function buildAppPages(){
   <div class="form-grid">
    <div class="field" id="loanPrincipalField"><label for="loanPrincipal">قيمة القرض (جنيه)</label><input id="loanPrincipal" type="number" min="1" step="0.01" placeholder="مثال: 100000"></div>
    <div class="field" id="loanMonthlyField"><label for="loanMonthly">القسط الشهري (جنيه)</label><input id="loanMonthly" type="number" min="1" step="0.01" placeholder="مثال: 3000"></div>
-   <div class="field"><label for="loanAnnualRate">فايدة القرض السنوية (%)</label><input id="loanAnnualRate" type="number" min="0" step="0.01" value="21"></div>
+   <div class="field"><label for="loanAnnualRate">فايدة القرض السنوية (%)</label><input id="loanAnnualRate" type="number" min="0" step="0.01" value="22"></div>
    <div class="field"><label for="loanMethod">طريقة حساب القرض</label><select id="loanMethod" onchange="toggleLoanIncreaseField()"><option value="fixed">قسط ثابت - فائدة متناقصة</option><option value="increasing">أقساط متزايدة سنوياً - فائدة متناقصة</option></select></div>
    <div class="field" id="loanIncreaseField" style="display:none"><label for="loanAnnualIncrease">نسبة زيادة القسط سنوياً (%)</label><input id="loanAnnualIncrease" type="number" min="0" max="100" step="0.01" value="7"><small class="muted">تُطبق الزيادة على قسط السنة السابقة كل 12 شهراً.</small></div>
    <div class="field"><label for="loanFirstInstallmentDate">تاريخ أول قسط</label><input id="loanFirstInstallmentDate" type="date" required><small class="muted">سيتم تحديد مواعيد الأقساط التالية شهريًا بناءً على هذا التاريخ.</small></div>
@@ -2787,7 +2787,7 @@ function printLoanSchedule(){
 function resetLoanCalculator(){
  $("loanPrincipal").value="";
  $("loanMonthly").value="";
- $("loanAnnualRate").value="21";
+ $("loanAnnualRate").value="22";
  $("loanMethod").value="fixed";
  $("loanAnnualIncrease").value="7";
  toggleLoanIncreaseField();
