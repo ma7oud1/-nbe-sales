@@ -1830,6 +1830,14 @@ tr:hover td{background:rgba(53,214,154,.07)!important}
 .scanner-gallery-card .scanner-tools{display:flex;gap:6px;flex-wrap:wrap;padding:0 10px 10px}
 .scanner-camera-fab{position:fixed;z-index:1200;bottom:calc(82px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:66px;height:66px;border:0;border-radius:50%;background:var(--green);color:white;box-shadow:0 8px 26px #0005;display:grid;place-items:center;cursor:pointer}.scanner-camera-fab span{font-size:29px;line-height:1}
 @media(min-width:700px){.scanner-gallery{min-height:65vh}.scanner-gallery-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.scanner-camera-fab{left:auto;right:34px;transform:none;bottom:35px}}
+
+/* Live card camera with edge tracking */
+.cs-live-camera{position:fixed;inset:0;z-index:3000;background:#050807;display:none;flex-direction:column;color:#fff;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
+.cs-live-camera.open{display:flex}.cs-live-top{display:flex;align-items:center;justify-content:space-between;padding:14px 2px;font-weight:800}.cs-live-close{border:0;background:#26352f;color:#fff;border-radius:50%;width:42px;height:42px;font-size:24px}
+.cs-live-stage{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:16px;background:#101815}
+.cs-live-stage video{width:100%;height:100%;object-fit:contain}.cs-live-stage canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cs-live-hint{text-align:center;color:#dce9e2;font-size:13px;padding:13px 4px;min-height:44px}.cs-live-bottom{display:flex;justify-content:center;align-items:center;padding:10px 0 20px}.cs-live-shutter{width:76px;height:76px;border:5px solid #fff;border-radius:50%;background:#16a875;box-shadow:0 0 0 5px #ffffff35}.cs-live-shutter:disabled{opacity:.45}
+.cs-live-shutter:after{content:"";display:block;width:48px;height:48px;border:2px solid #fff;border-radius:50%;margin:auto}
 </style>
 </head>
 <body>
@@ -2108,6 +2116,7 @@ function buildAppPages(){
   <div class="scanner-gallery-head"><div><h2>المستندات المصورة</h2><p>صور واحفظ أوراقك وبطاقات العملاء في مكان واحد</p></div><span class="scanner-count-pill" id="csSavedCount">0 مستند</span></div>
   <div id="csSavedDocs" class="scanner-gallery-grid"><div class="scanner-gallery-empty"><span>▤</span><strong>لسه مفيش مستندات</strong><small>اضغط على علامة الكاميرا لتصوير أول مستند</small></div></div>
   <button type="button" class="scanner-camera-fab" aria-label="تصوير مستند" onclick="cardScannerQuickCapture()"><span>📷</span></button>
+  <div id="csLiveCamera" class="cs-live-camera" aria-hidden="true"><div class="cs-live-top"><strong>تصوير البطاقة</strong><button type="button" class="cs-live-close" onclick="cardScannerCloseCamera()" aria-label="إغلاق">×</button></div><div class="cs-live-stage"><video id="csLiveVideo" autoplay muted playsinline></video><canvas id="csLiveOverlay"></canvas></div><div id="csLiveHint" class="cs-live-hint">وجه البطاقة داخل إطار الكاميرا</div><div class="cs-live-bottom"><button id="csLiveShutter" class="cs-live-shutter" type="button" onclick="cardScannerTakeLivePhoto()" aria-label="التقاط الصورة"></button></div></div>
   <input class="scanner-camera-input" id="csFrontCamera" type="file" accept="image/*" capture="environment">
   <input class="scanner-file" id="csFrontFile" type="file" accept="image/*"><input class="scanner-camera-input" id="csBackCamera" type="file" accept="image/*" capture="environment"><input class="scanner-file" id="csBackFile" type="file" accept="image/*">
   <input id="csName" type="hidden" value=""><select id="csType" hidden><option>Customer documents</option><option>National ID</option><option>Bank card</option></select>
@@ -3253,7 +3262,41 @@ async function csAutoProcess(side){
  if(status)status.textContent=detected?"✓ Document edges detected and perspective corrected.":"Could not find all four edges — showing the original framing. Try a clearer photo with the whole page visible.";
  return true;
 }
-let csQuickCapturePending=false;function cardScannerQuickCapture(){csQuickCapturePending=true;const input=csGet("csFrontCamera");if(input){input.value="";input.click();}}async function csSaveQuickCapture(){const item=cardScannerState.front;if(!item)return;try{await window.NBEStorageReady;const docs=await NBEStore.getScannerDocs();const doc={id:Date.now()+"-"+Math.random().toString(36).slice(2,7),name:"مستند "+(docs.length+1),type:"Customer documents",front:item.processed||item.source,back:null,savedAt:Date.now()};await NBEStore.putScannerDoc(doc);cardScannerState.front=null;csQuickCapturePending=false;await cardScannerRenderSaved();}catch(e){csQuickCapturePending=false;console.error(e);alert("تعذر حفظ الصورة على الجهاز. حاول مرة أخرى.");}}function cardScannerAutoOnUpload(side){const status=csGet("csAutoStatus");if(status)status.textContent="Automatically enhancing "+side+" side…";csAutoProcess(side).then(async ok=>{if(ok){cardScannerState[side].processed=cardScannerState[side].source;if(status)status.textContent="تم تجهيز الصورة";if(side==="front"&&csQuickCapturePending)await csSaveQuickCapture();}}).catch(async e=>{if(status)status.textContent="Auto scan could not detect this side: "+e.message;if(side==="front"&&csQuickCapturePending){cardScannerState.front.processed=cardScannerState.front.source;await csSaveQuickCapture();}});}
+let csQuickCapturePending=false,csLiveStream=null,csLiveDetectTimer=null,csLiveBusy=false,csLiveQuad=null;
+async function cardScannerQuickCapture(){
+ const modal=csGet("csLiveCamera"),video=csGet("csLiveVideo"),hint=csGet("csLiveHint");
+ if(!navigator.mediaDevices?.getUserMedia){const input=csGet("csFrontCamera");if(input){csQuickCapturePending=true;input.value="";input.click();}return;}
+ try{
+  modal.classList.add("open");modal.setAttribute("aria-hidden","false");hint.textContent="جاري تشغيل الكاميرا…";
+  csLiveStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:960}}});
+  video.srcObject=csLiveStream;await video.play();hint.textContent="حرّك الكاميرا حتى تظهر البطاقة كاملة داخل الإطار";
+  cardScannerStartLiveDetection();
+ }catch(e){console.warn("Live camera unavailable:",e);cardScannerCloseCamera();alert("تعذر تشغيل الكاميرا المباشرة. تأكد من السماح باستخدام الكاميرا ثم حاول مرة أخرى.");}
+}
+function cardScannerCloseCamera(){
+ if(csLiveDetectTimer){clearInterval(csLiveDetectTimer);csLiveDetectTimer=null;}
+ if(csLiveStream){csLiveStream.getTracks().forEach(t=>t.stop());csLiveStream=null;}
+ const video=csGet("csLiveVideo");if(video)video.srcObject=null;
+ const modal=csGet("csLiveCamera");if(modal){modal.classList.remove("open");modal.setAttribute("aria-hidden","true");}
+ csLiveQuad=null;csLiveBusy=false;const canvas=csGet("csLiveOverlay");if(canvas)canvas.getContext("2d")?.clearRect(0,0,canvas.width,canvas.height);
+}
+async function cardScannerStartLiveDetection(){
+ const video=csGet("csLiveVideo"),canvas=csGet("csLiveOverlay"),hint=csGet("csLiveHint");
+ const draw=()=>{if(!canvas||!video.videoWidth)return;const w=canvas.width=canvas.clientWidth*devicePixelRatio,h=canvas.height=canvas.clientHeight*devicePixelRatio,ctx=canvas.getContext("2d");ctx.clearRect(0,0,w,h);ctx.lineWidth=4*devicePixelRatio;ctx.strokeStyle=csLiveQuad?"#21e69b":"#ffffffbb";ctx.shadowColor=csLiveQuad?"#21e69b":"transparent";ctx.shadowBlur=csLiveQuad?12:0;
+  if(csLiveQuad){ctx.beginPath();csLiveQuad.forEach((p,i)=>{const x=p.x/video.videoWidth*w,y=p.y/video.videoHeight*h;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.closePath();ctx.fillStyle="#16a87522";ctx.fill();ctx.stroke();hint.textContent="✓ تم اكتشاف حواف البطاقة — ثبّت الهاتف والتقط الصورة";}else{ctx.strokeStyle="#ffffffa8";ctx.setLineDash([10*devicePixelRatio,8*devicePixelRatio]);ctx.strokeRect(w*.10,h*.25,w*.80,h*.50);ctx.setLineDash([]);hint.textContent="ابحث عن البطاقة واجعلها كاملة وواضحة داخل الصورة";}}
+ draw();
+ try{const cv=await csLoadOpenCV();csLiveDetectTimer=setInterval(()=>{if(csLiveBusy||!video.videoWidth||video.readyState<2)return;csLiveBusy=true;try{
+  const scale=Math.min(1,720/video.videoWidth),ww=Math.round(video.videoWidth*scale),hh=Math.round(video.videoHeight*scale),frame=document.createElement("canvas");frame.width=ww;frame.height=hh;frame.getContext("2d").drawImage(video,0,0,ww,hh);
+  const src=cv.imread(frame),gray=new cv.Mat(),blur=new cv.Mat(),edges=new cv.Mat(),contours=new cv.MatVector(),hier=new cv.Mat(),kernel=cv.Mat.ones(3,3,cv.CV_8U);cv.cvtColor(src,gray,cv.COLOR_RGBA2GRAY);cv.GaussianBlur(gray,blur,new cv.Size(5,5),0);cv.Canny(blur,edges,45,135);cv.dilate(edges,edges,kernel);cv.findContours(edges,contours,hier,cv.RETR_LIST,cv.CHAIN_APPROX_SIMPLE);
+  let areaBest=0,points=null;for(let i=0;i<contours.size();i++){const c=contours.get(i),approx=new cv.Mat();cv.approxPolyDP(c,approx,.025*cv.arcLength(c,true),true);if(approx.rows===4&&cv.isContourConvex(approx)){const area=Math.abs(cv.contourArea(approx));if(area>areaBest&&area>ww*hh*.045){const p=[];for(let j=0;j<4;j++)p.push({x:approx.intAt(j,0)/scale,y:approx.intAt(j,1)/scale});const ordered=csOrderCorners(p),a=Math.hypot(ordered[1].x-ordered[0].x,ordered[1].y-ordered[0].y),b=Math.hypot(ordered[3].x-ordered[0].x,ordered[3].y-ordered[0].y),ratio=Math.max(a,b)/Math.max(1,Math.min(a,b));if(ratio>1.25&&ratio<2.05){areaBest=area;points=ordered;}}}approx.delete();c.delete();}
+  csLiveQuad=points;[src,gray,blur,edges,contours,hier,kernel].forEach(m=>m.delete());frame.width=frame.height=1;draw();
+ }catch(e){console.warn("Live edge detection:",e);}finally{csLiveBusy=false;}},260);
+ }catch(e){console.warn("Live edge detector unavailable:",e);hint.textContent="الكاميرا تعمل — اضبط البطاقة داخل الإطار ثم التقط الصورة.";}
+}
+async function cardScannerTakeLivePhoto(){
+ const video=csGet("csLiveVideo"),button=csGet("csLiveShutter");if(!video?.videoWidth)return;
+ button.disabled=true;try{const canvas=document.createElement("canvas");canvas.width=video.videoWidth;canvas.height=video.videoHeight;canvas.getContext("2d").drawImage(video,0,0);const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",.94));if(!blob)throw new Error("capture");const file=new File([blob],"card-capture.jpg",{type:"image/jpeg",lastModified:Date.now()});csQuickCapturePending=true;cardScannerCloseCamera();await csLoadSide("front",file);}catch(e){console.error(e);alert("تعذر التقاط الصورة. حاول مرة أخرى.");}finally{button.disabled=false;}
+}async function csSaveQuickCapture(){const item=cardScannerState.front;if(!item)return;try{await window.NBEStorageReady;const docs=await NBEStore.getScannerDocs();const doc={id:Date.now()+"-"+Math.random().toString(36).slice(2,7),name:"مستند "+(docs.length+1),type:"Customer documents",front:item.processed||item.source,back:null,savedAt:Date.now()};await NBEStore.putScannerDoc(doc);cardScannerState.front=null;csQuickCapturePending=false;await cardScannerRenderSaved();}catch(e){csQuickCapturePending=false;console.error(e);alert("تعذر حفظ الصورة على الجهاز. حاول مرة أخرى.");}}function cardScannerAutoOnUpload(side){const status=csGet("csAutoStatus");if(status)status.textContent="Automatically enhancing "+side+" side…";csAutoProcess(side).then(async ok=>{if(ok){cardScannerState[side].processed=cardScannerState[side].source;if(status)status.textContent="تم تجهيز الصورة";if(side==="front"&&csQuickCapturePending)await csSaveQuickCapture();}}).catch(async e=>{if(status)status.textContent="Auto scan could not detect this side: "+e.message;if(side==="front"&&csQuickCapturePending){cardScannerState.front.processed=cardScannerState.front.source;await csSaveQuickCapture();}});}
 async function cardScannerAutoAll(){
  const btn=csGet("csAutoBtn");if(btn){btn.disabled=true;btn.textContent="Scanning…";}
  try{
