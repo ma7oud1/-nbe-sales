@@ -2295,22 +2295,6 @@ function buildAppPages(){
  };
  move(".stats","home");
  move(".info-section","home");
- const allTimePanel=document.createElement("section");
- allTimePanel.className="alltime-overview";
- allTimePanel.innerHTML=`
-  <div class="alltime-heading"><div><span>SALES PERFORMANCE</span><h2>إجمالي إنجازاتك</h2><p>إحصائيات تراكمية لكل العمليات المسجلة في التطبيق</p></div><b>ALL TIME</b></div>
-  <div class="alltime-grid">
-   <article class="alltime-kpi"><small>إجمالي الكروت</small><strong id="allTimeCards">0</strong><span>كارت مسجل</span></article>
-   <article class="alltime-kpi"><small>العملاء الذين قابلتهم</small><strong id="allTimeCustomers">0</strong><span>عميل مختلف من تقارير الزيارات</span></article>
-   <article class="alltime-kpi"><small>إجمالي القروض</small><strong id="allTimeLoans">0</strong><span>قرض مسجل</span></article>
-   <article class="alltime-kpi alltime-amount"><small>إجمالي مبالغ القروض</small><strong id="allTimeLoanAmount">0</strong><span>جنيه مصري</span></article>
-  </div>`;
- pages.home.insertBefore(allTimePanel,pages.home.querySelector(".info-section")||pages.home.firstChild);
- // Keep the daily report as its own full-width block directly below the hero.
- const dailyReportPanel=pages.home.querySelector(".info-section");
- const homeStatsPanel=pages.home.querySelector(".stats");
- if(dailyReportPanel&&homeStatsPanel)pages.home.insertBefore(dailyReportPanel,homeStatsPanel);
-
  move(".entry-section","sales");
  move(".ledger-section","sales");
  move(".cards-section","sales");
