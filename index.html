@@ -1875,24 +1875,7 @@ tr:hover td{background:rgba(53,214,154,.07)!important}
  <div class="print-staff-data"><div><small>اسم الموظف</small><strong>محمود محمد رزق</strong></div><div><small>رقم السيلز</small><strong>479511</strong></div><div><small>الفرع</small><strong>رشيد - 394</strong></div></div>
 </div>
 
-<div class="section info-section">
- <div class="section-title">
-  <h2>بيانات التقرير اليومي</h2>
-  <span class="badge">DAILY SALES REPORT</span>
- </div>
- <div class="grid">
-  <div class="field"><label>تاريخ التقرير</label><input type="date" id="reportDate" lang="en-GB" dir="ltr" aria-label="Report date (DD/MM/YYYY)" onchange="changeDate()"></div>
-  <div class="field"><label>اسم موظف المبيعات</label><input id="employee" value="محمود محمد رزق" readonly></div>
-  <div class="field"><label>رقم السيلز</label><input id="salesNo" value="479511" readonly></div>
-  <div class="field"><label>الفرع</label><input id="branchInfo" value="رشيد - 394" readonly></div>
- </div>
- <div class="actions no-print">
-  <button class="btn primary" onclick="saveReport()">حفظ التقرير</button>
-  <button class="btn secondary" onclick="printReport()">طباعة التقرير كامل</button>
-  <button class="btn gold-btn" onclick="printLedger()">طباعة سجل المبيعات فقط</button>
-  <button class="btn light-btn" onclick="exportLedgerImage()">تصدير صورة لسجل المبيعات</button>
- </div>
-</div>
+
 
 
 
@@ -2659,7 +2642,9 @@ function saveReport(silent=false){
  if(!silent)alert("تم حفظ تقرير يوم "+formatReportDate(currentDate)+" بنجاح");
 }
 function changeDate(){
- const selected=$("reportDate").value;
+ const reportDate=$("reportDate");
+ if(!reportDate)return;
+ const selected=reportDate.value;
  if(!selected)return;
  saveReport(true);
  currentDate=selected;
@@ -2667,11 +2652,10 @@ function changeDate(){
  fillInfo();renderAll();
 }
 function fillInfo(){
- $("reportDate").value=currentDate;
- $("employee").value=EMPLOYEE;
- $("salesNo").value=SALES_NO;
+ const reportDate=$("reportDate");if(reportDate)reportDate.value=currentDate;
+ const employee=$("employee");if(employee)employee.value=EMPLOYEE;
+ const salesNo=$("salesNo");if(salesNo)salesNo.value=SALES_NO;
  const branchInfo=$("branchInfo");if(branchInfo)branchInfo.value=BRANCH_NAME+" - "+BRANCH_CODE;
-
 }
 function showForm(type){
  $("cardForm").classList.toggle("hidden",type!=="card");
