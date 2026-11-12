@@ -2111,13 +2111,11 @@ function buildAppPages(){
    <div class="field" id="loanPrincipalField"><label for="loanPrincipal">قيمة القرض (جنيه)</label><input id="loanPrincipal" type="number" min="1" step="0.01" placeholder="مثال: 100000"></div>
    <div class="field" id="loanMonthlyField"><label for="loanMonthly">القسط الشهري (جنيه)</label><input id="loanMonthly" type="number" min="1" step="0.01" placeholder="مثال: 3000"></div>
    <div class="field"><label for="loanAnnualRate">فايدة القرض السنوية (%)</label><input id="loanAnnualRate" type="number" min="0" step="0.01" value="21"></div>
-   <div class="field"><label for="loanMethod">طريقة حساب القرض</label><select id="loanMethod" onchange="toggleLoanIncreaseField()"><option value="fixed">قسط ثابت - فائدة متناقصة</option><option value="increasing">أقساط متزايدة سنوياً - فائدة متناقصة</option></select></div>
-   <div class="field" id="loanIncreaseField" style="display:none"><label for="loanAnnualIncrease">نسبة زيادة القسط سنوياً (%)</label><input id="loanAnnualIncrease" type="number" min="0" max="100" step="0.01" value="7"><small class="muted">تُطبق الزيادة على قسط السنة السابقة كل 12 شهراً.</small></div>
    <div class="field"><label for="loanFirstInstallmentDate">تاريخ أول قسط</label><input id="loanFirstInstallmentDate" type="date" required><small class="muted">سيتم تحديد مواعيد الأقساط التالية شهريًا بناءً على هذا التاريخ.</small></div>
    <div class="field"><label>مدة القرض</label><div class="grid" style="grid-template-columns:1fr 1fr;gap:8px"><div><label for="loanYears">السنين</label><input id="loanYears" type="number" min="0" max="50" step="1" value="5" placeholder="سنين"></div><div><label for="loanMonthsPart">الشهور</label><input id="loanMonthsPart" type="number" min="0" max="11" step="1" value="0" placeholder="شهور"></div></div></div>
   </div>
   <div class="section-title" style="margin-top:22px"><h2>السداد الإضافي</h2><span class="badge">اختياري ومتعدد</span></div>
-  <p class="muted">أضف دفعة أو أكثر، وحدد أول تاريخ لها وتكرارها. عند إضافة سداد إضافي تُستخدم طريقة الأيام الفعلية / 360 في الحساب التقديري.</p>
+  <p class="muted">أضف دفعة أو أكثر وحدد أول تاريخ لها وتكرارها. تُحسب الفائدة دائمًا بالأيام الفعلية على أساس 360 يومًا (Actual/360)، سواء وُجد سداد إضافي أم لا. تاريخ بداية احتساب الفائدة هو تاريخ اليوم تلقائيًا.</p>
   <div id="loanExtraRows" class="loan-extra-rows"></div>
   <div class="actions no-print"><button class="btn light-btn" type="button" onclick="addLoanExtraRow()">＋ إضافة سداد إضافي</button><button class="btn primary" type="button" onclick="calculateLoan()">احسب الآن</button><button class="btn light-btn" type="button" onclick="resetLoanCalculator()">إعادة تعيين</button></div>
   <div class="stats calculator-results" id="loanResults" style="display:none">
@@ -2329,10 +2327,6 @@ function fmtCardMoney(n){
 }
 let loanMode="principal";
 let loanExtraCounter=0;
-function toggleLoanIncreaseField(){
- const field=$("loanIncreaseField"),method=$("loanMethod")?.value||"fixed";
- if(field)field.style.display=method==="increasing"?"block":"none";
-}
 function setLoanMode(mode){
  loanMode=mode;
  const principalMode=mode==="principal";
@@ -2384,90 +2378,48 @@ function getLoanExtras(termMonths){
  }
  return extras;
 }
-function simulateLoan(principal,monthly,term,annualRate,extras,annualIncrease=0,firstInstallmentDate=null){
+function simulateLoan(principal,monthly,term,annualRate,extras,firstInstallmentDate=null){
  const base=new Date();base.setHours(12,0,0,0);
  const firstDate=firstInstallmentDate?new Date(firstInstallmentDate+"T12:00:00"):loanAddMonths(base,1);
- const lastDate=loanAddMonths(firstDate,term-1);
- const events=[];
- for(let month=1;month<=term;month++){
-  const installment=monthly*Math.pow(1+annualIncrease/100,Math.floor((month-1)/12));
-  events.push({date:loanAddMonths(firstDate,month-1),type:"monthly",amount:installment,month,installment});
- }
- extras.forEach(extra=>{
-  let date=new Date(extra.date);
-  let guard=0;
-  while(date<=lastDate&&guard++<term+2){
-   if(date>base)events.push({date:new Date(date),type:"extra",amount:extra.amount});
-   date=loanAddMonths(date,extra.interval);
-  }
- });
+ const lastDate=loanAddMonths(firstDate,term-1),events=[];
+ for(let month=1;month<=term;month++)events.push({date:loanAddMonths(firstDate,month-1),type:"monthly",amount:monthly,month,installment:monthly});
+ extras.forEach(extra=>{let date=new Date(extra.date),guard=0;while(date<=lastDate&&guard++<term+2){if(date>base)events.push({date:new Date(date),type:"extra",amount:extra.amount});date=loanAddMonths(date,extra.interval);}});
  events.sort((a,b)=>a.date-b.date||(a.type==="monthly"?-1:1));
- let balance=principal,interest=0,totalPaid=0,previous=base,monthlyCount=0;
- const daily=extras.length>0,yearlyInstallments=[],schedule=[];
- for(const event of events){
-  if(balance<=0.005)break;
-  const openingBalance=balance;
-  const days=Math.max(0,Math.round((event.date-previous)/86400000));
-  const accrued=daily?balance*(annualRate/100)*days/360:balance*(annualRate/100)/12;
-  balance+=accrued;interest+=accrued;previous=event.date;
-  const paid=Math.min(balance,event.amount);
-  balance-=paid;totalPaid+=paid;
-  const principalPaid=Math.max(0,paid-accrued);
-  if(event.type==="monthly"){
-   monthlyCount++;
-   const year=Math.floor((event.month-1)/12)+1;
-   yearlyInstallments[year-1]={year,installment:event.installment,count:(yearlyInstallments[year-1]?.count||0)+1};
-  }
-  schedule.push({
-   number:schedule.length+1,kind:event.type==="monthly"?"قسط شهري":"سداد إضافي",
-   date:loanDateValue(event.date),monthlyNumber:event.type==="monthly"?monthlyCount:"",
-   openingBalance,interest:accrued,payment:paid,principalPaid,closingBalance:balance
-  });
- }
- return {paidOff:balance<=0.02,balance,interest,totalPaid,monthlyCount,yearlyInstallments,schedule};
+ let balance=principal,interest=0,totalPaid=0,previous=base,monthlyCount=0;const schedule=[];
+ for(const event of events){if(balance<=0.005)break;const openingBalance=balance;const days=Math.max(0,Math.round((event.date-previous)/86400000));const accrued=balance*(annualRate/100)*days/360;balance+=accrued;interest+=accrued;previous=event.date;const paid=Math.min(balance,event.amount);balance-=paid;totalPaid+=paid;const principalPaid=Math.max(0,paid-accrued);if(event.type==="monthly")monthlyCount++;schedule.push({number:schedule.length+1,kind:event.type==="monthly"?"قسط شهري":"سداد إضافي",date:loanDateValue(event.date),monthlyNumber:event.type==="monthly"?monthlyCount:"",openingBalance,interest:accrued,payment:paid,principalPaid,closingBalance:balance});}
+ return {paidOff:balance<=0.02,balance,interest,totalPaid,monthlyCount,schedule};
 }
 function calculateLoan(){
  try{
   const years=Number($("loanYears").value),months=Number($("loanMonthsPart").value),term=years*12+months,rate=Number($("loanAnnualRate").value);
-  const firstDateValue=$("loanFirstInstallmentDate").value;
-  const firstDate=firstDateValue?new Date(firstDateValue+"T12:00:00"):null;
-  const today=new Date();today.setHours(0,0,0,0);
+  const firstDateValue=$("loanFirstInstallmentDate").value,firstDate=firstDateValue?new Date(firstDateValue+"T12:00:00"):null,today=new Date();today.setHours(0,0,0,0);
   if(!firstDate||Number.isNaN(firstDate.getTime())||firstDate<today)throw new Error("حدد تاريخ أول قسط بتاريخ اليوم أو تاريخ لاحق.");
-  const method=$("loanMethod")?.value||"fixed";
-  const increase=method==="increasing"?Number($("loanAnnualIncrease").value):0;
   if(!Number.isInteger(years)||years<0||years>50||!Number.isInteger(months)||months<0||months>11||term<1||term>600||!Number.isFinite(rate)||rate<0||rate>100)throw new Error("أدخل مدة صحيحة بالسنين والشهور، بحد أقصى 50 سنة.");
-  if(!Number.isFinite(increase)||increase<0||increase>100)throw new Error("أدخل نسبة زيادة سنوية صحيحة من 0 إلى 100%.");
   const extras=getLoanExtras(term);
   if(loanMode==="principal"){
-   const monthly=Number($("loanMonthly").value);
-   if(!Number.isFinite(monthly)||monthly<=0)throw new Error("أدخل قيمة القسط الشهري بشكل صحيح.");
-   const scheduledBase=Array.from({length:term},(_,i)=>monthly*Math.pow(1+increase/100,Math.floor(i/12))).reduce((sum,x)=>sum+x,0);
-   let low=0,high=scheduledBase+extras.reduce((sum,x)=>sum+x.amount*Math.ceil(term/x.interval),0);
-   for(let i=0;i<90;i++){const mid=(low+high)/2;if(simulateLoan(mid,monthly,term,rate,extras,increase,firstDateValue).paidOff)low=mid;else high=mid;}
+   const monthly=Number($("loanMonthly").value);if(!Number.isFinite(monthly)||monthly<=0)throw new Error("أدخل قيمة القسط الشهري بشكل صحيح.");
+   const scheduledBase=monthly*term;let low=0,high=scheduledBase+extras.reduce((sum,x)=>sum+x.amount*Math.ceil(term/x.interval),0);
+   for(let i=0;i<90;i++){const mid=(low+high)/2;if(simulateLoan(mid,monthly,term,rate,extras,firstDateValue).paidOff)low=mid;else high=mid;}
    if(low<=0.01)throw new Error("القسط غير كافٍ لسداد قرض بهذه المدة وسعر العائد.");
-   const result=simulateLoan(low,monthly,term,rate,extras,increase,firstDateValue);
-   showLoanResult(low,monthly,result,extras.length,method,increase);
+   const result=simulateLoan(low,monthly,term,rate,extras,firstDateValue);showLoanResult(low,monthly,result,extras.length);
   }else{
-   const principal=Number($("loanPrincipal").value);
-   if(!Number.isFinite(principal)||principal<=0)throw new Error("أدخل قيمة القرض بشكل صحيح.");
+   const principal=Number($("loanPrincipal").value);if(!Number.isFinite(principal)||principal<=0)throw new Error("أدخل قيمة القرض بشكل صحيح.");
    let low=0,high=Math.max(principal*2,principal+1);
-   while(!simulateLoan(principal,high,term,rate,extras,increase,firstDateValue).paidOff&&high<principal*100)high*=2;
-   if(high>=principal*100&&!simulateLoan(principal,high,term,rate,extras,increase,firstDateValue).paidOff)throw new Error("تعذر إيجاد قسط مناسب؛ راجع البيانات.");
-   for(let i=0;i<90;i++){const mid=(low+high)/2;if(simulateLoan(principal,mid,term,rate,extras,increase,firstDateValue).paidOff)high=mid;else low=mid;}
-   const result=simulateLoan(principal,high,term,rate,extras,increase,firstDateValue);
-   showLoanResult(principal,high,result,extras.length,method,increase);
+   while(!simulateLoan(principal,high,term,rate,extras,firstDateValue).paidOff&&high<principal*100)high*=2;
+   if(high>=principal*100&&!simulateLoan(principal,high,term,rate,extras,firstDateValue).paidOff)throw new Error("تعذر إيجاد قسط مناسب؛ راجع البيانات.");
+   for(let i=0;i<90;i++){const mid=(low+high)/2;if(simulateLoan(principal,mid,term,rate,extras,firstDateValue).paidOff)high=mid;else low=mid;}
+   const result=simulateLoan(principal,high,term,rate,extras,firstDateValue);showLoanResult(principal,high,result,extras.length);
   }
  }catch(e){alert(e.message||"تعذر إجراء الحساب.");}
 }
 let lastLoanSchedule=[];
-function showLoanResult(principal,monthly,result,extraCount,method="fixed",increase=0){
+function showLoanResult(principal,monthly,result,extraCount){
  $("loanResults").style.display="grid";
  $("loanResultPrincipal").textContent=money(principal)+" جنيه";
  $("loanResultMonthly").textContent=money(monthly)+" جنيه";
  $("loanResultInterest").textContent=money(result.interest)+" جنيه";
  $("loanResultTotal").textContent=money(result.totalPaid)+" جنيه";
- const annualNote=method==="increasing"?" جدول الأقساط السنوية: "+result.yearlyInstallments.map(x=>"السنة "+x.year+": "+money(x.installment)+" جنيه ("+x.count+" قسط)").join(" | ")+". الزيادة السنوية "+increase+"% من قسط السنة السابقة.":"";
- $("loanResultNote").textContent="تم الحساب بنجاح. عدد الأقساط الشهرية حتى إغلاق المديونية: "+result.monthlyCount+". "+(extraCount?"تم تطبيق السداد الإضافي بطريقة الأيام الفعلية / 360.":"تم احتساب العائد شهريًا على الرصيد المتبقي.")+annualNote+" إجمالي السداد يشمل الأقساط الشهرية والدفعات الإضافية.";
+ $("loanResultNote").textContent="تم الحساب بنجاح. عدد الأقساط الشهرية حتى إغلاق المديونية: "+result.monthlyCount+". تم احتساب الفائدة بالأيام الفعلية Actual/360 من تاريخ اليوم تلقائيًا وحتى كل قسط أو سداد إضافي. إجمالي السداد يشمل الأقساط الشهرية والدفعات الإضافية.";
  lastLoanSchedule=Array.isArray(result.schedule)?result.schedule:[];
  const wrap=$("loanScheduleWrap"),body=$("loanScheduleBody");
  if(wrap&&body){
@@ -2503,9 +2455,6 @@ function resetLoanCalculator(){
  $("loanPrincipal").value="";
  $("loanMonthly").value="";
  $("loanAnnualRate").value="21";
- $("loanMethod").value="fixed";
- $("loanAnnualIncrease").value="7";
- toggleLoanIncreaseField();
  $("loanYears").value="5";
  $("loanMonthsPart").value="0";
  const firstDate=new Date();firstDate.setMonth(firstDate.getMonth()+1);
