@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "nbe-tools-v136";
+const CACHE_NAME = "nbe-tools-v137";
 
 const FILES_TO_CACHE = [
   "/-nbe-sales/",
@@ -25,7 +25,7 @@ self.addEventListener("activate", event => {
     caches.keys().then(keys =>
       Promise.all(
         keys
-          .filter(key => key.startsWith("nbe-sales-") && key !== CACHE_NAME)
+          .filter(key => (key.startsWith("nbe-sales-") || key.startsWith("nbe-tools-")) && key !== CACHE_NAME)
           .map(key => caches.delete(key))
       )
     )
