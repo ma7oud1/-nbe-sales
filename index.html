@@ -2465,22 +2465,23 @@ function resetCardInterest(){
  addCardPaymentRow(3000,5);addCardPaymentRow(2000,15);addCardPaymentRow(1000,23);
  calculateCardInterest();
 }
-window.NBEStorageReady.then(()=>{
- // Render the main workspace immediately after building it. Optional setup
- // must never leave the user staring at the bank logo if one step fails.
+// Build the visible workspace synchronously; local database startup must not block the tools.
+try{
  buildAppPages();
  showPage("home");
- try{nbeApplyLanguage(NBEStore.getItem(NBE_LANG_KEY)==="en"?"en":"ar",false);}catch(error){console.error("NBE language setup error:",error);}
- try{new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)nbeTranslateTree(n);else if(n.nodeType===3)nbeTranslateTree(n.parentElement);}))).observe(document.body,{childList:true,subtree:true});}catch(error){console.error("NBE translation observer error:",error);}
  try{resetLoanCalculator();}catch(error){console.error("NBE loan calculator setup error:",error);}
  try{resetCardInterest();}catch(error){console.error("NBE card calculator setup error:",error);}
  try{setAppTheme("dark");}catch(error){console.error("NBE theme setup error:",error);}
-}).catch(error=>{
- console.error("NBE startup error:",error);
+}catch(error){
+ console.error("NBE interface startup error:",error);
  const host=document.getElementById("pageHost");
- if(host){showPage("home");}
+ if(host){host.innerHTML='<section class="app-page active"><div class="page-heading"><h2>تعذر تحميل الأدوات</h2><p>حدث خطأ أثناء تجهيز الواجهة. أعد تحميل الصفحة أو تواصل مع الدعم.</p></div></section>';}
  else{alert("تعذر فتح واجهة البرنامج. أعد تحميل الصفحة.");}
-});
+}
+window.NBEStorageReady.then(()=>{
+ try{nbeApplyLanguage(NBEStore.getItem(NBE_LANG_KEY)==="en"?"en":"ar",false);}catch(error){console.error("NBE language setup error:",error);}
+ try{new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)nbeTranslateTree(n);else if(n.nodeType===3)nbeTranslateTree(n.parentElement);}))).observe(document.body,{childList:true,subtree:true});}catch(error){console.error("NBE translation observer error:",error);}
+}).catch(error=>console.error("NBE storage startup error:",error));
 function csSetLoadProgress(side,percent,label,indeterminate=false){const preview=csGet(side==="front"?"csFrontPreview":"csBackPreview");let overlay=preview.querySelector(".scanner-load-overlay");if(!overlay){overlay=document.createElement("div");overlay.className="scanner-load-overlay";overlay.innerHTML='<div class="scanner-progress-ring"><span>0%</span></div><small></small>';preview.appendChild(overlay);}
  const ring=overlay.querySelector(".scanner-progress-ring"),value=overlay.querySelector("span");
  ring.classList.toggle("is-indeterminate",indeterminate);
