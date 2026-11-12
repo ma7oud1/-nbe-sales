@@ -1854,7 +1854,6 @@ tr:hover td{background:rgba(53,214,154,.07)!important}
  </div>
  <div class="sidebar-employee"><span>RETAIL BANKING</span><strong>RASHID BRANCH 394</strong></div>
  <nav class="sidebar-nav" aria-label="التنقل الرئيسي">
-  <button class="sidebar-item" data-page="visits" onclick="showPage('visits')"><span class="sidebar-item-icon">⌖</span><span>الزيارات</span></button>
   <button class="sidebar-item" data-page="scanner" onclick="showPage('scanner')"><span class="sidebar-item-icon">▧</span><span>NBE Smart Scanner</span></button>
   <button class="sidebar-item" data-page="calculator" onclick="showPage('calculator')"><span class="sidebar-item-icon">％</span><span>حاسبة الفوائد</span></button>
   <button class="sidebar-item" data-page="loan-calculator" onclick="showPage('loan-calculator')"><span class="sidebar-item-icon">▦</span><span>حاسبة القروض</span></button>
@@ -2068,7 +2067,6 @@ function buildAppPages(){
   ["home","",""],
   ["calculator","حساب فائدة المديونية الشهرية","حساب فائدة المديونية الشهرية بنسبة قابلة للتعديل"],
   ["loan-calculator","حاسبة القروض","احسب قيمة القرض أو القسط الشهري مع السداد الإضافي"],
-  ["visits","تقرير الزيارات","تسجيل ومراجعة تقارير الزيارات المرتبطة بالعملاء"],
   ["scanner","Card Scanner & Print Studio","Scan, enhance and print card-sized documents locally"],
   ["settings","الإعدادات","إدارة النسخ الاحتياطية وإعدادات التطبيق"]
  ];
@@ -2082,11 +2080,10 @@ function buildAppPages(){
  });
  pages.home.innerHTML=`
  <section class="tool-launcher">
-  <div class="launcher-heading"><div><h2>كل أدوات البرنامج</h2><p>اختار الأداة اللي محتاجها وابدأ شغلك مباشرة</p></div><span class="launcher-count">8 أدوات</span></div>
+  <div class="launcher-heading"><div><h2>كل أدوات البرنامج</h2><p>اختار الأداة اللي محتاجها وابدأ شغلك مباشرة</p></div><span class="launcher-count">7 أدوات</span></div>
   <div class="launcher-grid">
    <button class="launcher-card" onclick="showPage('calculator')"><span>％</span><strong>حاسبة فوائد المديونية</strong><small>حساب الفائدة الشهرية للكارت</small></button>
    <button class="launcher-card" onclick="showPage('loan-calculator')"><span>▦</span><strong>حاسبة القروض</strong><small>حساب القسط أو مبلغ التمويل</small></button>
-   <button class="launcher-card" onclick="showPage('visits')"><span>⌖</span><strong>تقرير الزيارات</strong><small>تسجيل ومراجعة الزيارات</small></button>
    <button class="launcher-card" onclick="showPage('scanner')"><span>▧</span><strong>NBE Smart Scanner</strong><small>تصوير المستندات وتجهيزها للطباعة</small></button>
    <a class="launcher-card" href="./iscore.html"><span>⌕</span><strong>I-Score</strong><small>دليل الأكواد والاستعلام</small></a>
    <a class="launcher-card" href="./certificates.html"><span>٪</span><strong>شهادات البنك</strong><small>المنتجات والشهادات</small></a>
@@ -3026,8 +3023,6 @@ async function exportBackup(){
    createdAt:new Date().toISOString(),
    reports:reports,
    followups:followups,
-   customers:readStoredJson("nbe_crm_demo_customers_v1",[]),
-   visitReports:readStoredJson("NBE_VISIT_REPORTS_V1",[]),
    employeeSettings:{employee:EMPLOYEE,salesNo:SALES_NO},
    theme:document.body.classList.contains("dark")?"dark":"light",language:NBEStore.getItem(NBE_LANG_KEY)||"ar"
   };
@@ -3089,21 +3084,6 @@ function importBackup(event){
     data.followups.forEach((item,index)=>{if(item&&typeof item==="object")merged.set(String(item.id??("backup-"+index)),item);});
     followups=Array.from(merged.values());saveFollowups();
    }
-   if(Array.isArray(data.customers)){
-    const current=readStoredJson("nbe_crm_demo_customers_v1",[]);
-    const merged=new Map();
-    (Array.isArray(current)?current:[]).forEach((item,index)=>merged.set(String(item.id??item.national??("existing-"+index)),item));
-    data.customers.forEach((item,index)=>{if(item&&typeof item==="object")merged.set(String(item.id??item.national??("backup-"+index)),item);});
-    NBEStore.setItem("nbe_crm_demo_customers_v1",JSON.stringify(Array.from(merged.values())));
-   }
-   if(Array.isArray(data.visitReports)){
-    const currentVisits=readStoredJson("NBE_VISIT_REPORTS_V1",[]);
-    const mergedVisits=new Map();
-    (Array.isArray(currentVisits)?currentVisits:[]).forEach((item,index)=>mergedVisits.set(String(item.id??("existing-"+index)),item));
-    data.visitReports.forEach((item,index)=>{if(item&&typeof item==="object")mergedVisits.set(String(item.id??("backup-"+index)),item);});
-    NBEStore.setItem("NBE_VISIT_REPORTS_V1",JSON.stringify(Array.from(mergedVisits.values())));
-    if(typeof window.refreshNbeVisits==="function")window.refreshNbeVisits();
-   }
    if(data.employeeSettings&&typeof data.employeeSettings==="object"){
     EMPLOYEE=String(data.employeeSettings.employee||"");SALES_NO=String(data.employeeSettings.salesNo||"");
     NBEStore.setItem(EMPLOYEE_SETTINGS_KEY,JSON.stringify({employee:EMPLOYEE,salesNo:SALES_NO}));
@@ -3123,12 +3103,7 @@ window.NBEStorageReady.then(async()=>{
  buildAppPages();nbeApplyLanguage(NBEStore.getItem(NBE_LANG_KEY)==="en"?"en":"ar",false);new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)nbeTranslateTree(n);else if(n.nodeType===3)nbeTranslateTree(n.parentElement);}))).observe(document.body,{childList:true,subtree:true});loadEmployeeSettings();setLoanMode('principal');showPage("home");resetCardInterest();
  await NBEStore.purgeKey("NBE_SALES_FOLLOWUPS_V1");setAppTheme(NBEStore.getItem("nbe_sales_theme")==="light"?"light":"dark");
  await NBEStore.purgeKey("nbe_crm_demo_customers_v1");
- if(typeof window.refreshNbeCrm==="function")window.refreshNbeCrm();
- const crmScript=document.createElement("script");
- crmScript.src="/-nbe-sales/crm.js";
- crmScript.onload=()=>{console.log("NBE CRM and visit reports loaded");if(typeof window.refreshNbeCrm==="function")window.refreshNbeCrm();if(typeof window.refreshNbeVisits==="function")window.refreshNbeVisits();};
- crmScript.onerror=()=>{console.error("Unable to load NBE CRM module");const c=document.querySelector('.app-page[data-page="customers"]');const v=document.querySelector('.app-page[data-page="visits"]');[c,v].forEach(p=>{if(p)p.insertAdjacentHTML("beforeend",'<div class="section crm-warning">تعذر تحميل وحدة CRM. تأكد من الاتصال بالإنترنت ثم أعد فتح التطبيق.</div>');});};
- document.body.appendChild(crmScript);
+ await NBEStore.purgeKey("NBE_VISIT_REPORTS_V1");
 }).catch(error=>{console.error("NBE startup error:",error);alert("تعذر تجهيز قاعدة البيانات المحلية. أعد فتح البرنامج.");});
 </script>
 <!-- CRM is loaded only after the app pages and local database are ready -->
