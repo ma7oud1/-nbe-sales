@@ -1,9 +1,9 @@
 
 {
   "id": "/-nbe-sales/",
-  "name": "NBE | MY SALES PORTFOLIO",
-  "short_name": "NBE Sales",
-  "description": "NBE Sales and Customer Management",
+  "name": "NBE Smart Tools | البنك الأهلي المصري",
+  "short_name": "NBE Smart Tools",
+  "description": "NBE Smart Tools - Banking Calculators and Tools",
   "start_url": "/-nbe-sales/",
   "scope": "/-nbe-sales/",
   "display": "standalone",
