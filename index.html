@@ -3294,8 +3294,23 @@ async function cardScannerStartLiveDetection(){
  }catch(e){console.warn("Live edge detector unavailable:",e);hint.textContent="الكاميرا تعمل — اضبط البطاقة داخل الإطار ثم التقط الصورة.";}
 }
 async function cardScannerTakeLivePhoto(){
- const video=csGet("csLiveVideo"),button=csGet("csLiveShutter");if(!video?.videoWidth)return;
- button.disabled=true;try{const canvas=document.createElement("canvas");canvas.width=video.videoWidth;canvas.height=video.videoHeight;canvas.getContext("2d").drawImage(video,0,0);const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",.94));if(!blob)throw new Error("capture");const file=new File([blob],"card-capture.jpg",{type:"image/jpeg",lastModified:Date.now()});csQuickCapturePending=true;cardScannerCloseCamera();await csLoadSide("front",file);}catch(e){console.error(e);alert("تعذر التقاط الصورة. حاول مرة أخرى.");}finally{button.disabled=false;}
+ const video=csGet("csLiveVideo"),button=csGet("csLiveShutter"),hint=csGet("csLiveHint");
+ if(!video||!video.videoWidth||!video.videoHeight){if(hint)hint.textContent="الكاميرا لسه بتحضر الصورة، استنى لحظة وجرب تاني";return;}
+ if(button)button.disabled=true;
+ try{
+  const canvas=document.createElement("canvas");canvas.width=video.videoWidth;canvas.height=video.videoHeight;
+  const ctx=canvas.getContext("2d");if(!ctx)throw new Error("canvas");
+  ctx.drawImage(video,0,0,canvas.width,canvas.height);
+  const photoUrl=canvas.toDataURL("image/jpeg",.94);if(!photoUrl||photoUrl.length<1000)throw new Error("empty photo");
+  const img=new Image();
+  await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(new Error("image decode"));img.src=photoUrl;});
+  csQuickCapturePending=true;
+  cardScannerCloseCamera();
+  cardScannerState.front={image:img,source:photoUrl,processed:null};
+  cardScannerRenderSide("front");
+  cardScannerAutoOnUpload("front");
+ }catch(e){console.error("Live camera capture failed:",e);if(hint)hint.textContent="مقدرناش نلتقط الصورة. قرّب البطاقة وجرب تاني";alert("تعذر التقاط الصورة. حاول مرة أخرى.");}
+ finally{if(button)button.disabled=false;}
 }async function csSaveQuickCapture(){const item=cardScannerState.front;if(!item)return;try{await window.NBEStorageReady;const docs=await NBEStore.getScannerDocs();const doc={id:Date.now()+"-"+Math.random().toString(36).slice(2,7),name:"مستند "+(docs.length+1),type:"Customer documents",front:item.processed||item.source,back:null,savedAt:Date.now()};await NBEStore.putScannerDoc(doc);cardScannerState.front=null;csQuickCapturePending=false;await cardScannerRenderSaved();}catch(e){csQuickCapturePending=false;console.error(e);alert("تعذر حفظ الصورة على الجهاز. حاول مرة أخرى.");}}function cardScannerAutoOnUpload(side){const status=csGet("csAutoStatus");if(status)status.textContent="Automatically enhancing "+side+" side…";csAutoProcess(side).then(async ok=>{if(ok){cardScannerState[side].processed=cardScannerState[side].source;if(status)status.textContent="تم تجهيز الصورة";if(side==="front"&&csQuickCapturePending)await csSaveQuickCapture();}}).catch(async e=>{if(status)status.textContent="Auto scan could not detect this side: "+e.message;if(side==="front"&&csQuickCapturePending){cardScannerState.front.processed=cardScannerState.front.source;await csSaveQuickCapture();}});}
 async function cardScannerAutoAll(){
  const btn=csGet("csAutoBtn");if(btn){btn.disabled=true;btn.textContent="Scanning…";}
