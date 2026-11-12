@@ -1854,12 +1854,13 @@ tr:hover td{background:rgba(53,214,154,.07)!important}
  </div>
  <div class="sidebar-employee"><span>RETAIL BANKING</span><strong>RASHID BRANCH 394</strong></div>
  <nav class="sidebar-nav" aria-label="التنقل الرئيسي">
-  <button class="sidebar-item" data-page="scanner" onclick="showPage('scanner')"><span class="sidebar-item-icon">▧</span><span>NBE Smart Scanner</span></button>
-  <button class="sidebar-item" data-page="calculator" onclick="showPage('calculator')"><span class="sidebar-item-icon">％</span><span>حاسبة الفوائد</span></button>
   <button class="sidebar-item" data-page="loan-calculator" onclick="showPage('loan-calculator')"><span class="sidebar-item-icon">▦</span><span>حاسبة القروض</span></button>
-   <button class="sidebar-item" type="button" onclick="window.location.href='./certificates.html'"><span class="sidebar-item-icon">٪</span><span>NBE Certificates</span></button>
-  <button class="sidebar-item" type="button" onclick="window.location.href='./rates.html'"><span class="sidebar-item-icon">٪</span><span>أكواد وأسعار المنتجات</span></button>
-  <button class="sidebar-item" data-page="settings" onclick="showPage('settings')"><span class="sidebar-item-icon">⚙</span><span>الإعدادات والنسخ الاحتياطي</span></button>
+  <button class="sidebar-item" data-page="calculator" onclick="showPage('calculator')"><span class="sidebar-item-icon">％</span><span>حساب الفائدة</span></button>
+  <button class="sidebar-item" type="button" onclick="window.location.href='./iscore.html'"><span class="sidebar-item-icon">⌕</span><span>I-Score</span></button>
+  <button class="sidebar-item" data-page="scanner" onclick="showPage('scanner')"><span class="sidebar-item-icon">▧</span><span>NBE Smart Scanner</span></button>
+  <button class="sidebar-item" type="button" onclick="window.location.href='./certificates.html'"><span class="sidebar-item-icon">٪</span><span>شهادات البنك</span></button>
+  <button class="sidebar-item" type="button" onclick="window.location.href='./rates.html'"><span class="sidebar-item-icon">▤</span><span>أكواد وأسعار المنتجات</span></button>
+  <button class="sidebar-item" data-page="settings" onclick="showPage('settings')"><span class="sidebar-item-icon">⚙</span><span>الإعدادات</span></button>
  </nav>
  <div class="sidebar-divider"></div>
  <button type="button" class="sidebar-theme" onclick="toggleAppTheme()"><span>◐</span><span>تغيير مظهر التطبيق</span></button>
@@ -2082,10 +2083,10 @@ function buildAppPages(){
  <section class="tool-launcher">
   <div class="launcher-heading"><div><h2>كل أدوات البرنامج</h2><p>اختار الأداة اللي محتاجها وابدأ شغلك مباشرة</p></div><span class="launcher-count">7 أدوات</span></div>
   <div class="launcher-grid">
-   <button class="launcher-card" onclick="showPage('calculator')"><span>％</span><strong>حاسبة فوائد المديونية</strong><small>حساب الفائدة الشهرية للكارت</small></button>
    <button class="launcher-card" onclick="showPage('loan-calculator')"><span>▦</span><strong>حاسبة القروض</strong><small>حساب القسط أو مبلغ التمويل</small></button>
-   <button class="launcher-card" onclick="showPage('scanner')"><span>▧</span><strong>NBE Smart Scanner</strong><small>تصوير المستندات وتجهيزها للطباعة</small></button>
+   <button class="launcher-card" onclick="showPage('calculator')"><span>％</span><strong>حساب الفائدة</strong><small>حساب الفائدة الشهرية للمديونية</small></button>
    <a class="launcher-card" href="./iscore.html"><span>⌕</span><strong>I-Score</strong><small>دليل الأكواد والاستعلام</small></a>
+   <button class="launcher-card" onclick="showPage('scanner')"><span>▧</span><strong>NBE Smart Scanner</strong><small>تصوير المستندات وتجهيزها للطباعة</small></button>
    <a class="launcher-card" href="./certificates.html"><span>٪</span><strong>شهادات البنك</strong><small>المنتجات والشهادات</small></a>
    <a class="launcher-card" href="./rates.html"><span>▤</span><strong>أكواد وأسعار المنتجات</strong><small>معلومات المنتجات والعوائد</small></a>
    <button class="launcher-card" onclick="showPage('settings')"><span>⚙</span><strong>الإعدادات</strong><small>النسخ الاحتياطي وإعدادات البرنامج</small></button>
