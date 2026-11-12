@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0D6B4A"><title>NBE Sales | I-Score Codes</title>
+<style>
+:root{--green:#16A875;--bg:#080E0D;--card:#14231E;--text:#edf5f0;--muted:#a5b5b8;--border:#29463B}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 90% 0%,rgba(16,130,85,.12),transparent 35%),var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
+main{max-width:1050px;margin:auto;padding:18px 14px 45px}.top{display:flex;align-items:center;gap:12px;margin-bottom:18px}.back{border:1px solid var(--border);background:var(--card);color:var(--text);padding:10px 13px;border-radius:11px;text-decoration:none}.title h1{font-size:21px;margin:0;color:#55d5a2}.title p{font-size:12px;color:var(--muted);margin:5px 0 0}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:17px;padding:16px;margin:13px 0}.search{display:grid;grid-template-columns:1fr auto;gap:9px}.search input,.filter{min-width:0;background:#0d1915;color:var(--text);border:1px solid var(--border);border-radius:11px;padding:13px;font:inherit}.count{color:var(--muted);font-size:12px;margin:12px 2px 0}
+.list{display:grid;gap:9px}.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--border);border-radius:12px;padding:13px;background:#101c18}.name{font-size:14px;font-weight:700}.type{font-size:11px;color:var(--muted);margin-top:5px}.code{direction:ltr;text-align:left;font:700 13px ui-monospace,monospace;color:#8ce4bd;letter-spacing:.3px}.copy{margin-top:7px;border:1px solid #2f6d53;background:#173c2c;color:#dff9eb;border-radius:8px;padding:7px 10px;font:inherit;font-size:11px}
+.notice{font-size:12px;line-height:1.9;color:#d8c99c;background:#332d1b;border:1px solid #62522b;border-radius:12px;padding:12px}.empty{text-align:center;color:var(--muted);padding:24px}.filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.filter{padding:9px 12px;font-size:12px}.filter.active{background:var(--green);border-color:var(--green);color:white}
+@media(min-width:650px){.list{grid-template-columns:1fr 1fr}.panel{padding:20px}}
+</style></head>
+<body><main>
+<div class="top"><a class="back" href="./index.html">رجوع للتطبيق</a><div class="title"><h1>دليل أكواد I-Score</h1><p>بحث سريع في أكواد الجهات والمؤسسات المالية</p></div></div>
+<div class="panel">
+<div class="search"><input id="q" type="search" placeholder="ابحث باسم البنك أو الشركة أو الكود..." autocomplete="off"><button class="back" id="clear">مسح</button></div>
+<div class="filters"><button class="filter active" data-kind="all">الكل</button><button class="filter" data-kind="bank">البنوك</button><button class="filter" data-kind="leasing">التأجير التمويلي</button></div>
+<div class="count" id="count"></div>
+</div>
+<div class="panel"><div class="list" id="list"></div></div>
+<div class="notice"><b>تنبيه مهم:</b> الأكواد المعروضة مستخرجة من نسخة منشورة على Studocu بعنوان BANK Codes I – العام الدراسي 2024/2025، وليست ملفًا رسميًا صادرًا من I-Score. استخدمها كمرجع مساعد فقط، وطابق الكود مع النظام أو التقرير الائتماني المعتمد قبل إدخاله في أي معاملة. القائمة الحالية تضم السجلات التي أمكن قراءة كودها بوضوح فقط.</div>
+</main>
+<script>
+const DATA = [
+{name:"البنك الأهلي المتحد",code:"CB20000001",kind:"bank"},
+{name:"بنك الكويت الوطني",code:"CB27000001",kind:"bank"},
+{name:"بنك الاتحاد الوطني – مصر",code:"CB30000001",kind:"bank"},
+{name:"بنك عوده",code:"CB19000001",kind:"bank"},
+{name:"بنك بلوم – مصر",code:"CB14000001",kind:"bank"},
+{name:"بنك الإمارات دبي الوطني",code:"CB15000001",kind:"bank"},
+{name:"البنك التجاري الدولي – مصر",code:"CB13000001",kind:"bank"},
+{name:"البنك المصري الخليجي",code:"CB32000001",kind:"bank"},
+{name:"بنك البركة",code:"CB26000001",kind:"bank"},
+{name:"بنك فيصل الإسلامي المصري",code:"CB23000001",kind:"bank"},
+{name:"بنك HSBC مصر",code:"CB33000001",kind:"bank"},
+{name:"مصرف أبوظبي الإسلامي",code:"CB25010001",kind:"bank"},
+{name:"البنك الأهلي الكويتي – مصر",code:"CB24000001",kind:"bank"},
+{name:"بنك قناة السويس",code:"CB17000001",kind:"bank"},
+{name:"المصرف المتحد",code:"CB01280001",kind:"bank"},
+{name:"بنك المشرق",code:"FB38000001",kind:"bank"},
+{name:"البنك العربي",code:"FB39000001",kind:"bank"},
+{name:"البنك الأهلي اليوناني",code:"FB57000001",kind:"bank"},
+{name:"بنك أبوظبي الأول",code:"FB51000001",kind:"bank"},
+{name:"بنك أوف نوفا سكوشيا",code:"FB36000001",kind:"bank"},
+{name:"شركة يونايتد للتأجير التمويلي",code:"LF98760001",kind:"leasing"},
+{name:"شركة العربية الأفريقية الدولية للتأجير التمويلي",code:"LF98710001",kind:"leasing"},
+{name:"شركة إم بي للتأجير التمويلي",code:"LF98770001",kind:"leasing"},
+{name:"شركة تنمية للتأجير التمويلي",code:"LF98780001",kind:"leasing"},
+{name:"شركة أرتش فاينانس للتأجير التمويلي",code:"LF98640001",kind:"leasing"},
+{name:"شركة التعمير للتأجير التمويلي (الأولى)",code:"LF98740001",kind:"leasing"},
+{name:"شركة كايرو للتأجير التمويلي",code:"LF98800001",kind:"leasing"},
+{name:"شركة الدولية للتأجير التمويلي",code:"LF98500001",kind:"leasing"},
+{name:"شركة أملاك للتمويل – مصر",code:"LF98550001",kind:"leasing"},
+{name:"شركة التوفيق للتأجير التمويلي",code:"LF98540001",kind:"leasing"},
+{name:"شركة أوريكس مصر للتأجير التمويلي",code:"LF98530001",kind:"leasing"},
+{name:"شركة كوربليس للتأجير التمويلي",code:"LF98520001",kind:"leasing"},
+{name:"شركة جي بي للتأجير التمويلي",code:"LF98590001",kind:"leasing"},
+{name:"شركة أديليس للتأجير التمويلي",code:"LF98620001",kind:"leasing"}
+];
+let kind="all";
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function render(){const q=document.getElementById("q").value.trim().toLowerCase();const rows=DATA.filter(x=>(kind==="all"||x.kind===kind)&&(!q||(x.name+" "+x.code).toLowerCase().includes(q)));document.getElementById("count").textContent="عدد النتائج: "+rows.length+" من "+DATA.length;document.getElementById("list").innerHTML=rows.length?rows.map(x=>'<article class="item"><div><div class="name">'+esc(x.name)+'</div><div class="type">'+(x.kind==="bank"?"بنك":"تأجير تمويلي")+'</div></div><div><div class="code">'+esc(x.code)+'</div><button class="copy" data-copy="'+esc(x.code)+'">نسخ الكود</button></div></article>').join(""):'<div class="empty">لا توجد نتائج مطابقة</div>';}
+document.getElementById("q").addEventListener("input",render);document.getElementById("clear").onclick=()=>{document.getElementById("q").value="";render();};
+document.querySelectorAll("[data-kind]").forEach(b=>b.onclick=()=>{kind=b.dataset.kind;document.querySelectorAll("[data-kind]").forEach(x=>x.classList.toggle("active",x===b));render();});
+document.getElementById("list").addEventListener("click",async e=>{const b=e.target.closest("[data-copy]");if(!b)return;try{await navigator.clipboard.writeText(b.dataset.copy);b.textContent="تم النسخ ✓";setTimeout(()=>b.textContent="نسخ الكود",1200);}catch(_){prompt("انسخ الكود:",b.dataset.copy);}});
+render();
+</script></body></html>
