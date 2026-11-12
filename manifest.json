@@ -3,7 +3,7 @@
   "id": "/-nbe-sales/",
   "name": "NBE Financial Tools",
   "short_name": "NBE Tools",
-  "description": "NBE Sales and Customer Management",
+  "description": "Financial calculators, product rates, certificates and document scanner",
   "start_url": "/-nbe-sales/",
   "scope": "/-nbe-sales/",
   "display": "standalone",
