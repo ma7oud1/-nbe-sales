@@ -7,10 +7,10 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="NBE Sales">
+<meta name="apple-mobile-web-app-title" content="NBE Tools">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NBE | Professional Sales Portfolio</title>
+<title>NBE | Financial Tools</title>
 <style>
 :root{
  --green:#16A875;--green2:#25C98A;--navy:#16372B;
@@ -1815,9 +1815,6 @@ tr:hover td{background:rgba(53,214,154,.07)!important}
   </div>
  </div>
  <div class="nbe-identity-strip"><span class="identity-label">RETAIL BANKING</span><small>RASHID BRANCH <b>394</b></small></div>
- <div class="header-actions no-print">
-  <button id="themeToggle" class="theme-toggle-btn" type="button" onclick="toggleAppTheme()" aria-label="الوضع الداكن"><span id="themeToggleIcon" aria-hidden="true">☼</span><span id="themeToggleLabel">الوضع الداكن</span></button>
- </div>
 </header>
 <div id="sidebarBackdrop" class="sidebar-backdrop" hidden onclick="closeSidebar()" aria-hidden="true"></div>
 <aside id="appSidebar" class="app-sidebar" aria-label="القائمة الرئيسية" aria-hidden="true">
@@ -1834,12 +1831,17 @@ tr:hover td{background:rgba(53,214,154,.07)!important}
   <a class="sidebar-item" href="./iscore.html" style="text-decoration:none"><span class="sidebar-item-icon">⌕</span><span>أكواد I-Score</span></a>
   <button class="sidebar-item" data-page="settings" onclick="showPage('settings')"><span class="sidebar-item-icon">⚙</span><span>الإعدادات</span></button>
  </nav>
- <button type="button" class="sidebar-theme" onclick="toggleAppTheme()"><span>◐</span><span>الوضع الداكن</span></button>
  <div class="sidebar-footer">NBE FINANCIAL TOOLS</div>
 </aside>
 </div>
 
 <script>
+
+
+const NBE_LANG_KEY="nbe_sales_language";
+const NBE_EN={
+"الرئيسية":"Home","المبيعات":"Sales","العملاء":"Customers","متابعة العملاء":"Customer Follow-up","المتابعة":"Follow-up","الزيارات":"Visits","تقرير الزيارات":"Visit Reports","الأرشيف":"Archive","الإعدادات":"Settings","إدارة العملاء CRM":"Customer Management CRM",
+"تسجيل الكروت والقروض ومراجعة سجل العمليات":"Register cards and loans and review transact
 
 
 const NBE_LANG_KEY="nbe_sales_language";
@@ -2150,14 +2152,6 @@ function closeSidebar(){
  document.body.classList.remove("sidebar-open");
  if(button)button.setAttribute("aria-expanded","false");
 }
-function toggleQuickMenu(){toggleSidebar();}
-function closeQuickMenu(){closeSidebar();}
-function quickAdd(type){
- closeQuickMenu();
- if(type==="followup"){showPage("followups");setTimeout(()=>document.getElementById("fName")?.focus(),80);return;}
- showPage("sales");showForm(type);
- setTimeout(()=>{const target=document.getElementById(type==="card"?"cName":"lName");target?.focus();target?.scrollIntoView({behavior:"smooth",block:"center"});},80);
-}
 function showPage(id){
  closeSidebar();
  document.querySelectorAll(".app-page").forEach(page=>page.classList.toggle("active",page.dataset.page===id));
@@ -2187,9 +2181,7 @@ function setAppTheme(theme){
  const meta=document.querySelector('meta[name="theme-color"]');
  if(meta)meta.content="#080E0D";
 }
-function toggleAppTheme(){
- setAppTheme(document.body.classList.contains("dark")?"light":"dark");
-}
+
 
 const EMPLOYEE="محمود محمد رزق";
 const SALES_NO="479511";
@@ -2504,28 +2496,7 @@ window.NBEStorageReady.then(()=>{
  resetCardInterest();
  setAppTheme("dark");
 }).catch(error=>{console.error("NBE startup error:",error);alert("تعذر تجهيز قاعدة البيانات المحلية. أعد فتح البرنامج.");});
-</script>
-<!-- CRM is loaded only after the app pages and local database are ready -->
-
-
-<script>
-if ("serviceWorker" in navigator) {
- window.addEventListener("load", () => {
-  navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" })
-   .then(registration => { registration.update(); console.log("NBE App Ready - update checked"); })
-   .catch(error => console.error("SW Error:", error));
- });
-}
-</script>
-
-
-<script>
-const cardScannerState={front:null,back:null,rotation:0,queue:[]},CS_OUT_W=1011,CS_OUT_H=638,CS_RATIO=1011/638;
-function csGet(id){return document.getElementById(id);}
-function csSetLoadProgress(side,percent,label,indeterminate=false){
- const preview=csGet(side==="front"?"csFrontPreview":"csBackPreview");if(!preview)return;
- let overlay=preview.querySelector(".scanner-load-overlay");
- if(!overlay){overlay=document.createElement("div");overlay.className="scanner-load-overlay";overlay.innerHTML='<div class="scanner-progress-ring"><span>0%</span></div><small></small>';preview.appendChild(overlay);}
+t("div");overlay.className="scanner-load-overlay";overlay.innerHTML='<div class="scanner-progress-ring"><span>0%</span></div><small></small>';preview.appendChild(overlay);}
  const ring=overlay.querySelector(".scanner-progress-ring"),value=overlay.querySelector("span");
  ring.classList.toggle("is-indeterminate",indeterminate);
  ring.style.setProperty("--load-progress",Math.max(0,Math.min(100,percent))+"%");
