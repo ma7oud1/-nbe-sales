@@ -1855,7 +1855,6 @@ tr:hover td{background:rgba(53,214,154,.07)!important}
  <div class="sidebar-employee"><span>RETAIL BANKING</span><strong>RASHID BRANCH 394</strong></div>
  <nav class="sidebar-nav" aria-label="التنقل الرئيسي">
   <button class="sidebar-item" data-page="visits" onclick="showPage('visits')"><span class="sidebar-item-icon">⌖</span><span>الزيارات</span></button>
-  <button class="sidebar-item" data-page="archive" onclick="showPage('archive')"><span class="sidebar-item-icon">▣</span><span>الأرشيف</span></button>
   <button class="sidebar-item" data-page="scanner" onclick="showPage('scanner')"><span class="sidebar-item-icon">▧</span><span>NBE Smart Scanner</span></button>
   <button class="sidebar-item" data-page="calculator" onclick="showPage('calculator')"><span class="sidebar-item-icon">％</span><span>حاسبة الفوائد</span></button>
   <button class="sidebar-item" data-page="loan-calculator" onclick="showPage('loan-calculator')"><span class="sidebar-item-icon">▦</span><span>حاسبة القروض</span></button>
@@ -1866,8 +1865,6 @@ tr:hover td{background:rgba(53,214,154,.07)!important}
  <div class="sidebar-divider"></div>
  <div class="sidebar-quick-title">إجراءات سريعة</div>
  <div class="sidebar-quick-actions">
-  <button type="button" onclick="quickAdd('card')">＋ تسجيل كارت</button>
-  <button type="button" onclick="quickAdd('loan')">＋ تسجيل قرض</button>
   <button type="button" onclick="quickAdd('followup')">＋ إضافة متابعة</button>
  </div>
  <button type="button" class="sidebar-theme" onclick="toggleAppTheme()"><span>◐</span><span>تغيير مظهر التطبيق</span></button>
@@ -2056,17 +2053,7 @@ tr:hover td{background:rgba(53,214,154,.07)!important}
  </table></div>
 </div>
 
-<div class="section archive-section no-print">
- <div class="section-title">
-  <h2>أرشيف التقارير اليومية</h2>
-  <button class="btn light-btn small-btn" onclick="renderArchive()">تحديث الأرشيف</button>
- </div>
- <div id="archiveList" class="archive-list"><div class="empty">لا توجد تقارير محفوظة</div></div>
-</div>
-
-
-
-<div class="footer">NATIONAL BANK OF EGYPT | DAILY SALES REPORT<br>Personal Sales Organizer</div>
+ <div class="footer">NATIONAL BANK OF EGYPT | DAILY SALES REPORT<br>Personal Sales Organizer</div>
 </div>
 
 <script>
@@ -2228,13 +2215,11 @@ function buildAppPages(){
  pageAnchor.insertAdjacentElement("afterend",host);
  const config=[
   ["home","",""],
-  ["sales","المبيعات","تسجيل الكروت والقروض ومراجعة سجل العمليات"],
   ["calculator","حساب فائدة المديونية الشهرية","حساب فائدة المديونية الشهرية بنسبة قابلة للتعديل"],
   ["loan-calculator","حاسبة القروض","احسب قيمة القرض أو القسط الشهري مع السداد الإضافي"],
   ["customers","إدارة العملاء CRM","ملفات العملاء وبياناتهم وسجلهم"],
   ["followups","متابعة العملاء","إضافة ومراجعة مواعيد ونتائج التواصل مع العملاء"],
   ["visits","تقرير الزيارات","تسجيل ومراجعة تقارير الزيارات المرتبطة بالعملاء"],
-  ["archive","الأرشيف","التقارير اليومية المحفوظة"],
   ["scanner","Card Scanner & Print Studio","Scan, enhance and print card-sized documents locally"],
   ["settings","الإعدادات","إدارة النسخ الاحتياطية وإعدادات التطبيق"]
  ];
@@ -2248,9 +2233,8 @@ function buildAppPages(){
  });
  pages.home.innerHTML=`
  <section class="tool-launcher">
-  <div class="launcher-heading"><div><h2>كل أدوات NBE Sales</h2><p>اختار الأداة اللي محتاجها وابدأ شغلك مباشرة</p></div><span class="launcher-count">12 أداة</span></div>
+  <div class="launcher-heading"><div><h2>كل أدوات البرنامج</h2><p>اختار الأداة اللي محتاجها وابدأ شغلك مباشرة</p></div><span class="launcher-count">10 أدوات</span></div>
   <div class="launcher-grid">
-   <button class="launcher-card" onclick="showPage('sales')"><span>▤</span><strong>المبيعات</strong><small>تسجيل الكروت والقروض والتقارير</small></button>
    <button class="launcher-card" onclick="showPage('calculator')"><span>％</span><strong>حاسبة فوائد المديونية</strong><small>حساب الفائدة الشهرية للكارت</small></button>
    <button class="launcher-card" onclick="showPage('loan-calculator')"><span>▦</span><strong>حاسبة القروض</strong><small>حساب القسط أو مبلغ التمويل</small></button>
    <button class="launcher-card" onclick="showPage('customers')"><span>♙</span><strong>إدارة العملاء CRM</strong><small>ملفات وبيانات العملاء</small></button>
@@ -2298,12 +2282,7 @@ function buildAppPages(){
  };
  move(".stats","home");
  move(".info-section","home");
- move(".entry-section","sales");
- move(".ledger-section","sales");
- move(".cards-section","sales");
- move(".loans-section","sales");
  move(".followup-section","followups");
- move(".archive-section","archive");
  const calculator=document.createElement("div");
  calculator.className="section calculator-section";
  calculator.innerHTML=`
@@ -2511,7 +2490,8 @@ const NBEStore=(()=>{
  async function putScannerDoc(doc){if(!db)throw new Error("Local database is not available");const tx=db.transaction("scannerDocs","readwrite");tx.objectStore("scannerDocs").put(doc);await txDone(tx);return doc;}
  async function getScannerDocs(){if(!db)return[];const tx=db.transaction("scannerDocs","readonly");return await new Promise((resolve,reject)=>{const req=tx.objectStore("scannerDocs").getAll();req.onsuccess=()=>resolve((req.result||[]).sort((a,b)=>(b.savedAt||0)-(a.savedAt||0)));req.onerror=()=>reject(req.error);});}
  async function deleteScannerDoc(id){if(!db)throw new Error("Local database is not available");const tx=db.transaction("scannerDocs","readwrite");tx.objectStore("scannerDocs").delete(String(id));await txDone(tx);}
- return{getItem,setItem,removeItem,init,latestSnapshot,replaceAll,putScannerDoc,getScannerDocs,deleteScannerDoc,entries:()=>Object.fromEntries(memory),flush:()=>writeQueue,get mode(){return db?"indexeddb":"localstorage-fallback";},get persistentStorage(){return persistentStorage;}};
+ async function purgeKey(key){key=String(key);memory.delete(key);try{window.localStorage.removeItem(key);}catch(_){}if(!db)return;await writeQueue;const tx=db.transaction(["kv","snapshots"],"readwrite");tx.objectStore("kv").delete(key);const snapshots=tx.objectStore("snapshots");const req=snapshots.getAll();req.onsuccess=()=>{(req.result||[]).forEach(item=>{if(item.entries&&Object.prototype.hasOwnProperty.call(item.entries,key)){delete item.entries[key];snapshots.put(item);}});};await txDone(tx);}
+ return{getItem,setItem,removeItem,init,latestSnapshot,replaceAll,putScannerDoc,getScannerDocs,deleteScannerDoc,purgeKey,entries:()=>Object.fromEntries(memory),flush:()=>writeQueue,get mode(){return db?"indexeddb":"localstorage-fallback";},get persistentStorage(){return persistentStorage;}};
 })();
 window.NBEStore=NBEStore;
 window.NBEStorageReady=NBEStore.init();
@@ -3293,11 +3273,10 @@ function importBackup(event){
  };
  reader.readAsText(file);
 }
-window.NBEStorageReady.then(()=>{
+window.NBEStorageReady.then(async()=>{
+ await NBEStore.purgeKey("NBE_SALES_REPORTS_V1");
  buildAppPages();nbeApplyLanguage(NBEStore.getItem(NBE_LANG_KEY)==="en"?"en":"ar",false);new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)nbeTranslateTree(n);else if(n.nodeType===3)nbeTranslateTree(n.parentElement);}))).observe(document.body,{childList:true,subtree:true});loadEmployeeSettings();setLoanMode('principal');showPage("home");resetCardInterest();
- loadStorage();loadFollowups();const performanceMonth=$("performanceMonth");if(performanceMonth)performanceMonth.value=today().slice(0,7);currentDate=today();
- if(!reports[currentDate])reports[currentDate]=blank(currentDate);
- fillInfo();renderAll();setAppTheme(NBEStore.getItem("nbe_sales_theme")==="light"?"light":"dark");
+ loadFollowups();const performanceMonth=$("performanceMonth");if(performanceMonth)performanceMonth.value=today().slice(0,7);renderFollowups();setAppTheme(NBEStore.getItem("nbe_sales_theme")==="light"?"light":"dark");
  if(typeof window.refreshNbeCrm==="function")window.refreshNbeCrm();
  const crmScript=document.createElement("script");
  crmScript.src="/-nbe-sales/crm.js";
@@ -3517,7 +3496,6 @@ if(csGet("csQueue")){cardScannerInit();csObserver.disconnect();}
 
 <nav id="mainNav" class="bottom-nav no-print" aria-label="التنقل السريع">
  <button type="button" class="nav-btn active" data-page="home" onclick="showPage('home')" aria-label="الرئيسية"><span class="nav-icon" aria-hidden="true">⌂</span><span>الرئيسية</span></button>
- <button type="button" class="nav-btn" data-page="sales" onclick="showPage('sales')" aria-label="المبيعات"><span class="nav-icon" aria-hidden="true">▤</span><span>المبيعات</span></button>
  <button type="button" class="nav-btn" data-page="customers" onclick="showPage('customers')" aria-label="العملاء"><span class="nav-icon" aria-hidden="true">♙</span><span>العملاء</span></button>
  <button type="button" class="nav-btn" data-page="followups" onclick="showPage('followups')" aria-label="المتابعة"><span class="nav-icon" aria-hidden="true">◷</span><span>المتابعة</span></button>
  <a class="nav-btn" href="./iscore.html" aria-label="أكواد I-Score" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;justify-content:center"><span class="nav-icon" aria-hidden="true">⌕</span><span>أكواد I-Score</span></a>
