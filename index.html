@@ -3071,16 +3071,20 @@ function importBackup(event){
  };
  reader.readAsText(file);
 }
+/* Render the app immediately; local storage must never hold the first screen hostage. */
+try{
+ buildAppPages();
+ loadEmployeeSettings();setLoanMode('principal');showPage("home");resetCardInterest();
+ setAppTheme("dark");
+}catch(error){console.error("NBE interface startup error:",error);alert("تعذر تشغيل واجهة البرنامج. أعد تحميل الصفحة.");}
 window.NBEStorageReady.then(()=>{
  try{
-  buildAppPages();
   nbeApplyLanguage(NBEStore.getItem(NBE_LANG_KEY)==="en"?"en":"ar",false);
   new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)nbeTranslateTree(n);else if(n.nodeType===3)nbeTranslateTree(n.parentElement);}))).observe(document.body,{childList:true,subtree:true});
-  loadEmployeeSettings();setLoanMode('principal');showPage("home");resetCardInterest();
   setAppTheme(NBEStore.getItem("nbe_sales_theme")==="light"?"light":"dark");
   ["NBE_SALES_REPORTS_V1","NBE_SALES_FOLLOWUPS_V1","nbe_crm_demo_customers_v1","NBE_VISIT_REPORTS_V1"].forEach(key=>NBEStore.purgeKey(key).catch(error=>console.warn("NBE cleanup skipped:",key,error)));
- }catch(error){console.error("NBE startup error:",error);alert("تعذر تشغيل واجهة البرنامج. أعد تحميل الصفحة.");}
-}).catch(error=>{console.error("NBE storage startup error:",error);alert("تعذر تجهيز قاعدة البيانات المحلية. أعد فتح البرنامج.");});
+ }catch(error){console.error("NBE preferences startup error:",error);}
+}).catch(error=>console.error("NBE local storage unavailable; app remains usable:",error));
 </script>
 <!-- CRM is loaded only after the app pages and local database are ready -->
 
