@@ -40,6 +40,8 @@ button{cursor:pointer}
 .brand p{margin:0;color:#d5e9df;font-size:13px}
 .header-actions{display:flex;gap:8px;flex-wrap:wrap}
 .header-actions button{background:rgba(255,255,255,.13);color:white;border:1px solid rgba(255,255,255,.3);padding:10px 14px;border-radius:9px}
+.header-actions .home-return-btn{background:#f2dfb2;color:#173d30;border:0;font-weight:900;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.header-actions .home-return-btn:active{transform:scale(.97)}
 .section{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:20px;margin-top:18px;box-shadow:var(--shadow)}
 .section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:17px;flex-wrap:wrap}
 .section-title h2{font-size:17px;margin:0;color:var(--green)}
@@ -1834,7 +1836,7 @@ tr:hover td{background:rgba(53,214,154,.07)!important}
  </div>
  <div class="nbe-identity-strip"><span class="identity-label">RETAIL BANKING</span><small>RASHID BRANCH <b>394</b></small></div>
  <div class="header-actions no-print">
-  
+  <button type="button" class="home-return-btn" onclick="showPage('home')" aria-label="العودة إلى الصفحة الرئيسية">⌂ الرئيسية</button>
   <button onclick="exportBackup()">⬇ نسخة احتياطية</button>
   <button onclick="restoreLatestAutoSnapshot()">↩ استعادة تلقائية</button>
   <button id="themeToggle" class="theme-toggle-btn" type="button" onclick="toggleAppTheme()" aria-label="تغيير مظهر التطبيق"><span id="themeToggleIcon" aria-hidden="true">☼</span><span id="themeToggleLabel">الوضع النهاري</span></button>
