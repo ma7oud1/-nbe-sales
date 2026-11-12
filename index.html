@@ -3114,42 +3114,47 @@ function csSetLoadProgress(side,percent,label,indeterminate=false){
  overlay.querySelector("small").textContent=label||"Loading…";
  if(percent>=100&&!indeterminate){setTimeout(()=>{if(overlay.isConnected){overlay.style.opacity="0";setTimeout(()=>overlay.remove(),260);}},500);}
 }
-function csLoadSide(side,file){
+async function csLoadSide(side,file){
  if(!file)return;
- if(!file.type||!file.type.startsWith("image/")){alert("Please choose an image file.");return;}
+ const preview=csGet(side==="front"?"csFrontPreview":"csBackPreview");
+ const fail=message=>{if(preview)preview.querySelector(".scanner-load-overlay")?.remove();alert(message);};
+ if(!file.type||(!file.type.startsWith("image/")&&!/\\.(heic|heif|jpg|jpeg|png|webp)$/i.test(file.name||""))){fail("الملف المختار ليس صورة مدعومة. اختار صورة JPG أو PNG.");return;}
  csSetLoadProgress(side,0,"Reading image…");
- const reader=new FileReader();
- reader.onprogress=e=>{if(e.lengthComputable)csSetLoadProgress(side,Math.min(68,e.loaded/e.total*68),"Reading image…");};
- reader.onload=()=>{
-  csSetLoadProgress(side,72,"Preparing image…");
-  const original=new Image();
-  original.onload=()=>{
-   try{
-    csSetLoadProgress(side,80,"Optimizing photo…");
-    const maxSide=1800,scale=Math.min(1,maxSide/Math.max(original.naturalWidth,original.naturalHeight));
-    const safe=document.createElement("canvas");
-    safe.width=Math.max(1,Math.round(original.naturalWidth*scale));
-    safe.height=Math.max(1,Math.round(original.naturalHeight*scale));
-    safe.getContext("2d").drawImage(original,0,0,safe.width,safe.height);
-    const compact=safe.toDataURL("image/jpeg",.88);
-    const img=new Image();
-    img.onload=()=>{
-     cardScannerState[side]={image:img,source:compact,processed:null};
-     cardScannerRenderSide(side);
-     csSetLoadProgress(side,84,"Loading scan engine…",true);
-     cardScannerAutoOnUpload(side);
-     original.src="";
-     safe.width=safe.height=1;
-    };
-    img.onerror=()=>{const p=csGet(side==="front"?"csFrontPreview":"csBackPreview");if(p)p.querySelector(".scanner-load-overlay")?.remove();alert("This image could not be prepared. Try another photo.");};
-    img.src=compact;
-   }catch(e){const p=csGet(side==="front"?"csFrontPreview":"csBackPreview");if(p)p.querySelector(".scanner-load-overlay")?.remove();alert("This photo is too large for this device to process. Try a smaller image.");}
-  };
-  original.onerror=()=>{const p=csGet(side==="front"?"csFrontPreview":"csBackPreview");if(p)p.querySelector(".scanner-load-overlay")?.remove();alert("This image could not be opened. Try another photo.");};
-  original.src=reader.result;
- };
- reader.onerror=()=>{const p=csGet(side==="front"?"csFrontPreview":"csBackPreview");if(p)p.querySelector(".scanner-load-overlay")?.remove();alert("Unable to read this image.");};
- reader.readAsDataURL(file);
+ let bitmap=null,objectUrl=null;
+ try{
+  csSetLoadProgress(side,20,"Opening photo…");
+  if(typeof createImageBitmap==="function"){
+   try{bitmap=await createImageBitmap(file,{imageOrientation:"from-image"});}catch(e){bitmap=null;}
+  }
+  let width=bitmap?.width||0,height=bitmap?.height||0,source=bitmap;
+  if(!bitmap){
+   objectUrl=URL.createObjectURL(file);
+   const original=new Image();
+   await new Promise((resolve,reject)=>{original.onload=resolve;original.onerror=()=>reject(new Error("decode"));original.src=objectUrl;});
+   source=original;width=original.naturalWidth;height=original.naturalHeight;
+  }
+  if(!width||!height)throw new Error("decode");
+  csSetLoadProgress(side,65,"Optimizing photo…");
+  const maxSide=1800,scale=Math.min(1,maxSide/Math.max(width,height));
+  const safe=document.createElement("canvas");
+  safe.width=Math.max(1,Math.round(width*scale));safe.height=Math.max(1,Math.round(height*scale));
+  const ctx=safe.getContext("2d");if(!ctx)throw new Error("canvas");
+  ctx.drawImage(source,0,0,safe.width,safe.height);
+  const compact=safe.toDataURL("image/jpeg",.9);
+  const img=new Image();
+  await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(new Error("encode"));img.src=compact;});
+  cardScannerState[side]={image:img,source:compact,processed:null};
+  cardScannerRenderSide(side);
+  csSetLoadProgress(side,84,"Preparing scan…",true);
+  cardScannerAutoOnUpload(side);
+  safe.width=safe.height=1;
+ }catch(error){
+  console.error("Scanner image decode failed:",{name:file.name,type:file.type,size:file.size,error});
+  fail(/heic|heif/i.test((file.type||"")+" "+(file.name||""))?"الصورة بصيغة HEIC غير مدعومة على هذا المتصفح. من إعدادات iPhone افتح الكاميرا ثم التنسيقات واختر الأكثر توافقًا، وبعدها أعد التصوير.":"تعذر فتح الصورة. جرّب تصويرها مرة أخرى أو اختر صورة JPG أو PNG من الصور.");
+ }finally{
+  if(bitmap)bitmap.close?.();
+  if(objectUrl)URL.revokeObjectURL(objectUrl);
+ }
 }
 
 let csCvPromise=null;
