@@ -2480,7 +2480,7 @@ window.NBEStorageReady.then(()=>{
  resetCardInterest();
  setAppTheme("dark");
 }).catch(error=>{console.error("NBE startup error:",error);alert("تعذر تجهيز قاعدة البيانات المحلية. أعد فتح البرنامج.");});
-t("div");overlay.className="scanner-load-overlay";overlay.innerHTML='<div class="scanner-progress-ring"><span>0%</span></div><small></small>';preview.appendChild(overlay);}
+function csSetLoadProgress(side,percent,label,indeterminate=false){const preview=csGet(side==="front"?"csFrontPreview":"csBackPreview");let overlay=preview.querySelector(".scanner-load-overlay");if(!overlay){overlay=document.createElement("div");overlay.className="scanner-load-overlay";overlay.innerHTML='<div class="scanner-progress-ring"><span>0%</span></div><small></small>';preview.appendChild(overlay);}
  const ring=overlay.querySelector(".scanner-progress-ring"),value=overlay.querySelector("span");
  ring.classList.toggle("is-indeterminate",indeterminate);
  ring.style.setProperty("--load-progress",Math.max(0,Math.min(100,percent))+"%");
