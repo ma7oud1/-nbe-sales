@@ -1838,12 +1838,7 @@ tr:hover td{background:rgba(53,214,154,.07)!important}
  </div>
  <div class="nbe-identity-strip"><span class="identity-label">RETAIL BANKING</span><small>RASHID BRANCH <b>394</b></small></div>
  <div class="header-actions no-print">
-  <button onclick="exportBackup()">⬇ نسخة احتياطية</button>
-  <button onclick="restoreLatestAutoSnapshot()">↩ استعادة تلقائية</button>
   <button id="themeToggle" class="theme-toggle-btn" type="button" onclick="toggleAppTheme()" aria-label="تغيير مظهر التطبيق"><span id="themeToggleIcon" aria-hidden="true">☼</span><span id="themeToggleLabel">الوضع النهاري</span></button>
-  <small id="nbeBackupStatus" style="display:block;flex-basis:100%;color:#e0eee7;font-size:11px;text-align:right">قاعدة البيانات المحلية قيد التجهيز...</small>
-  <button onclick="$('importFile').click()">⬆ استعادة نسخة</button>
-  <input id="importFile" type="file" accept=".json,application/json" class="hidden" onchange="importBackup(event)">
  </div>
 </header>
 <div id="sidebarBackdrop" class="sidebar-backdrop" hidden onclick="closeSidebar()" aria-hidden="true"></div>
@@ -2201,25 +2196,7 @@ function buildAppPages(){
  languageCard.className="settings-panel nbe-language-card";
  languageCard.innerHTML='<h2>لغة التطبيق</h2><p>اختر لغة واجهة البرنامج بالكامل. سيتم حفظ اختيارك على هذا الجهاز.</p><div class="field" style="max-width:360px;margin-top:12px"><label for="nbeLanguageSelect">Application Language</label><select id="nbeLanguageSelect" onchange="setNbeLanguage(this.value)"><option value="ar">العربية</option><option value="en">English</option></select></div>';
  pages.settings.append(languageCard);
- const settings=document.createElement("div");
- settings.className="settings-panel";
- settings.innerHTML=`<h2>إدارة التطبيق والبيانات</h2>`;
- pages.settings.append(settings);
- const dataCard=document.createElement("div");
- dataCard.className="settings-data-card";
- dataCard.innerHTML=`
-  <div class="settings-data-heading">
-   <div><span class="settings-eyebrow">DATA & BACKUP</span><h3>النسخ الاحتياطي والاستعادة</h3><p>إدارة النسخ المحفوظة والتحكم في مظهر التطبيق من مكان واحد.</p></div>
-   <span class="settings-data-mark" aria-hidden="true">▤</span>
-  </div>
-  <div class="settings-data-divider"></div>
- `;
- settings.append(dataCard);
  const headerActions=container.querySelector(".header-actions");
- if(headerActions){
-  headerActions.classList.add("settings-data-actions");
-  dataCard.append(headerActions);
- }
  const globalNote=container.querySelector(":scope > .note");
  if(globalNote)pages.settings.append(globalNote);
  const footer=container.querySelector(":scope > .footer");
