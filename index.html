@@ -2479,7 +2479,7 @@ window.NBEStorageReady.then(()=>{
  buildAppPages();
  nbeApplyLanguage(NBEStore.getItem(NBE_LANG_KEY)==="en"?"en":"ar",false);
  new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)nbeTranslateTree(n);else if(n.nodeType===3)nbeTranslateTree(n.parentElement);}))).observe(document.body,{childList:true,subtree:true});
- setLoanMode("principal");
+ resetLoanCalculator();
  showPage("home");
  resetCardInterest();
  setAppTheme("dark");
