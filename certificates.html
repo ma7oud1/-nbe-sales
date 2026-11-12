@@ -13,7 +13,7 @@
 <header class="hero"><div><h1>EGP Certificate Management</h1><p>National Bank of Egypt - Certificate Guide & Return Calculator</p></div><a class="btn back" href="./index.html">Back to NBE Sales App ←</a></header>
 <nav class="tabs no-print"><button class="tab active" data-tab="desk">Calculator</button><button class="tab" data-tab="catalog">Certificate Catalog</button><button class="tab" data-tab="redemption">Early Redemption</button><button class="tab" data-tab="finance">Finance Against Certificate</button><button class="tab" data-tab="guide">Operations Guide</button></nav>
 <section class="panel no-print" id="rateUpdateBar" style="margin-top:14px">
- <div class="section-title"><div><h2 style="margin:0">Certificate Rate Updates</h2><p class="mini" id="rateStatus" style="margin:6px 0 0">Rates are indicative reference values. Verify every change against an official NBE source.</p></div><button class="btn primary" id="manualRateBtn" type="button">Manual Rate Update</button></div>
+ <div class="section-title"><div><h2 style="margin:0">Certificate Rate Updates</h2><p class="mini" id="rateStatus" style="margin:6px 0 0">Last verified: 12 November 2026 · Fixed Platinum rates effective 8 November 2026. Confirmed bank announcement: 18.75% monthly and 18.85% quarterly.</p></div><button class="btn primary" id="manualRateBtn" type="button">Manual Rate Update</button></div>
  <div id="manualRatePanel" class="hidden" style="margin-top:16px">
   <p class="note">Enter rates only after confirming them through an official NBE announcement or the approved internal system. Saved manual rates apply in this browser only; they do not change the shared app for other users.</p>
   <div class="field" style="margin:12px 0"><label for="rateSource">Official Source / Circular Reference (optional)</label><input id="rateSource" type="text" maxlength="240" placeholder="e.g. NBE official announcement or circular number"></div>
@@ -26,7 +26,7 @@
 <section id="desk" class="tab-page">
 <div class="panel"><h2>EGP Certificate Return Calculator</h2><div class="grid">
 <div class="field"><label>Certificate Type</label><select id="product"></select></div>
-<div class="field"><label>Investment Amount (EGP)</label><input id="amount" type="number" min="0" step="1000" value="100000"></div>
+<div class="field"><label>Investment Amount (EGP)</label><input id="amount" type="number" min="1000" step="1000" value="100000"></div>
 <div class="field"><label>Estimated Start Date</label><input id="startDate" type="date"></div>
 <div class="field"><label>Certificate Term</label><input id="term" readonly></div>
 <div class="field"><label>Payout Frequency</label><input id="frequency" readonly></div>
@@ -73,12 +73,12 @@
 (()=>{
 const $=id=>document.getElementById(id), money=n=>(Number(n)||0).toLocaleString("en-EG",{minimumFractionDigits:2,maximumFractionDigits:2})+" EGP";
 const products={
- "fixedMonthly":{name:"Platinum Fixed · Monthly",term:3,frequency:"Monthly",rates:[18.75,18.75,18.75],type:"Fixed",status:"Reference rate — verify live"},
- "fixedQuarterly":{name:"Platinum Fixed · Quarterly",term:3,frequency:"Quarterly",rates:[18.85,18.85,18.85],type:"Fixed",status:"Reference rate — verify live"},
- "stepMonthly":{name:"Platinum Step-down · Monthly",term:3,frequency:"Monthly",rates:[21,16.25,12],type:"Step-down",status:"Reference schedule — verify live"},
- "stepAnnually":{name:"Platinum Step-down · Annually",term:3,frequency:"Annually",rates:[22,17.5,13],type:"Step-down",status:"Reference schedule — verify live"},
- "variable":{name:"Platinum Variable · Monthly",term:3,frequency:"Monthly",rates:[20.5,20.5,20.5],type:"Variable",status:"Indicative only — rate can change"},
- fiveYearMonthly:{name:"Five-Year Fixed · Monthly",term:5,frequency:"Monthly",rates:[14.25,14.25,14.25,14.25,14.25],type:"Fixed",status:"Reference rate — verify live"}
+ "fixedMonthly":{name:"Platinum Fixed · Monthly",term:3,frequency:"Monthly",rates:[18.75,18.75,18.75],type:"Fixed",minimum:1000,multiples:1000,lockInMonths:6,accrual:"Next business day",effectiveDate:"2026-11-08",status:"Confirmed bank announcement · effective 8 Nov 2026"},
+ "fixedQuarterly":{name:"Platinum Fixed · Quarterly",term:3,frequency:"Quarterly",rates:[18.85,18.85,18.85],type:"Fixed",minimum:1000,multiples:1000,lockInMonths:6,accrual:"Next business day",effectiveDate:"2026-11-08",status:"Confirmed bank announcement · effective 8 Nov 2026"},
+ "stepMonthly":{name:"Platinum Step-down · Monthly",term:3,frequency:"Monthly",rates:[21,16.25,12],type:"Step-down",minimum:1000,multiples:1000,lockInMonths:6,accrual:"Next business day",status:"Reference schedule — verify live; not changed without a bank confirmation"},
+ "stepAnnually":{name:"Platinum Step-down · Annually",term:3,frequency:"Annually",rates:[22,17.5,13],type:"Step-down",minimum:1000,multiples:1000,lockInMonths:6,accrual:"Next business day",status:"Reference schedule — verify live"},
+ "variable":{name:"Platinum Variable · Monthly",term:3,frequency:"Monthly",rates:[20.5,20.5,20.5],type:"Variable",minimum:1000,multiples:1000,lockInMonths:6,accrual:"Next business day",status:"Indicative only · linked to CBE deposit rate + 0.50%; floor 17%"},
+ fiveYearMonthly:{name:"Five-Year Fixed · Monthly",term:5,frequency:"Monthly",rates:[14.25,14.25,14.25,14.25,14.25],type:"Fixed",minimum:1000,multiples:1000,lockInMonths:6,accrual:"Next business day",status:"Reference rate — verify live"}
 };
 let active="fixedMonthly";
 const RATE_STORAGE_KEY="nbeCertificateRates_v1";
@@ -128,13 +128,13 @@ function restoreReferenceRates(){
 function rateText(p){return p.rates.map(x=>x+"%").join(" / ")+(p.type==="Variable"?"*":"")}
 function options(){ $("product").innerHTML=Object.entries(products).map(([k,p])=>'<option value="'+k+'">'+p.name+'</option>').join("");}
 function renderCatalog(){
- $("catalogCards").innerHTML=Object.entries(products).map(([k,p])=>'<article class="product-card"><h3>'+p.name+'</h3><p><b>Term:</b> '+p.term+' years</p><p><b>Rates:</b> '+rateText(p)+'</p><p><b>Payout:</b> '+p.frequency+'</p><p><b>Type:</b> '+p.type+'</p><span class="tag">'+p.status+'</span></article>').join("");
- $("catalogTable").innerHTML=Object.values(products).map(p=>'<tr><td>'+p.name+'</td><td>'+p.term+' years</td><td>'+rateText(p)+'</td><td>'+p.frequency+'</td><td>'+p.status+'</td></tr>').join("");
+ $("catalogCards").innerHTML=Object.entries(products).map(([k,p])=>'<article class="product-card"><h3>'+p.name+'</h3><p><b>Term:</b> '+p.term+' years</p><p><b>Minimum:</b> '+money(p.minimum||1000)+' (multiples of '+money(p.multiples||1000)+')</p><p><b>Rates:</b> '+rateText(p)+'</p><p><b>Payout:</b> '+p.frequency+'</p><p><b>Type:</b> '+p.type+'</p><p><b>Early redemption:</b> after '+(p.lockInMonths||6)+' months, subject to bank schedule</p><p><b>Accrual starts:</b> '+(p.accrual||"Verify with bank")+'</p><span class="tag">'+p.status+'</span></article>').join("");
+ $("catalogTable").innerHTML=Object.values(products).map(p=>'<tr><td>'+p.name+'</td><td>'+p.term+' years</td><td>'+rateText(p)+'</td><td>'+p.frequency+'</td><td>Min '+money(p.minimum||1000)+' · multiples of '+money(p.multiples||1000)+' · redemption after '+(p.lockInMonths||6)+' months</td></tr>').join("");
 }
 function calc(){
  active=$("product").value;const p=products[active],amount=Math.max(0,Number($("amount").value)||0),freq={Monthly:12,Quarterly:4,Annually:1}[p.frequency]||12;
  $("term").value=p.term+" years";$("frequency").value=p.frequency;$("rate").value=rateText(p);
- const yearly=p.rates.map(r=>amount*r/100),total=yearly.reduce((a,b)=>a+b,0),first=yearly[0];
+ if(amount<1000||amount%1000!==0){$("payout").textContent="Minimum 1,000 EGP · multiples of 1,000";$("yearOne").textContent="—";$("totalReturn").textContent="—";$("maturity").textContent="—";$("schedule").innerHTML="";return;}\n const yearly=p.rates.map(r=>amount*r/100),total=yearly.reduce((a,b)=>a+b,0),first=yearly[0];
  $("payoutLabel").textContent=p.frequency+" payment · year 1";$("payout").textContent=money(first/freq);$("yearOne").textContent=money(first);$("totalReturn").textContent=money(total);$("maturity").textContent=money(amount+total);
  $("schedule").innerHTML=p.rates.map((r,i)=>'<tr><td>'+(i+1)+'</td><td>'+r.toFixed(2)+'%</td><td>'+money(yearly[i])+'</td><td>'+money(yearly[i]/freq)+'</td><td>'+p.frequency+'</td></tr>').join("");
  $("proposalNote").textContent=(p.type==="Variable"?"Variable-rate illustration assumes the entered reference rate remains unchanged throughout; actual returns may change. ":"")+ "Assumes returns are paid out and not reinvested. Estimate only; verify availability and all terms before making commitments.";
