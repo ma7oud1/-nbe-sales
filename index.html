@@ -1874,7 +1874,6 @@ tr:hover td{background:rgba(53,214,154,.07)!important}
   <button class="sidebar-item" data-page="loan-calculator" onclick="showPage('loan-calculator')"><span class="sidebar-item-icon">▦</span><span>حاسبة القروض</span></button>
   <button class="sidebar-item" data-page="calculator" onclick="showPage('calculator')"><span class="sidebar-item-icon">％</span><span>حساب الفائدة</span></button>
   <button class="sidebar-item" type="button" onclick="window.location.href='./iscore.html'"><span class="sidebar-item-icon">⌕</span><span>I-Score</span></button>
-  <button class="sidebar-item" data-page="scanner" onclick="showPage('scanner')"><span class="sidebar-item-icon">▧</span><span>NBE Smart Scanner</span></button>
   <button class="sidebar-item" type="button" onclick="window.location.href='./certificates.html'"><span class="sidebar-item-icon">٪</span><span>شهادات البنك</span></button>
   <button class="sidebar-item" type="button" onclick="window.location.href='./rates.html'"><span class="sidebar-item-icon">▤</span><span>أكواد وأسعار المنتجات</span></button>
   <button class="sidebar-item" data-page="settings" onclick="showPage('settings')"><span class="sidebar-item-icon">⚙</span><span>الإعدادات</span></button>
@@ -2085,7 +2084,6 @@ function buildAppPages(){
   ["home","",""],
   ["calculator","حساب فائدة المديونية الشهرية","حساب فائدة المديونية الشهرية بنسبة قابلة للتعديل"],
   ["loan-calculator","حاسبة القروض","احسب قيمة القرض أو القسط الشهري مع السداد الإضافي"],
-  ["scanner","Card Scanner & Print Studio","Scan, enhance and print card-sized documents locally"],
   ["settings","الإعدادات","إدارة النسخ الاحتياطية وإعدادات التطبيق"]
  ];
  const pages={};
@@ -2098,12 +2096,11 @@ function buildAppPages(){
  });
  pages.home.innerHTML=`
  <section class="tool-launcher">
-  <div class="launcher-heading"><div><h2>كل أدوات البرنامج</h2><p>اختار الأداة اللي محتاجها وابدأ شغلك مباشرة</p></div><span class="launcher-count">7 أدوات</span></div>
+  <div class="launcher-heading"><div><h2>كل أدوات البرنامج</h2><p>اختار الأداة اللي محتاجها وابدأ شغلك مباشرة</p></div><span class="launcher-count">6 أدوات</span></div>
   <div class="launcher-grid">
    <button class="launcher-card" onclick="showPage('loan-calculator')"><span>▦</span><strong>حاسبة القروض</strong><small>حساب القسط أو مبلغ التمويل</small></button>
    <button class="launcher-card" onclick="showPage('calculator')"><span>％</span><strong>حساب الفائدة</strong><small>حساب الفائدة الشهرية للمديونية</small></button>
    <a class="launcher-card" href="./iscore.html"><span>⌕</span><strong>I-Score</strong><small>دليل الأكواد والاستعلام</small></a>
-   <button class="launcher-card" onclick="showPage('scanner')"><span>▧</span><strong>NBE Smart Scanner</strong><small>تصوير المستندات وتجهيزها للطباعة</small></button>
    <a class="launcher-card" href="./certificates.html"><span>٪</span><strong>شهادات البنك</strong><small>المنتجات والشهادات</small></a>
    <a class="launcher-card" href="./rates.html"><span>▤</span><strong>أكواد وأسعار المنتجات</strong><small>معلومات المنتجات والعوائد</small></a>
    <button class="launcher-card" onclick="showPage('settings')"><span>⚙</span><strong>الإعدادات</strong><small>النسخ الاحتياطي وإعدادات البرنامج</small></button>
@@ -2111,19 +2108,6 @@ function buildAppPages(){
  </section>`;
 
 
- pages.scanner.insertAdjacentHTML("beforeend",`
- <div class="scanner-gallery" dir="rtl">
-  <div class="scanner-gallery-head"><div><h2>المستندات المصورة</h2><p>صور واحفظ أوراقك وبطاقات العملاء في مكان واحد</p></div><span class="scanner-count-pill" id="csSavedCount">0 مستند</span></div>
-  <div id="csSavedDocs" class="scanner-gallery-grid"><div class="scanner-gallery-empty"><span>▤</span><strong>لسه مفيش مستندات</strong><small>اضغط على علامة الكاميرا لتصوير أول مستند</small></div></div>
-  <button type="button" class="scanner-camera-fab" aria-label="تصوير مستند" onclick="cardScannerQuickCapture()"><span>📷</span></button>
-  <div id="csLiveCamera" class="cs-live-camera" aria-hidden="true"><div class="cs-live-top"><strong>تصوير البطاقة</strong><button type="button" class="cs-live-close" onclick="cardScannerCloseCamera()" aria-label="إغلاق">×</button></div><div class="cs-live-stage"><video id="csLiveVideo" autoplay muted playsinline></video><canvas id="csLiveOverlay"></canvas></div><div id="csLiveHint" class="cs-live-hint">وجه البطاقة داخل إطار الكاميرا</div><div class="cs-live-bottom"><button id="csLiveShutter" class="cs-live-shutter" type="button" onclick="cardScannerTakeLivePhoto()" aria-label="التقاط الصورة"></button></div></div>
-  <input class="scanner-camera-input" id="csFrontCamera" type="file" accept="image/*" capture="environment">
-  <input class="scanner-file" id="csFrontFile" type="file" accept="image/*"><input class="scanner-camera-input" id="csBackCamera" type="file" accept="image/*" capture="environment"><input class="scanner-file" id="csBackFile" type="file" accept="image/*">
-  <input id="csName" type="hidden" value=""><select id="csType" hidden><option>Customer documents</option><option>National ID</option><option>Bank card</option></select>
-  <div id="csFrontPreview" hidden></div><div id="csBackPreview" hidden></div><div id="csAutoStatus" hidden></div>
-  <input id="csZoom" type="hidden" value="1"><input id="csX" type="hidden" value="0"><input id="csY" type="hidden" value="0"><input id="csBright" type="hidden" value="108"><input id="csContrast" type="hidden" value="112"><input id="csGray" type="checkbox" hidden><select id="csFilter" hidden><option value="auto">Auto</option></select>
-  <div id="csQueue" hidden></div><span id="csQueueCount" hidden>0</span><button id="csPrintBtn" hidden disabled></button><button id="csClearQueueBtn" hidden disabled></button><select id="csPrintMode" hidden><option value="single">single</option></select><button id="csAutoBtn" hidden></button>
- </div>`);
 
 
  const move=(selector,id)=>{
@@ -3112,254 +3096,7 @@ if ("serviceWorker" in navigator) {
 </script>
 
 
-<script>
-const cardScannerState={front:null,back:null,rotation:0,queue:[]},CS_OUT_W=1011,CS_OUT_H=638,CS_RATIO=1011/638;
-function csGet(id){return document.getElementById(id);}
-function csSetLoadProgress(side,percent,label,indeterminate=false){
- const preview=csGet(side==="front"?"csFrontPreview":"csBackPreview");if(!preview)return;
- let overlay=preview.querySelector(".scanner-load-overlay");
- if(!overlay){overlay=document.createElement("div");overlay.className="scanner-load-overlay";overlay.innerHTML='<div class="scanner-progress-ring"><span>0%</span></div><small></small>';preview.appendChild(overlay);}
- const ring=overlay.querySelector(".scanner-progress-ring"),value=overlay.querySelector("span");
- ring.classList.toggle("is-indeterminate",indeterminate);
- ring.style.setProperty("--load-progress",Math.max(0,Math.min(100,percent))+"%");
- value.textContent=indeterminate?"…":Math.round(percent)+"%";
- overlay.querySelector("small").textContent=label||"Loading…";
- if(percent>=100&&!indeterminate){setTimeout(()=>{if(overlay.isConnected){overlay.style.opacity="0";setTimeout(()=>overlay.remove(),260);}},500);}
-}
-async function csLoadSide(side,file){
- if(!file)return;
- const preview=csGet(side==="front"?"csFrontPreview":"csBackPreview");
- const fail=message=>{if(preview)preview.querySelector(".scanner-load-overlay")?.remove();alert(message);};
- if(!file.type||(!file.type.startsWith("image/")&&!/\\.(heic|heif|jpg|jpeg|png|webp)$/i.test(file.name||""))){fail("الملف المختار ليس صورة مدعومة. اختار صورة JPG أو PNG.");return;}
- csSetLoadProgress(side,0,"Reading image…");
- let bitmap=null,objectUrl=null;
- try{
-  csSetLoadProgress(side,20,"Opening photo…");
-  if(typeof createImageBitmap==="function"){
-   try{bitmap=await createImageBitmap(file,{imageOrientation:"from-image"});}catch(e){bitmap=null;}
-  }
-  let width=bitmap?.width||0,height=bitmap?.height||0,source=bitmap;
-  if(!bitmap){
-   objectUrl=URL.createObjectURL(file);
-   const original=new Image();
-   await new Promise((resolve,reject)=>{original.onload=resolve;original.onerror=()=>reject(new Error("decode"));original.src=objectUrl;});
-   source=original;width=original.naturalWidth;height=original.naturalHeight;
-  }
-  if(!width||!height)throw new Error("decode");
-  csSetLoadProgress(side,65,"Optimizing photo…");
-  const maxSide=1800,scale=Math.min(1,maxSide/Math.max(width,height));
-  const safe=document.createElement("canvas");
-  safe.width=Math.max(1,Math.round(width*scale));safe.height=Math.max(1,Math.round(height*scale));
-  const ctx=safe.getContext("2d");if(!ctx)throw new Error("canvas");
-  ctx.drawImage(source,0,0,safe.width,safe.height);
-  const compact=safe.toDataURL("image/jpeg",.9);
-  const img=new Image();
-  await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(new Error("encode"));img.src=compact;});
-  cardScannerState[side]={image:img,source:compact,processed:null};
-  cardScannerRenderSide(side);
-  csSetLoadProgress(side,84,"Preparing scan…",true);
-  cardScannerAutoOnUpload(side);
-  safe.width=safe.height=1;
- }catch(error){
-  console.error("Scanner image decode failed:",{name:file.name,type:file.type,size:file.size,error});
-  fail(/heic|heif/i.test((file.type||"")+" "+(file.name||""))?"الصورة بصيغة HEIC غير مدعومة على هذا المتصفح. من إعدادات iPhone افتح الكاميرا ثم التنسيقات واختر الأكثر توافقًا، وبعدها أعد التصوير.":"تعذر فتح الصورة. جرّب تصويرها مرة أخرى أو اختر صورة JPG أو PNG من الصور.");
- }finally{
-  if(bitmap)bitmap.close?.();
-  if(objectUrl)URL.revokeObjectURL(objectUrl);
- }
-}
 
-let csCvPromise=null;
-function csLoadOpenCV(){
- if(window.cv&&window.cv.Mat)return Promise.resolve(window.cv);
- if(csCvPromise)return csCvPromise;
- csCvPromise=new Promise((resolve,reject)=>{
-  const script=document.createElement("script");script.async=true;script.src="https://docs.opencv.org/4.x/opencv.js";
-  script.onload=()=>{const ready=()=>{if(window.cv&&window.cv.Mat)resolve(window.cv);else{window.cv.onRuntimeInitialized=()=>resolve(window.cv);setTimeout(()=>{if(window.cv&&window.cv.Mat)resolve(window.cv);},12000);}};
-   ready();};script.onerror=()=>reject(new Error("Could not load the automatic scan engine. Check your internet connection and try again."));
-  document.head.appendChild(script);
- });
- return csCvPromise;
-}
-function csOrderCorners(points){
- const sum=p=>p.x+p.y,diff=p=>p.y-p.x;
- const tl=points.reduce((a,p)=>sum(p)<sum(a)?p:a),br=points.reduce((a,p)=>sum(p)>sum(a)?p:a);
- const tr=points.reduce((a,p)=>diff(p)<diff(a)?p:a),bl=points.reduce((a,p)=>diff(p)>diff(a)?p:a);
- return [tl,tr,br,bl];
-}
-
-function csAutoLevels(canvas){
- const ctx=canvas.getContext("2d",{willReadFrequently:true}),im=ctx.getImageData(0,0,canvas.width,canvas.height),d=im.data,hist=new Uint32Array(256),n=d.length/4;
- for(let i=0;i<d.length;i+=4){const y=Math.round(.299*d[i]+.587*d[i+1]+.114*d[i+2]);hist[y]++;}
- const percentile=p=>{let target=n*p,acc=0;for(let i=0;i<256;i++){acc+=hist[i];if(acc>=target)return i;}return 255;};
- let lo=percentile(.025),hi=percentile(.985);if(hi-lo<70)return;
- const scale=255/(hi-lo);
- for(let i=0;i<d.length;i+=4){for(let c=0;c<3;c++)d[i+c]=Math.max(0,Math.min(255,(d[i+c]-lo)*scale));}
- ctx.putImageData(im,0,0);
-}
-function csRotateForDetection(img,rotation){
- const c=document.createElement("canvas"),swap=rotation%180!==0;
- c.width=swap?img.naturalHeight:img.naturalWidth;c.height=swap?img.naturalWidth:img.naturalHeight;
- const x=c.getContext("2d");x.translate(c.width/2,c.height/2);x.rotate(rotation*Math.PI/180);x.drawImage(img,-img.naturalWidth/2,-img.naturalHeight/2);return c;
-}
-async function csDetectAndWarp(img,rotation){
- const cv=await csLoadOpenCV(),source=csRotateForDetection(img,rotation);
- const max=1100,scale=Math.min(1,max/Math.max(source.width,source.height));
- const work=document.createElement("canvas");work.width=Math.max(1,Math.round(source.width*scale));work.height=Math.max(1,Math.round(source.height*scale));
- work.getContext("2d").drawImage(source,0,0,work.width,work.height);
- let src=null,gray=null,blur=null,edges=null,contours=null,hierarchy=null,kernel=null,best=null;
- try{
-  src=cv.imread(work);gray=new cv.Mat();blur=new cv.Mat();edges=new cv.Mat();contours=new cv.MatVector();hierarchy=new cv.Mat();
-  cv.cvtColor(src,gray,cv.COLOR_RGBA2GRAY);cv.GaussianBlur(gray,blur,new cv.Size(5,5),0);
-  cv.Canny(blur,edges,45,135);kernel=cv.Mat.ones(3,3,cv.CV_8U);cv.dilate(edges,edges,kernel);
-  cv.findContours(edges,contours,hierarchy,cv.RETR_LIST,cv.CHAIN_APPROX_SIMPLE);
-  let bestArea=0,bestPoints=null;
-  for(let i=0;i<contours.size();i++){
-   const contour=contours.get(i),peri=cv.arcLength(contour,true),approx=new cv.Mat();
-   cv.approxPolyDP(contour,approx,.02*peri,true);
-   if(approx.rows===4&&cv.isContourConvex(approx)){
-    const area=Math.abs(cv.contourArea(approx));
-    if(area>bestArea&&area>work.width*work.height*.12){
-     const pts=[];for(let j=0;j<4;j++)pts.push({x:approx.intAt(j,0),y:approx.intAt(j,1)});
-     bestArea=area;bestPoints=csOrderCorners(pts);
-    }
-   }
-   approx.delete();contour.delete();
-  }
-  if(!bestPoints)return null;
-  const pts=bestPoints;
-  const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-  const width=Math.max(dist(pts[0],pts[1]),dist(pts[3],pts[2]));
-  const height=Math.max(dist(pts[0],pts[3]),dist(pts[1],pts[2]));
-  const ratio=width/Math.max(1,height);
-  const outW=ratio>=1?1200:Math.max(600,Math.round(1200*ratio));
-  const outH=ratio>=1?Math.max(600,Math.round(1200/ratio)):1200;
-  const srcPts=cv.matFromArray(4,1,cv.CV_32FC2,[pts[0].x,pts[0].y,pts[1].x,pts[1].y,pts[2].x,pts[2].y,pts[3].x,pts[3].y]);
-  const dstPts=cv.matFromArray(4,1,cv.CV_32FC2,[0,0,outW-1,0,outW-1,outH-1,0,outH-1]);
-  const transform=cv.getPerspectiveTransform(srcPts,dstPts),warped=new cv.Mat();
-  cv.warpPerspective(src,warped,transform,new cv.Size(outW,outH),cv.INTER_CUBIC,cv.BORDER_REPLICATE);
-  const output=document.createElement("canvas");output.width=outW;output.height=outH;cv.imshow(output,warped);
-  srcPts.delete();dstPts.delete();transform.delete();warped.delete();
-  return output;
- }finally{
-  [src,gray,blur,edges,contours,hierarchy,kernel].forEach(m=>{if(m){try{m.delete();}catch(_){}}});
-  source.width=source.height=1;work.width=work.height=1;
- }
-}
-async function csAutoProcess(side){
- const item=cardScannerState[side];if(!item)return false;
- const status=csGet("csAutoStatus");if(status)status.textContent="Detecting document edges…";
- csSetLoadProgress(side,88,"Detecting document edges…",true);
- let canvas=null,detected=false;
- try{canvas=await csDetectAndWarp(item.image,cardScannerState.rotation);detected=!!canvas;}
- catch(e){console.warn("Automatic edge detection unavailable:",e);}
- if(!canvas){canvas=document.createElement("canvas");canvas.width=CS_OUT_W;canvas.height=CS_OUT_H;csCropDraw(item.image,canvas,cardScannerState.rotation);}
- const ctx=canvas.getContext("2d");if(ctx){if((csGet("csFilter")?.value||"auto")==="auto")csAutoLevels(canvas);}
- csSetLoadProgress(side,97,"Finishing scan…",true);
- const url=canvas.toDataURL("image/jpeg",.93),img=new Image();
- await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url;});
- cardScannerState[side]={image:img,source:url,processed:url,auto:true,edgeDetected:detected};
- const preview=csGet(side==="front"?"csFrontPreview":"csBackPreview");
- if(preview)preview.innerHTML='<img alt="Auto cropped '+side+' preview" src="'+url+'">';
- csSetLoadProgress(side,100,"Complete");
- if(status)status.textContent=detected?"✓ Document edges detected and perspective corrected.":"Could not find all four edges — showing the original framing. Try a clearer photo with the whole page visible.";
- return true;
-}
-let csQuickCapturePending=false,csLiveStream=null,csLiveDetectTimer=null,csLiveBusy=false,csLiveQuad=null;
-async function cardScannerQuickCapture(){
- const modal=csGet("csLiveCamera"),video=csGet("csLiveVideo"),hint=csGet("csLiveHint");
- if(!navigator.mediaDevices?.getUserMedia){const input=csGet("csFrontCamera");if(input){csQuickCapturePending=true;input.value="";input.click();}return;}
- try{
-  modal.classList.add("open");modal.setAttribute("aria-hidden","false");hint.textContent="جاري تشغيل الكاميرا…";
-  csLiveStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:960}}});
-  video.srcObject=csLiveStream;await video.play();hint.textContent="حرّك الكاميرا حتى تظهر البطاقة كاملة داخل الإطار";
-  cardScannerStartLiveDetection();
- }catch(e){console.warn("Live camera unavailable:",e);cardScannerCloseCamera();alert("تعذر تشغيل الكاميرا المباشرة. تأكد من السماح باستخدام الكاميرا ثم حاول مرة أخرى.");}
-}
-function cardScannerCloseCamera(){
- if(csLiveDetectTimer){clearInterval(csLiveDetectTimer);csLiveDetectTimer=null;}
- if(csLiveStream){csLiveStream.getTracks().forEach(t=>t.stop());csLiveStream=null;}
- const video=csGet("csLiveVideo");if(video)video.srcObject=null;
- const modal=csGet("csLiveCamera");if(modal){modal.classList.remove("open");modal.setAttribute("aria-hidden","true");}
- csLiveQuad=null;csLiveBusy=false;const canvas=csGet("csLiveOverlay");if(canvas)canvas.getContext("2d")?.clearRect(0,0,canvas.width,canvas.height);
-}
-async function cardScannerStartLiveDetection(){
- const video=csGet("csLiveVideo"),canvas=csGet("csLiveOverlay"),hint=csGet("csLiveHint");
- const draw=()=>{if(!canvas||!video.videoWidth)return;const w=canvas.width=canvas.clientWidth*devicePixelRatio,h=canvas.height=canvas.clientHeight*devicePixelRatio,ctx=canvas.getContext("2d");ctx.clearRect(0,0,w,h);ctx.lineWidth=4*devicePixelRatio;ctx.strokeStyle=csLiveQuad?"#21e69b":"#ffffffbb";ctx.shadowColor=csLiveQuad?"#21e69b":"transparent";ctx.shadowBlur=csLiveQuad?12:0;
-  if(csLiveQuad){ctx.beginPath();csLiveQuad.forEach((p,i)=>{const x=p.x/video.videoWidth*w,y=p.y/video.videoHeight*h;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.closePath();ctx.fillStyle="#16a87522";ctx.fill();ctx.stroke();hint.textContent="✓ تم اكتشاف حواف البطاقة — ثبّت الهاتف والتقط الصورة";}else{ctx.strokeStyle="#ffffffa8";ctx.setLineDash([10*devicePixelRatio,8*devicePixelRatio]);ctx.strokeRect(w*.10,h*.25,w*.80,h*.50);ctx.setLineDash([]);hint.textContent="ابحث عن البطاقة واجعلها كاملة وواضحة داخل الصورة";}}
- draw();
- try{const cv=await csLoadOpenCV();csLiveDetectTimer=setInterval(()=>{if(csLiveBusy||!video.videoWidth||video.readyState<2)return;csLiveBusy=true;try{
-  const scale=Math.min(1,720/video.videoWidth),ww=Math.round(video.videoWidth*scale),hh=Math.round(video.videoHeight*scale),frame=document.createElement("canvas");frame.width=ww;frame.height=hh;frame.getContext("2d").drawImage(video,0,0,ww,hh);
-  const src=cv.imread(frame),gray=new cv.Mat(),blur=new cv.Mat(),edges=new cv.Mat(),contours=new cv.MatVector(),hier=new cv.Mat(),kernel=cv.Mat.ones(3,3,cv.CV_8U);cv.cvtColor(src,gray,cv.COLOR_RGBA2GRAY);cv.GaussianBlur(gray,blur,new cv.Size(5,5),0);cv.Canny(blur,edges,45,135);cv.dilate(edges,edges,kernel);cv.findContours(edges,contours,hier,cv.RETR_LIST,cv.CHAIN_APPROX_SIMPLE);
-  let areaBest=0,points=null;for(let i=0;i<contours.size();i++){const c=contours.get(i),approx=new cv.Mat();cv.approxPolyDP(c,approx,.025*cv.arcLength(c,true),true);if(approx.rows===4&&cv.isContourConvex(approx)){const area=Math.abs(cv.contourArea(approx));if(area>areaBest&&area>ww*hh*.045){const p=[];for(let j=0;j<4;j++)p.push({x:approx.intAt(j,0)/scale,y:approx.intAt(j,1)/scale});const ordered=csOrderCorners(p),a=Math.hypot(ordered[1].x-ordered[0].x,ordered[1].y-ordered[0].y),b=Math.hypot(ordered[3].x-ordered[0].x,ordered[3].y-ordered[0].y),ratio=Math.max(a,b)/Math.max(1,Math.min(a,b));if(ratio>1.25&&ratio<2.05){areaBest=area;points=ordered;}}}approx.delete();c.delete();}
-  csLiveQuad=points;[src,gray,blur,edges,contours,hier,kernel].forEach(m=>m.delete());frame.width=frame.height=1;draw();
- }catch(e){console.warn("Live edge detection:",e);}finally{csLiveBusy=false;}},260);
- }catch(e){console.warn("Live edge detector unavailable:",e);hint.textContent="الكاميرا تعمل — اضبط البطاقة داخل الإطار ثم التقط الصورة.";}
-}
-async function cardScannerTakeLivePhoto(){
- const video=csGet("csLiveVideo"),button=csGet("csLiveShutter"),hint=csGet("csLiveHint");
- if(!video||!video.videoWidth||!video.videoHeight){if(hint)hint.textContent="الكاميرا لسه بتحضر الصورة، استنى لحظة وجرب تاني";return;}
- if(button)button.disabled=true;
- try{
-  const canvas=document.createElement("canvas");canvas.width=video.videoWidth;canvas.height=video.videoHeight;
-  const ctx=canvas.getContext("2d");if(!ctx)throw new Error("canvas");
-  ctx.drawImage(video,0,0,canvas.width,canvas.height);
-  const photoUrl=canvas.toDataURL("image/jpeg",.94);if(!photoUrl||photoUrl.length<1000)throw new Error("empty photo");
-  const img=new Image();
-  await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(new Error("image decode"));img.src=photoUrl;});
-  csQuickCapturePending=true;
-  cardScannerCloseCamera();
-  cardScannerState.front={image:img,source:photoUrl,processed:null};
-  cardScannerRenderSide("front");
-  cardScannerAutoOnUpload("front");
- }catch(e){console.error("Live camera capture failed:",e);if(hint)hint.textContent="مقدرناش نلتقط الصورة. قرّب البطاقة وجرب تاني";alert("تعذر التقاط الصورة. حاول مرة أخرى.");}
- finally{if(button)button.disabled=false;}
-}async function csSaveQuickCapture(){const item=cardScannerState.front;if(!item)return;try{await window.NBEStorageReady;const docs=await NBEStore.getScannerDocs();const doc={id:Date.now()+"-"+Math.random().toString(36).slice(2,7),name:"مستند "+(docs.length+1),type:"Customer documents",front:item.processed||item.source,back:null,savedAt:Date.now()};await NBEStore.putScannerDoc(doc);cardScannerState.front=null;csQuickCapturePending=false;await cardScannerRenderSaved();}catch(e){csQuickCapturePending=false;console.error(e);alert("تعذر حفظ الصورة على الجهاز. حاول مرة أخرى.");}}function cardScannerAutoOnUpload(side){const status=csGet("csAutoStatus");if(status)status.textContent="Automatically enhancing "+side+" side…";csAutoProcess(side).then(async ok=>{if(ok){cardScannerState[side].processed=cardScannerState[side].source;if(status)status.textContent="تم تجهيز الصورة";if(side==="front"&&csQuickCapturePending)await csSaveQuickCapture();}}).catch(async e=>{if(status)status.textContent="Auto scan could not detect this side: "+e.message;if(side==="front"&&csQuickCapturePending){cardScannerState.front.processed=cardScannerState.front.source;await csSaveQuickCapture();}});}
-async function cardScannerAutoAll(){
- const btn=csGet("csAutoBtn");if(btn){btn.disabled=true;btn.textContent="Scanning…";}
- try{
-  let done=0;
-  for(const side of ["front","back"]){if(cardScannerState[side]){try{if(await csAutoProcess(side))done++;}catch(e){const status=csGet("csAutoStatus");if(status)status.textContent=e.message;alert((side==="front"?"Front":"Back")+": "+e.message);}}}
-  if(done){["csZoom","csX","csY"].forEach((id,i)=>csGet(id).value=[1,0,0][i]);csGet("csBright").value=100;csGet("csContrast").value=100;csGet("csGray").checked=false;["front","back"].forEach(side=>{if(cardScannerState[side])cardScannerState[side].processed=cardScannerState[side].source;});const status=csGet("csAutoStatus");if(status)status.textContent="✓ Automatic scan complete. Review the cropped previews before saving.";}
- }catch(e){alert(e.message);const status=csGet("csAutoStatus");if(status)status.textContent=e.message;}
- finally{if(btn){btn.disabled=false;btn.textContent="✨ Auto Scan & Enhance";}}
-}
-
-function csCropDraw(img,canvas,rotation){const zoom=Number(csGet("csZoom")?.value||1),rot=document.createElement("canvas"),ctx=rot.getContext("2d"),swap=rotation%180!==0;rot.width=swap?img.naturalHeight:img.naturalWidth;rot.height=swap?img.naturalWidth:img.naturalHeight;ctx.translate(rot.width/2,rot.height/2);ctx.rotate(rotation*Math.PI/180);ctx.drawImage(img,-img.naturalWidth/2,-img.naturalHeight/2);const rw=rot.width,rh=rot.height,ra=rw/rh;let sw,sh;if(ra>CS_RATIO){sh=rh/zoom;sw=sh*CS_RATIO;}else{sw=rw/zoom;sh=sw/CS_RATIO;}const px=Number(csGet("csX")?.value||0)/100,py=Number(csGet("csY")?.value||0)/100,cx=Math.max(sw/2,Math.min(rw-sw/2,rw/2+px*(rw-sw)/2)),cy=Math.max(sh/2,Math.min(rh-sh/2,rh/2+py*(rh-sh)/2));const out=canvas.getContext("2d");out.clearRect(0,0,CS_OUT_W,CS_OUT_H);out.fillStyle="#fff";out.fillRect(0,0,CS_OUT_W,CS_OUT_H);const filter=csGet("csFilter")?.value||"auto";let css="brightness("+Number(csGet("csBright")?.value||108)+"%) contrast("+Number(csGet("csContrast")?.value||112)+"%)";if(filter==="gray"||csGet("csGray")?.checked)css+=" grayscale(1)";if(filter==="bw")css+=" grayscale(1) contrast(1.8)";if(filter==="magic")css+=" saturate(1.35) contrast(1.12)";out.filter=css;out.drawImage(rot,cx-sw/2,cy-sh/2,sw,sh,0,0,CS_OUT_W,CS_OUT_H);out.filter="none";if(filter==="auto"||filter==="magic")csAutoLevels(canvas);}
-function cardScannerRenderSide(side){const item=cardScannerState[side];if(!item)return;const canvas=document.createElement("canvas");canvas.width=CS_OUT_W;canvas.height=CS_OUT_H;csCropDraw(item.image,canvas,cardScannerState.rotation);item.processed=canvas.toDataURL("image/jpeg",.94);const preview=csGet(side==="front"?"csFrontPreview":"csBackPreview");if(preview)preview.innerHTML='<img alt="'+(side==="front"?"Front":"Back")+' preview" src="'+item.processed+'">';}
-function cardScannerRefresh(){["front","back"].forEach(cardScannerRenderSide);const z=csGet("csZoomOut"),b=csGet("csBrightOut"),c=csGet("csContrastOut");if(z)z.textContent=Number(csGet("csZoom").value).toFixed(1)+"×";if(b)b.textContent=csGet("csBright").value+"%";if(c)c.textContent=csGet("csContrast").value+"%";}
-function cardScannerRotate(){cardScannerState.rotation=(cardScannerState.rotation+90)%360;cardScannerRefresh();}
-function cardScannerResetAdjustments(){["csZoom","csBright","csContrast"].forEach((id,i)=>csGet(id).value=[1,108,112][i]);["csX","csY"].forEach(id=>csGet(id).value=0);csGet("csGray").checked=false;cardScannerState.rotation=0;cardScannerRefresh();}
-function cardScannerClearCurrent(){cardScannerState.front=null;cardScannerState.back=null;cardScannerState.rotation=0;["csFrontFile","csBackFile"].forEach(id=>csGet(id).value="");["csFrontPreview","csBackPreview"].forEach((id,i)=>csGet(id).innerHTML='<span>No '+(i===0?"front":"back")+' image selected</span>');if(csGet("csName"))csGet("csName").value="";cardScannerResetAdjustments();}
-async function cardScannerAdd(){
- if(!cardScannerState.front&&!cardScannerState.back){alert("Capture or upload at least one side first.");return;}
- const btn=document.querySelector(".scanner-actions button.btn.primary");if(btn){btn.disabled=true;btn.textContent="Saving…";}
- try{await window.NBEStorageReady;const doc={id:Date.now()+"-"+Math.random().toString(36).slice(2,7),name:(csGet("csName").value||"Document "+(cardScannerState.queue.length+1)).trim(),type:csGet("csType").value,front:cardScannerState.front?.processed||null,back:cardScannerState.back?.processed||null,savedAt:Date.now()};await NBEStore.putScannerDoc(doc);cardScannerState.queue.push({...doc});cardScannerRenderQueue();cardScannerClearCurrent();await cardScannerRenderSaved();const status=csGet("csAutoStatus");if(status)status.textContent="Document saved locally and added to the print queue.";}
- catch(error){console.error("Could not save scanner document:",error);alert("Could not save this document to the local database. Check available device storage and try again.");}
- finally{if(btn){btn.disabled=false;btn.textContent="＋ Add to print queue";}}
-}
-function cardScannerRenderQueue(){const host=csGet("csQueue"),count=cardScannerState.queue.length;csGet("csQueueCount").textContent=count+" document"+(count===1?"":"s");csGet("csPrintBtn").disabled=!count;csGet("csClearQueueBtn").disabled=!count;if(!count){host.className="scanner-queue-empty";host.textContent="Your print queue is empty. Add a front or back image to get started.";return;}host.className="scanner-queue-list";host.innerHTML=cardScannerState.queue.map(item=>'<article class="scanner-queue-item"><strong>'+csEscape(item.name)+' · '+csEscape(item.type)+'</strong><div class="scanner-queue-images"><div>'+(item.front?'<img src="'+item.front+'" alt="Front">':'<div class="scanner-preview">No front</div>')+'<small>Front</small></div><div>'+(item.back?'<img src="'+item.back+'" alt="Back">':'<div class="scanner-preview">No back</div>')+'<small>Back</small></div></div><button type="button" class="scanner-remove" onclick="cardScannerRemove(\''+item.id+'\')">Remove</button></article>').join("");}
-function csEscape(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function cardScannerRemove(id){cardScannerState.queue=cardScannerState.queue.filter(x=>x.id!==id);cardScannerRenderQueue();}
-async function cardScannerRenderSaved(){const host=csGet("csSavedDocs");if(!host)return;try{await window.NBEStorageReady;const docs=await NBEStore.getScannerDocs();const count=csGet("csSavedCount");if(count)count.textContent=docs.length+" مستند";if(!docs.length){host.className="scanner-gallery-grid";host.innerHTML='<div class="scanner-gallery-empty"><span>▤</span><strong>لسه مفيش مستندات</strong><small>اضغط على علامة الكاميرا لتصوير أول مستند</small></div>';return;}host.className="scanner-gallery-grid";host.innerHTML=docs.map(item=>'<article class="scanner-gallery-card"><img src="'+(item.front||item.back||"")+'" alt="'+csEscape(item.name)+'"><div class="scanner-gallery-meta"><strong>'+csEscape(item.name)+'</strong><small>'+csEscape(item.type)+' · '+new Date(item.savedAt||Date.now()).toLocaleDateString("ar-EG")+'</small></div><div class="scanner-tools"><button type="button" class="btn light-btn small-btn" onclick="cardScannerQueueSaved(\''+item.id+'\')">طباعة</button><button type="button" class="scanner-remove" onclick="cardScannerDeleteSaved(\''+item.id+'\')">حذف</button></div></article>').join("");}catch(error){console.error("Could not load saved scanner documents:",error);host.className="scanner-gallery-grid";host.textContent="تعذر تحميل المستندات المحفوظة.";}}
-async function cardScannerQueueSaved(id){const docs=await NBEStore.getScannerDocs();const doc=docs.find(x=>x.id===id);if(!doc)return;cardScannerState.queue.push({...doc});cardScannerRenderQueue();csGet("csQueue").scrollIntoView({behavior:"smooth",block:"center"});}
-async function cardScannerDeleteSaved(id){if(!confirm("Delete this saved document from this device?"))return;try{await NBEStore.deleteScannerDoc(id);await cardScannerRenderSaved();}catch(error){console.error(error);alert("Could not delete this saved document.");}}
-function cardScannerClearQueue(){if(!cardScannerState.queue.length)return;if(!confirm("Clear all documents from the print queue?"))return;cardScannerState.queue=[];cardScannerRenderQueue();}
-function cardScannerPrint(){const list=cardScannerState.queue;if(!list.length)return;const mode=csGet("csPrintMode").value,win=window.open("","_blank");if(!win){alert("Allow pop-ups to print or save as PDF.");return;}const face=(src,label)=>src?'<div class="face"><img src="'+src+'" alt="'+label+'"><small>'+label+'</small></div>':'<div class="face empty-face"><div>No '+label.toLowerCase()+'</div><small>'+label+'</small></div>';let pages="";if(mode==="single")pages=list.map(item=>'<section class="sheet scanner-print-document"><h2>'+csEscape(item.name)+'</h2><div class="pair single-pair">'+face(item.front,"FRONT")+face(item.back,"BACK")+'</div></section>').join("");else{const chunks=[];for(let i=0;i<list.length;i+=4)chunks.push(list.slice(i,i+4));pages=chunks.map(chunk=>'<section class="sheet scanner-print-document"><div class="grid-sheet">'+chunk.map(item=>'<article class="grid-pair"><strong>'+csEscape(item.name)+'</strong>'+face(item.front,"FRONT")+face(item.back,"BACK")+'</article>').join("")+'</div></section>').join("");}const html='<!doctype html><html><head><meta charset="utf-8"><title>Card Scanner Print</title><style>@page{size:A4 portrait;margin:10mm}*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;color:#111}.sheet{width:190mm;min-height:277mm;position:relative;padding:4mm;break-after:page}.sheet:last-child{break-after:auto}.sheet h2{text-align:center;font-size:13px;margin:0 0 12mm}.single-pair{display:flex;gap:12mm;justify-content:center;align-items:flex-start;padding-top:18mm}.face{width:85.6mm;display:flex;flex-direction:column;align-items:center;gap:2mm}.face img{display:block;width:85.6mm;height:54mm;object-fit:fill;border:.2mm solid #bbb}.face small{font-size:8px;letter-spacing:1px}.empty-face{height:54mm;justify-content:center;border:.2mm dashed #bbb;color:#777}.empty-face div{font-size:10px}.grid-sheet{display:grid;grid-template-columns:85.6mm 85.6mm;grid-template-rows:repeat(2,auto);justify-content:space-between;align-content:start;gap:9mm 8mm;padding-top:2mm}.grid-pair{display:flex;flex-direction:column;align-items:center;gap:1mm;break-inside:avoid}.grid-pair strong{font-size:8px;max-width:85mm;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.grid-pair .face{gap:1mm}.grid-pair .face img{width:85.6mm;height:54mm}.grid-pair .face small{font-size:7px}.grid-pair .face+.face{margin-top:1mm}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+pages+'<script>window.onload=function(){setTimeout(function(){window.print()},350)}<\/script></body></html>';win.document.open();win.document.write(html);win.document.close();}
-let csInitialized=false;
-function cardScannerInit(){
- if(csInitialized||!csGet("csQueue"))return;
- csInitialized=true;
- [["csFrontFile","front"],["csFrontCamera","front"],["csBackFile","back"],["csBackCamera","back"]].forEach(([id,side])=>{const el=csGet(id);if(el)el.addEventListener("change",e=>csLoadSide(side,e.target.files&&e.target.files[0]));});
- ["csZoom","csX","csY","csBright","csContrast","csGray","csFilter"].forEach(id=>{const el=csGet(id);if(el)el.addEventListener("input",cardScannerRefresh);});
- cardScannerRenderQueue();
- window.NBEStorageReady.then(cardScannerRenderSaved).catch(error=>console.warn("Scanner database is not ready:",error));
-}
-const csObserver=new MutationObserver(()=>{if(csGet("csQueue")){cardScannerInit();csObserver.disconnect();}
-});
-csObserver.observe(document.body,{childList:true,subtree:true});
-if(csGet("csQueue")){cardScannerInit();csObserver.disconnect();}
-</script>
 
 <nav id="mainNav" class="bottom-nav no-print" aria-label="التنقل السريع">
  <button type="button" class="nav-btn active" data-page="home" onclick="showPage('home')" aria-label="الرئيسية"><span class="nav-icon" aria-hidden="true">⌂</span><span>الرئيسية</span></button>
