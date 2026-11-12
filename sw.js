@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "nbe-sales-v135";
+const CACHE_NAME = "nbe-tools-v136";
 
 const FILES_TO_CACHE = [
   "/-nbe-sales/",
@@ -9,7 +9,6 @@ const FILES_TO_CACHE = [
   "/-nbe-sales/certificates.html",
   "/-nbe-sales/certificates-i18n.js",
   "/-nbe-sales/manifest.json",
-  "/-nbe-sales/crm.js",
 ];
 
 self.addEventListener("install", event => {
