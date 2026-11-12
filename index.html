@@ -1839,7 +1839,6 @@ body.dark .home-menu-card{background:#101d18;border-color:#29463B}
 
 <header class="header">
  <div class="brand">
-  <button type="button" id="menuToggle" class="menu-toggle" onclick="toggleSidebar()" aria-label="فتح القائمة" aria-controls="appSidebar" aria-expanded="false"><span></span><span></span><span></span></button>
   <div class="logo">
    <img src="https://commons.wikimedia.org/wiki/Special:FilePath/National_Bank_of_Egypt.svg"
     alt="NBE Logo"
@@ -1853,23 +1852,7 @@ body.dark .home-menu-card{background:#101d18;border-color:#29463B}
  </div>
  <div class="nbe-identity-strip"><span class="identity-label">RETAIL BANKING</span><small>RASHID BRANCH <b>394</b></small></div>
 </header>
-<div id="sidebarBackdrop" class="sidebar-backdrop" hidden onclick="closeSidebar()" aria-hidden="true"></div>
-<aside id="appSidebar" class="app-sidebar" aria-label="القائمة الرئيسية" aria-hidden="true">
- <div class="sidebar-head">
-  <div class="sidebar-brand"><strong>NBE</strong><span>FINANCIAL TOOLS</span></div>
-  <button type="button" class="sidebar-close" onclick="closeSidebar()" aria-label="إغلاق القائمة">×</button>
- </div>
- <nav class="sidebar-nav" aria-label="أدوات البرنامج">
-  <button class="sidebar-item" data-page="calculator" onclick="showPage('calculator')"><span class="sidebar-item-icon">％</span><span>حاسبة فائدة المديونية</span></button>
-  <button class="sidebar-item" data-page="loan-calculator" onclick="showPage('loan-calculator')"><span class="sidebar-item-icon">▦</span><span>حاسبة القروض</span></button>
-  <button class="sidebar-item" data-page="scanner" onclick="showPage('scanner')"><span class="sidebar-item-icon">▧</span><span>NBE Smart Scanner</span></button>
-  <a class="sidebar-item" href="./certificates.html" style="text-decoration:none"><span class="sidebar-item-icon">٪</span><span>حاسبة الشهادات</span></a>
-  <a class="sidebar-item" href="./rates.html" style="text-decoration:none"><span class="sidebar-item-icon">▤</span><span>أكواد وأسعار المنتجات</span></a>
-  <a class="sidebar-item" href="./iscore.html" style="text-decoration:none"><span class="sidebar-item-icon">⌕</span><span>أكواد I-Score</span></a>
-  <button class="sidebar-item" data-page="settings" onclick="showPage('settings')"><span class="sidebar-item-icon">⚙</span><span>الإعدادات</span></button>
- </nav>
- <div class="sidebar-footer">NBE FINANCIAL TOOLS</div>
-</aside>
+
 </div>
 
 <script>
@@ -2701,11 +2684,6 @@ csObserver.observe(document.body,{childList:true,subtree:true});
 if(csGet("csQueue")){cardScannerInit();csObserver.disconnect();}
 </script>
 
-<nav id="mainNav" class="bottom-nav no-print" aria-label="التنقل السريع">
- <button type="button" class="nav-btn active" data-page="calculator" onclick="showPage('calculator')" aria-label="حاسبة المديونية"><span class="nav-icon" aria-hidden="true">％</span><span>المديونية</span></button>
- <button type="button" class="nav-btn" data-page="loan-calculator" onclick="showPage('loan-calculator')" aria-label="حاسبة القروض"><span class="nav-icon" aria-hidden="true">▦</span><span>القروض</span></button>
- <button type="button" class="nav-btn" data-page="scanner" onclick="showPage('scanner')" aria-label="الماسح الضوئي"><span class="nav-icon" aria-hidden="true">▧</span><span>Scanner</span></button>
- <a class="nav-btn" href="./iscore.html" aria-label="أكواد I-Score" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;justify-content:center"><span class="nav-icon" aria-hidden="true">⌕</span><span>I-Score</span></a>
-</nav>
+
 </body>
 </html>
