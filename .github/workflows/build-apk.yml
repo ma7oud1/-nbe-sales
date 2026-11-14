@@ -9,6 +9,9 @@ on:
       - 'settings.gradle'
       - '.github/workflows/build-apk.yml'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -42,11 +45,3 @@ jobs:
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
-
-      - name: Publish APK release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v1.0.0
-          name: NBE Smart Tools 1.0.0
-          files: app/build/outputs/apk/debug/app-debug.apk
-          make_latest: true
