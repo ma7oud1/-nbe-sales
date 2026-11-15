@@ -137,6 +137,45 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
 @media print{.report-phones{color:#12345a!important;font-size:9px!important;margin-top:4px!important;gap:4px 12px!important}}
 @media(max-width:520px){.report-phones{font-size:10px;gap:4px 9px}}
 
+/* Executive NBE report masthead */
+.report-header{position:relative;isolation:isolate;display:flex;justify-content:center;align-items:center;text-align:center;padding:27px 20px 25px!important;background:radial-gradient(circle at 12% 15%,#ffffff16 0 1px,transparent 2px),linear-gradient(125deg,#081c31 0%,#123b62 58%,#1d527c 100%)!important;border-bottom:4px solid #c7a15a!important;box-shadow:0 10px 28px #102b4b24}
+.report-header:before{content:"";position:absolute;z-index:-1;width:310px;height:310px;left:-105px;top:-210px;border:1px solid #ffffff20;border-radius:50%;box-shadow:0 0 0 28px #ffffff08,0 0 0 56px #ffffff06}
+.report-header:after{content:"";position:absolute;z-index:-1;width:230px;height:230px;right:-95px;bottom:-180px;border:1px solid #ffffff18;border-radius:50%;box-shadow:0 0 0 22px #ffffff07}
+.report-brand{width:min(100%,850px);display:flex;align-items:center;justify-content:center;gap:22px}
+.report-logo{width:88px;height:88px;padding:9px;border-radius:18px;background:#fff;object-fit:contain;box-shadow:0 8px 24px #06172b55;border:1px solid #ffffff80}
+.report-heading{display:flex;flex-direction:column;align-items:center}
+.report-heading:before{content:"RETAIL BANKING  •  RASHID BRANCH";display:inline-block;color:#e6cb91;font-size:9px;letter-spacing:2.1px;font-weight:800;margin-bottom:7px}
+.report-heading h1{font-size:25px!important;font-weight:900;letter-spacing:0;color:#fff;margin:0;text-shadow:0 2px 9px #0003}
+.report-heading p{font-size:14px!important;font-weight:800;letter-spacing:.8px;color:#f2dba8!important;margin:8px 0 5px!important}
+.report-heading small{font-size:11px;color:#d9e6f2!important;letter-spacing:.2px}
+.report-phones{justify-content:center!important;gap:8px 10px!important;margin-top:13px!important}
+.report-phones span{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border:1px solid #ffffff35;border-radius:20px;background:#ffffff12;color:#fff!important;font-size:11px!important;letter-spacing:.5px}
+.report-phones span:before{content:"☎";font-size:10px;color:#e6cb91}
+@media(max-width:520px){
+ .report-header{padding:22px 12px 20px!important}
+ .report-brand{flex-direction:column;gap:12px}
+ .report-logo{width:65px;height:65px;border-radius:14px;padding:6px}
+ .report-heading:before{font-size:8px;letter-spacing:1.6px}
+ .report-heading h1{font-size:20px!important}
+ .report-heading p{font-size:12px!important}
+ .report-heading small{font-size:10px}
+ .report-phones{margin-top:10px!important;gap:6px!important}
+ .report-phones span{font-size:10px!important;padding:6px 10px}
+}
+@media print{
+ .report-header{display:flex!important;justify-content:center!important;text-align:center!important;padding:7px 10px!important;background:#fff!important;border-bottom:2px solid #c7a15a!important;box-shadow:none!important}
+ .report-header:before,.report-header:after{display:none!important}
+ .report-brand{flex-direction:row!important;gap:10px!important}
+ .report-logo{width:48px!important;height:48px!important;padding:3px!important;border:1px solid #ddd!important;border-radius:7px!important;box-shadow:none!important}
+ .report-heading{align-items:center!important}
+ .report-heading:before{font-size:6px!important;color:#8a6b35!important;margin-bottom:2px!important;letter-spacing:1.2px!important}
+ .report-heading h1{font-size:14px!important;color:#12345a!important}
+ .report-heading p{font-size:9px!important;color:#12345a!important;margin:2px 0!important}
+ .report-heading small{font-size:7px!important;color:#526477!important}
+ .report-phones{margin-top:3px!important;gap:4px!important}
+ .report-phones span{font-size:7px!important;color:#12345a!important;border:1px solid #dce3ea!important;background:#f7f9fb!important;padding:2px 7px!important}
+ .report-phones span:before{display:none!important}
+}
 </style></head>
 <body>
 <header class="report-header">
