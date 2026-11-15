@@ -34,9 +34,9 @@ main{max-width:1200px;margin:20px auto;padding:0 14px}.panel{background:#fff;bor
 <section class="panel">
 <h2>بيانات التقرير</h2>
 <div class="grid">
-<div class="field"><label>اسم السيلز</label><input id="salesName" placeholder="اسم السيلز"></div>
+<div class="field"><label>اسم السيلز</label><input id="salesName" value="محمود محمد رزق" readonly></div>
 <div class="field"><label>تاريخ التقرير</label><input id="reportDate" type="date"></div>
-<div class="field"><label>الرقم الوظيفي للسيلز</label><input id="salesId" placeholder="الرقم الوظيفي"></div>
+<div class="field"><label>الرقم الوظيفي للسيلز</label><input id="salesId" value="479511" readonly></div>
 <div class="field"><label>عدد الكروت</label><input id="cardCount" type="number" min="0" value="0"></div>
 </div></section>
 <section class="panel">
@@ -89,9 +89,9 @@ function updateSummary(){
  $("sNet").textContent=clients.reduce((a,x)=>a+(Number(x.net)||0),0).toLocaleString("en-US",{maximumFractionDigits:2});
  $("sClients").textContent=clients.filter(x=>String(x.name||"").trim()).length.toLocaleString("en-US");
 }
-function snapshot(){return {salesName:$("salesName").value,reportDate:$("reportDate").value,salesId:$("salesId").value,cardCount:$("cardCount").value,clients}}
+function snapshot(){return {salesName:"محمود محمد رزق",reportDate:$("reportDate").value,salesId:"479511",cardCount:$("cardCount").value,clients}}
 function persist(){try{localStorage.setItem("salesReportStandalone",JSON.stringify(snapshot()))}catch(e){}}
-function load(){try{const d=JSON.parse(localStorage.getItem("salesReportStandalone")||"null");if(d){$("salesName").value=d.salesName||"";$("reportDate").value=d.reportDate||new Date().toISOString().slice(0,10);$("salesId").value=d.salesId||"";$("cardCount").value=d.cardCount||0;clients=Array.isArray(d.clients)?d.clients:[]}}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem("salesReportStandalone")||"null");if(d){$("salesName").value="محمود محمد رزق";$("reportDate").value=d.reportDate||new Date().toISOString().slice(0,10);$("salesId").value="479511";$("cardCount").value=d.cardCount||0;clients=Array.isArray(d.clients)?d.clients:[]}}catch(e){}}
 function csv(){
  const headers=["م","اسم العميل","الرقم القومي","رقم الموبايل","جهة العمل","نوع القرض","قيمة القرض","كود الفرع","اسم الفرع","الرقم الوظيفي","اسم الموظف","مصدر الطلب","صافي القرض"];
  const keys=["name","national","mobile","employer","loanType","amount","branchCode","branchName","employeeId","employeeName","source","net"];
@@ -100,7 +100,7 @@ function csv(){
  const a=document.createElement("a"),url=URL.createObjectURL(new Blob([data],{type:"text/csv;charset=utf-8"}));a.href=url;a.download="sales-report.csv";a.click();URL.revokeObjectURL(url);
 }
 $("addBtn").onclick=addClient;$("printBtn").onclick=()=>window.print();$("saveBtn").onclick=()=>{persist();alert("تم حفظ البيانات على هذا الجهاز")};$("exportBtn").onclick=csv;
-$("clearBtn").onclick=()=>{if(confirm("هل تريد مسح كل بيانات التقرير والعملاء؟")){clients=[];$("salesName").value="";$("salesId").value="";$("cardCount").value=0;render();persist()}};
+$("clearBtn").onclick=()=>{if(confirm("هل تريد مسح كل بيانات التقرير والعملاء؟")){clients=[];$("salesName").value="محمود محمد رزق";$("salesId").value="479511";$("cardCount").value=0;render();persist()}};
 ["salesName","reportDate","salesId","cardCount"].forEach(id=>$(id).addEventListener("change",()=>{updateSummary();persist()}));
 load();if(!$("reportDate").value)$("reportDate").value=new Date().toISOString().slice(0,10);render();persist();
 </script></body></html>
