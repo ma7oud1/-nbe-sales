@@ -207,6 +207,21 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
  .report-heading:before{display:none!important;content:none!important}
  .report-phones span:before{display:none!important;content:none!important}
 }
+
+/* Final NBE emblem-only alignment */
+@media screen{
+ .report-header{display:flex!important;justify-content:center!important;text-align:center!important}
+ .report-brand{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:10px!important;width:100%!important;margin:0 auto!important}
+ .report-logo{display:block!important;width:76px!important;height:76px!important;margin:0 auto!important;padding:0!important;object-fit:cover!important;object-position:100% 50%!important;border:0!important;border-radius:0!important;background:#fff!important;box-shadow:none!important;position:static!important}
+ .report-heading{align-items:center!important;text-align:center!important}
+}
+@media print{
+ .report-header{display:flex!important;justify-content:center!important;text-align:center!important}
+ .report-brand{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;width:100%!important;margin:0 auto!important}
+ .report-logo{display:block!important;width:42px!important;height:42px!important;margin:0 auto!important;padding:0!important;object-fit:cover!important;object-position:100% 50%!important;border:0!important;border-radius:0!important;background:#fff!important;box-shadow:none!important;position:static!important}
+ .report-heading{align-items:center!important;text-align:center!important}
+}
+
 </style></head>
 <body>
 <header class="report-header">
