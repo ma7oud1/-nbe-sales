@@ -255,7 +255,11 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
 /* Live Cairo clock in the report header */
 .header-clock{display:inline-flex;align-items:center;justify-content:center;direction:ltr;margin:9px auto 0;padding:5px 15px;border:1px solid #ffffff45;border-radius:20px;background:#ffffff12;color:#f2dba8;font-size:15px;font-weight:800;letter-spacing:1.2px;font-variant-numeric:tabular-nums;min-width:112px}
 @media print{.header-clock{margin:3px auto 0;padding:2px 8px;border:1px solid #dce3ea;background:#f7f9fb;color:#12345a;font-size:9px;min-width:0}}
-</style><script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+/* Visible keyboard focus for keyboard and assistive-technology users */
+:focus-visible{outline:3px solid #0b70ad;outline-offset:3px}
+@media(forced-colors:active){:focus-visible{outline:2px solid Highlight;outline-offset:3px}}
+</style>
 </head>
 <body>
 <header class="report-header">
