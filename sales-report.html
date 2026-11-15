@@ -407,5 +407,8 @@ function load(){
   }
  }catch(e){clients=[]}
 }
-function updateHeaderClock(){const el=$("headerClock");if(!el)return;el.textContent=new Intl.DateTimeFormat("en-GB",{timeZone:"Africa/Cairo",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(new Date())}\nupdateHeaderClock();setInterval(updateHeaderClock,1000);\nload();if(!$("reportDate").value)$("reportDate").value=new Date().toISOString().slice(0,10);render();persist();
+function updateHeaderClock(){const el=$("headerClock");if(!el)return;el.textContent=new Intl.DateTimeFormat("en-GB",{timeZone:"Africa/Cairo",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(new Date())}
+updateHeaderClock();
+setInterval(updateHeaderClock,1000);
+load();if(!$("reportDate").value)$("reportDate").value=new Date().toISOString().slice(0,10);render();persist();
 </script></body></html>
