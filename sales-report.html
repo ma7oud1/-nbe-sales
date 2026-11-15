@@ -293,6 +293,7 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
 <button class="btn primary" id="addBtn">＋ إضافة عميل</button>
 <button class="btn gold" id="printBtn">طباعة التقرير</button>
 <button class="btn secondary" id="historyBtn">التقارير السابقة</button>
+<button class="btn secondary" id="imageBtn">تحويل التقرير لصورة</button>
 
 <button class="btn secondary" id="exportBtn">تصدير CSV</button>
 
@@ -350,6 +351,54 @@ function persist(saveHistory=true){try{const snap=snapshot();localStorage.setIte
 function renderHistory(){const list=$("historyList");let history={};try{history=JSON.parse(localStorage.getItem("salesReportHistory")||"{}")||{}}catch(e){}const dates=Object.keys(history).filter(d=>history[d]).sort().reverse();if(!dates.length){list.innerHTML='<div class="history-empty">لا توجد تقارير محفوظة حتى الآن. يتم حفظ كل تقرير تلقائيا عند تسجيل أو تعديل بياناته.</div>';return}list.innerHTML=dates.map(d=>{const x=history[d],count=(x.clients||[]).filter(v=>String(v.name||"").trim()).length;const pretty=d.split("-").reverse().join("/");return '<div class="history-entry"><div class="meta"><strong>'+pretty+'</strong><small>عدد العملاء: '+count+' | عدد الكروت: '+esc(x.cardCount||0)+'</small></div><button class="btn gold" data-history-print="'+d+'">عرض وطباعة التقرير</button></div>'}).join("")}
 function printHistory(date){let history={};try{history=JSON.parse(localStorage.getItem("salesReportHistory")||"{}")}catch(e){}const old=history[date];if(!old)return;printRestore=snapshot();$("reportDate").value=old.reportDate||date;$("cardCount").value=old.cardCount||0;clients=Array.isArray(old.clients)?old.clients.map(x=>({...x,...fixedClientData})):[];render();window.print()}
 
+async function exportReportImage(){
+ const btn=$("imageBtn"),old=btn.textContent;
+ btn.disabled=true;btn.textContent="جاري تجهيز الصورة...";
+ try{
+  if(typeof html2canvas!=="function")throw new Error("تعذر تحميل محرك الصور. تأكد من اتصال الإنترنت.");
+  persist();
+  const canvas=await html2canvas(document.querySelector("main"),{
+   scale:2,backgroundColor:"#ffffff",useCORS:true,allowTaint:false,logging:false,
+   windowWidth:794,
+   onclone(doc){
+    let printCss="";
+    try{
+     for(const sheet of Array.from(doc.styleSheets)){
+      for(const rule of Array.from(sheet.cssRules||[])){
+       if(rule.type===4&&/print/.test(rule.conditionText||rule.media.mediaText||"")){
+        printCss+=Array.from(rule.cssRules).map(x=>x.cssText).join("\\n")+"\\n";
+       }
+      }
+     }
+    }catch(e){}
+    const style=doc.createElement("style");
+    style.textContent=printCss+"\\n.no-print{display:none!important}.table-wrap{overflow:visible!important;width:100%!important}";
+    doc.head.appendChild(style);
+    doc.querySelectorAll(".no-print").forEach(el=>el.style.display="none");
+    doc.querySelectorAll("#clients input,#clients select").forEach(el=>{
+     const span=doc.createElement("span");span.className="print-value";span.textContent=el.value||"—";el.replaceWith(span);
+    });
+    const main=doc.querySelector("main");
+    if(main){main.style.width="100%";main.style.maxWidth="none";main.style.margin="0";main.style.padding="0"}
+    doc.body.style.background="#fff";doc.documentElement.style.background="#fff";
+   }
+  });
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/png"));
+  if(!blob)throw new Error("فشل إنشاء ملف الصورة.");
+  const file=new File([blob],"NBE-Sales-Report.png",{type:"image/png"});
+  if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+   await navigator.share({files:[file],title:"NBE Sales Report"});
+  }else{
+   const url=URL.createObjectURL(blob),win=window.open(url,"_blank");
+   if(!win){const a=document.createElement("a");a.href=url;a.download="NBE-Sales-Report.png";a.click()}
+   setTimeout(()=>URL.revokeObjectURL(url),60000);
+   alert("تم تجهيز الصورة. على الآيفون افتح الصورة واضغط مطولاً عليها ثم اختر حفظ في الصور.");
+  }
+ }catch(err){
+  if(err&&err.name==="AbortError")return;
+  alert("تعذر تحويل التقرير لصورة: "+(err.message||"حاول مرة أخرى"));
+ }finally{btn.disabled=false;btn.textContent=old}
+}
 function csv(){
  const headers=["م","اسم العميل","الرقم القومي","رقم الموبايل","جهة العمل","نوع القرض","قيمة القرض","كود الفرع","اسم الفرع","مصدر الطلب","صافي القرض"];
  const keys=["name","national","mobile","employer","loanType","amount","branchCode","branchName","source","net"];
@@ -357,7 +406,7 @@ function csv(){
  const data="\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");
  const a=document.createElement("a"),url=URL.createObjectURL(new Blob([data],{type:"text/csv;charset=utf-8"}));a.href=url;a.download="sales-report.csv";a.click();URL.revokeObjectURL(url);
 }
-$("addBtn").onclick=addClient;$("printBtn").onclick=()=>window.print();$("historyBtn").onclick=()=>{const p=$("historyPanel");p.hidden=!p.hidden;if(!p.hidden)renderHistory()};$("historyList").addEventListener("click",e=>{const b=e.target.closest("[data-history-print]");if(b)printHistory(b.dataset.historyPrint)});$("exportBtn").onclick=csv;
+$("addBtn").onclick=addClient;$("printBtn").onclick=()=>window.print();$("historyBtn").onclick=()=>{const p=$("historyPanel");p.hidden=!p.hidden;if(!p.hidden)renderHistory()};$("historyList").addEventListener("click",e=>{const b=e.target.closest("[data-history-print]");if(b)printHistory(b.dataset.historyPrint)});$("exportBtn").onclick=csv;$("imageBtn").onclick=exportReportImage;
 
 $("cardCount").addEventListener("input",()=>{$("cardCount").value=normalizeNumeric($("cardCount").value,"integer");updateSummary();persist()});
  ["salesName","reportDate","salesId","cardCount"].forEach(id=>$(id).addEventListener("change",()=>{if(id==="reportDate")updateSummary();persist()}));
