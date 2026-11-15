@@ -357,7 +357,7 @@ async function exportReportImage(){
  try{
   if(typeof html2canvas!=="function")throw new Error("تعذر تحميل محرك الصور. تأكد من اتصال الإنترنت.");
   persist();
-  const canvas=await html2canvas(document.querySelector("main"),{
+  const canvas=await html2canvas(document.body,{
    scale:2,backgroundColor:"#ffffff",useCORS:true,allowTaint:false,logging:false,
    windowWidth:794,
    onclone(doc){
@@ -380,7 +380,7 @@ async function exportReportImage(){
     });
     const main=doc.querySelector("main");
     if(main){main.style.width="100%";main.style.maxWidth="none";main.style.margin="0";main.style.padding="0"}
-    doc.body.style.background="#fff";doc.documentElement.style.background="#fff";
+    doc.body.style.background="#fff";doc.documentElement.style.background="#fff";doc.body.style.width="794px";doc.body.style.minWidth="794px";doc.body.style.margin="0";doc.body.style.overflow="visible";const header=doc.querySelector("header");if(header)header.style.width="794px";
    }
   });
   const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/png"));
