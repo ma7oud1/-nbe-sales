@@ -251,7 +251,7 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
 .history-empty{padding:14px;text-align:center;color:#68788a}
 @media(max-width:520px){.history-entry{align-items:flex-start;flex-direction:column}.history-entry .btn{width:100%}}
 @media print{#historyPanel{display:none!important}}
-</style></head>
+</style><script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"><\/script>\n</head>
 <body>
 <header class="report-header">
  <div class="report-brand">
@@ -344,13 +344,33 @@ function persist(saveHistory=true){try{const snap=snapshot();localStorage.setIte
 function renderHistory(){const list=$("historyList");let history={};try{history=JSON.parse(localStorage.getItem("salesReportHistory")||"{}")||{}}catch(e){}const dates=Object.keys(history).filter(d=>history[d]).sort().reverse();if(!dates.length){list.innerHTML='<div class="history-empty">لا توجد تقارير محفوظة حتى الآن. يتم حفظ كل تقرير تلقائيا عند تسجيل أو تعديل بياناته.</div>';return}list.innerHTML=dates.map(d=>{const x=history[d],count=(x.clients||[]).filter(v=>String(v.name||"").trim()).length;const pretty=d.split("-").reverse().join("/");return '<div class="history-entry"><div class="meta"><strong>'+pretty+'</strong><small>عدد العملاء: '+count+' | عدد الكروت: '+esc(x.cardCount||0)+'</small></div><button class="btn gold" data-history-print="'+d+'">عرض وطباعة التقرير</button></div>'}).join("")}
 function printHistory(date){let history={};try{history=JSON.parse(localStorage.getItem("salesReportHistory")||"{}")}catch(e){}const old=history[date];if(!old)return;printRestore=snapshot();$("reportDate").value=old.reportDate||date;$("cardCount").value=old.cardCount||0;clients=Array.isArray(old.clients)?old.clients.map(x=>({...x,...fixedClientData})):[];render();window.print()}
 
-function shareWhatsApp(){
- const snap=snapshot();persist();
- const date=snap.reportDate? snap.reportDate.split("-").reverse().join("/") : "غير محدد";
- const lines=["*SALES REPORT | تقرير المبيعات*","البنك الأهلي المصري - فرع رشيد","اسم السيلز: محمود محمد رزق","الرقم الوظيفي: 479511","تاريخ التقرير: "+date,"عدد الكروت: "+(snap.cardCount||0),"عدد القروض: "+clients.filter(x=>x.loanType).length,"إجمالي العملاء: "+clients.filter(x=>String(x.name||"").trim()).length,"صافي القروض: "+clients.reduce((a,x)=>a+(Number(x.net)||0),0).toLocaleString("en-US"),"","*تفاصيل العملاء*"];
- clients.forEach((x,i)=>{lines.push((i+1)+". "+(x.name||"بدون اسم"));if(x.mobile)lines.push("الموبايل: "+x.mobile);if(x.national)lines.push("الرقم القومي: "+x.national);if(x.employer)lines.push("جهة العمل: "+x.employer);if(x.loanType)lines.push("نوع القرض: "+x.loanType);if(x.amount)lines.push("قيمة القرض: "+x.amount);if(x.net)lines.push("صافي القرض: "+x.net);lines.push("")});
- const url="https://wa.me/?text="+encodeURIComponent(lines.join("\\n"));
- window.open(url,"_blank");
+async function shareWhatsApp(){
+ persist();
+ const btn=$("saveBtn"),oldLabel=btn.textContent;
+ btn.disabled=true;btn.textContent="جاري تجهيز صورة التقرير...";
+ try{
+  if(typeof html2canvas!=="function")throw new Error("تعذر تحميل أداة إنشاء الصورة. تحقق من الاتصال بالإنترنت.");
+  const canvas=await html2canvas(document.querySelector("main"),{scale:2,backgroundColor:"#ffffff",useCORS:true,allowTaint:false,logging:false,windowWidth:Math.max(document.documentElement.clientWidth,1200),onclone(doc){
+   doc.querySelectorAll(".no-print").forEach(el=>el.style.display="none");
+   const wrap=doc.querySelector(".table-wrap");if(wrap){wrap.style.overflow="visible";wrap.style.width="100%"}
+   const table=doc.querySelector("table");if(table){table.style.width="100%";table.style.minWidth="1080px"}
+   doc.body.style.background="#ffffff";
+  }});
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/png"));
+  if(!blob)throw new Error("لم نتمكن من إنشاء الصورة");
+  const file=new File([blob],"NBE-Sales-Report.png",{type:"image/png"});
+  const date=$("reportDate").value? $("reportDate").value.split("-").reverse().join("/"):"";
+  const textMsg="تقرير المبيعات - البنك الأهلي المصري / فرع رشيد"+(date?" - "+date:"");
+  if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+   await navigator.share({files:[file],title:"NBE Sales Report",text:textMsg});
+  }else{
+   const a=document.createElement("a"),url=URL.createObjectURL(blob);a.href=url;a.download="NBE-Sales-Report.png";a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
+   alert("تم تجهيز صورة التقرير وحفظها. افتح واتساب وأرفق الصورة من الصور أو الملفات.");
+  }
+ }catch(err){
+  if(err&&err.name==="AbortError")return;
+  alert("تعذر مشاركة الصورة: "+(err.message||"حاول مرة أخرى"));
+ }finally{btn.disabled=false;btn.textContent=oldLabel}
 }
 function csv(){
  const headers=["م","اسم العميل","الرقم القومي","رقم الموبايل","جهة العمل","نوع القرض","قيمة القرض","كود الفرع","اسم الفرع","مصدر الطلب","صافي القرض"];
