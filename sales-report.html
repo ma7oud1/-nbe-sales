@@ -23,7 +23,16 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
  table{width:100%;table-layout:fixed;font-size:7px}
  th{padding:4px 2px;white-space:normal}
  td{padding:3px 2px;white-space:normal;overflow-wrap:anywhere}
- td span.print-value{display:block;white-space:normal;overflow-wrap:anywhere;word-break:break-word;line-height:1.25}
+ td span.print-value{display:block;white-space:normal;overflow-wrap:anywhere;word-break:break-word;line-height:1.15}
+ table{table-layout:fixed;width:100%;font-size:6.5px}
+ th{white-space:normal;overflow-wrap:anywhere}
+ td{white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+ th:nth-child(1),td:nth-child(1){width:3%} th:nth-child(2),td:nth-child(2){width:12%}
+ th:nth-child(3),td:nth-child(3){width:9%} th:nth-child(4),td:nth-child(4){width:8%}
+ th:nth-child(5),td:nth-child(5){width:12%} th:nth-child(6),td:nth-child(6){width:8%}
+ th:nth-child(7),td:nth-child(7){width:8%} th:nth-child(8),td:nth-child(8){width:6%}
+ th:nth-child(9),td:nth-child(9){width:7%} th:nth-child(10),td:nth-child(10){width:10%}
+ th:nth-child(11),td:nth-child(11){width:8%} th:nth-child(12),td:nth-child(12){width:4%}
  td input,td select{display:none!important}
  td:nth-child(8){width:5%}td:nth-child(9){width:7%}td:nth-child(10){width:7%}td:nth-child(11){width:13%}
 
@@ -45,7 +54,7 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
 <div class="field"><label>اسم السيلز</label><input id="salesName" value="محمود محمد رزق" readonly></div>
 <div class="field"><label>تاريخ التقرير</label><input id="reportDate" type="date"></div>
 <div class="field"><label>الرقم الوظيفي للسيلز</label><input id="salesId" value="479511" readonly></div>
-<div class="field"><label>عدد الكروت</label><input id="cardCount" type="number" min="0" value="0"></div>
+<div class="field"><label>عدد الكروت</label><input id="cardCount" type="text" inputmode="numeric" data-numeric="integer" autocomplete="off" value="0"></div>
 </div></section>
 <section class="panel">
 <h2>ملخص المبيعات</h2>
@@ -76,18 +85,28 @@ const fields=[["name","اسم العميل","text"],["national","الرقم ال
 let clients=[];
 const fixedClientData={branchCode:"394",branchName:"رشيد",employeeId:"479511",employeeName:"محمود محمد رزق"};
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function normalizeNumeric(value,mode="integer"){
+ const map={"٠":"0","١":"1","٢":"2","٣":"3","٤":"4","٥":"5","٦":"6","٧":"7","٨":"8","٩":"9","۰":"0","۱":"1","۲":"2","۳":"3","۴":"4","۵":"5","۶":"6","۷":"7","۸":"8","۹":"9"};
+ let out=String(value??"").replace(/[٠-٩۰-۹]/g,d=>map[d]).replace(/[^0-9.]/g,"");
+ if(mode!=="decimal")return out.replace(/\./g,"");
+ const dot=out.indexOf(".");if(dot>=0)out=out.slice(0,dot+1)+out.slice(dot+1).replace(/\./g,"");
+ return out;
+}
 function render(){
  const body=$("clients");body.innerHTML="";
- if(!clients.length){body.innerHTML='<tr><td class="empty" colspan="14">لا توجد بيانات عملاء حتى الآن</td></tr>'}
+ if(!clients.length){body.innerHTML='<tr><td class="empty" colspan="12">لا توجد بيانات عملاء حتى الآن</td></tr>'}
  clients.forEach((item,i)=>{
   const tr=document.createElement("tr");
   tr.innerHTML='<td>'+(i+1)+'</td>'+fields.map(([key,label,type])=>{
    if(type==="select")return '<td><select data-i="'+i+'" data-k="'+key+'"><option value="">اختر</option>'+["شخصي","سيارة","سلع معمرة","أخرى"].map(v=>'<option '+(item[key]===v?"selected":"")+'>'+v+'</option>').join("")+'</select></td>';
-   return '<td><input data-i="'+i+'" data-k="'+key+'" type="'+type+'" '+(type==="number"?'min="0" step="0.01"':'')+' value="'+esc(fixedClientData[key]??item[key]??"")+'" '+(fixedClientData[key]!==undefined?"readonly":"")+' aria-label="'+label+'"></td>';
+   const numeric=["national","mobile","amount","branchCode","net"].includes(key);
+   const decimal=["amount","net"].includes(key);
+   return '<td><input data-i="'+i+'" data-k="'+key+'" type="'+(numeric?"text":type)+'" '+(numeric?'inputmode="'+(decimal?"decimal":"numeric")+'" data-numeric="'+(decimal?"decimal":"integer")+'" autocomplete="off"':'')+' value="'+esc(fixedClientData[key]??item[key]??"")+'" '+(fixedClientData[key]!==undefined?"readonly":"")+' aria-label="'+label+'"></td>';
   }).join("")+'<td class="no-print row-actions"><button class="rowbtn" data-del="'+i+'">حذف</button></td>';
   body.appendChild(tr);
  });
- body.querySelectorAll("input,select").forEach(el=>el.addEventListener("change",e=>{const i=+e.target.dataset.i,k=e.target.dataset.k;clients[i][k]=e.target.value;updateSummary();persist()}));
+ body.querySelectorAll('input[data-numeric]').forEach(el=>el.addEventListener("input",()=>{el.value=normalizeNumeric(el.value,el.dataset.numeric)}));
+ body.querySelectorAll("input,select").forEach(el=>el.addEventListener("change",e=>{const i=+e.target.dataset.i,k=e.target.dataset.k;if(Number.isInteger(i)&&clients[i])clients[i][k]=e.target.value;updateSummary();persist()}));
  body.querySelectorAll("[data-del]").forEach(el=>el.addEventListener("click",()=>{clients.splice(+el.dataset.del,1);render();persist()}));
  updateSummary();
 }
@@ -110,7 +129,8 @@ function csv(){
 }
 $("addBtn").onclick=addClient;$("printBtn").onclick=()=>window.print();$("saveBtn").onclick=()=>{persist();alert("تم حفظ البيانات على هذا الجهاز")};$("exportBtn").onclick=csv;
 $("clearBtn").onclick=()=>{if(confirm("هل تريد مسح كل بيانات التقرير والعملاء؟")){clients=[];$("salesName").value="محمود محمد رزق";$("salesId").value="479511";$("cardCount").value=0;render();persist()}};
-["salesName","reportDate","salesId","cardCount"].forEach(id=>$(id).addEventListener("change",()=>{updateSummary();persist()}));
+$("cardCount").addEventListener("input",()=>{$("cardCount").value=normalizeNumeric($("cardCount").value,"integer");updateSummary();persist()});
+ ["salesName","reportDate","salesId","cardCount"].forEach(id=>$(id).addEventListener("change",()=>{updateSummary();persist()}));
 window.addEventListener("beforeprint",()=>{document.querySelectorAll("#clients input, #clients select").forEach(el=>{const span=document.createElement("span");span.className="print-value";span.textContent=el.value||"—";el.replaceWith(span)})});
 window.addEventListener("afterprint",()=>render());
 load();if(!$("reportDate").value)$("reportDate").value=new Date().toISOString().slice(0,10);render();persist();
