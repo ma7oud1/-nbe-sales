@@ -251,6 +251,10 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
 .history-empty{padding:14px;text-align:center;color:#68788a}
 @media(max-width:520px){.history-entry{align-items:flex-start;flex-direction:column}.history-entry .btn{width:100%}}
 @media print{#historyPanel{display:none!important}}
+
+/* Live Cairo clock in the report header */
+.header-clock{display:inline-flex;align-items:center;justify-content:center;direction:ltr;margin:9px auto 0;padding:5px 15px;border:1px solid #ffffff45;border-radius:20px;background:#ffffff12;color:#f2dba8;font-size:15px;font-weight:800;letter-spacing:1.2px;font-variant-numeric:tabular-nums;min-width:112px}
+@media print{.header-clock{margin:3px auto 0;padding:2px 8px;border:1px solid #dce3ea;background:#f7f9fb;color:#12345a;font-size:9px;min-width:0}}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
@@ -261,6 +265,7 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
    
    <p>SALES REPORT | تقرير المبيعات</p>
    <small>نموذج تسجيل ومتابعة الكروت والقروض</small>
+   <div class="header-clock" id="headerClock" aria-label="الساعة الحالية">--:--:--</div>
    <div class="report-phones" dir="ltr"><span>01144729175</span><span>01555051532</span></div>
   </div>
  </div>
@@ -402,5 +407,5 @@ function load(){
   }
  }catch(e){clients=[]}
 }
-load();if(!$("reportDate").value)$("reportDate").value=new Date().toISOString().slice(0,10);render();persist();
+function updateHeaderClock(){const el=$("headerClock");if(!el)return;el.textContent=new Intl.DateTimeFormat("en-GB",{timeZone:"Africa/Cairo",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(new Date())}\nupdateHeaderClock();setInterval(updateHeaderClock,1000);\nload();if(!$("reportDate").value)$("reportDate").value=new Date().toISOString().slice(0,10);render();persist();
 </script></body></html>
