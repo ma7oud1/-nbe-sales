@@ -66,6 +66,7 @@ main{max-width:1200px;margin:20px auto;padding:0 14px}.panel{background:#fff;bor
 const $=id=>document.getElementById(id);
 const fields=[["name","اسم العميل","text"],["national","الرقم القومي","text"],["mobile","رقم الموبايل","tel"],["employer","جهة العمل","text"],["loanType","نوع القرض","select"],["amount","قيمة القرض","number"],["branchCode","كود الفرع","text"],["branchName","اسم الفرع","text"],["employeeId","الرقم الوظيفي","text"],["employeeName","اسم الموظف","text"],["source","مصدر الطلب","text"],["net","صافي القرض","number"]];
 let clients=[];
+const fixedClientData={branchCode:"394",branchName:"رشيد",employeeId:"479511",employeeName:"محمود محمد رزق"};
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function render(){
  const body=$("clients");body.innerHTML="";
@@ -74,7 +75,7 @@ function render(){
   const tr=document.createElement("tr");
   tr.innerHTML='<td>'+(i+1)+'</td>'+fields.map(([key,label,type])=>{
    if(type==="select")return '<td><select data-i="'+i+'" data-k="'+key+'"><option value="">اختر</option>'+["شخصي","سيارة","سلع معمرة","أخرى"].map(v=>'<option '+(item[key]===v?"selected":"")+'>'+v+'</option>').join("")+'</select></td>';
-   return '<td><input data-i="'+i+'" data-k="'+key+'" type="'+type+'" '+(type==="number"?'min="0" step="0.01"':'')+' value="'+esc(item[key]??"")+'" aria-label="'+label+'"></td>';
+   return '<td><input data-i="'+i+'" data-k="'+key+'" type="'+type+'" '+(type==="number"?'min="0" step="0.01"':'')+' value="'+esc(fixedClientData[key]??item[key]??"")+'" '+(fixedClientData[key]!==undefined?"readonly":"")+' aria-label="'+label+'"></td>';
   }).join("")+'<td class="no-print row-actions"><button class="rowbtn" data-del="'+i+'">حذف</button></td>';
   body.appendChild(tr);
  });
@@ -82,16 +83,16 @@ function render(){
  body.querySelectorAll("[data-del]").forEach(el=>el.addEventListener("click",()=>{clients.splice(+el.dataset.del,1);render();persist()}));
  updateSummary();
 }
-function addClient(){clients.push({});render();persist()}
+function addClient(){clients.push({...fixedClientData});render();persist()}
 function updateSummary(){
  $("sCards").textContent=Number($("cardCount").value||0).toLocaleString("en-US");
  $("sLoans").textContent=clients.filter(x=>x.loanType).length.toLocaleString("en-US");
  $("sNet").textContent=clients.reduce((a,x)=>a+(Number(x.net)||0),0).toLocaleString("en-US",{maximumFractionDigits:2});
  $("sClients").textContent=clients.filter(x=>String(x.name||"").trim()).length.toLocaleString("en-US");
 }
-function snapshot(){return {salesName:"محمود محمد رزق",reportDate:$("reportDate").value,salesId:"479511",cardCount:$("cardCount").value,clients}}
+function snapshot(){clients=clients.map(x=>({...x,...fixedClientData}));return {salesName:"محمود محمد رزق",reportDate:$("reportDate").value,salesId:"479511",cardCount:$("cardCount").value,clients}}
 function persist(){try{localStorage.setItem("salesReportStandalone",JSON.stringify(snapshot()))}catch(e){}}
-function load(){try{const d=JSON.parse(localStorage.getItem("salesReportStandalone")||"null");if(d){$("salesName").value="محمود محمد رزق";$("reportDate").value=d.reportDate||new Date().toISOString().slice(0,10);$("salesId").value="479511";$("cardCount").value=d.cardCount||0;clients=Array.isArray(d.clients)?d.clients:[]}}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem("salesReportStandalone")||"null");if(d){$("salesName").value="محمود محمد رزق";$("reportDate").value=d.reportDate||new Date().toISOString().slice(0,10);$("salesId").value="479511";$("cardCount").value=d.cardCount||0;clients=Array.isArray(d.clients)?d.clients.map(x=>({...x,...fixedClientData})):[]}}catch(e){}}
 function csv(){
  const headers=["م","اسم العميل","الرقم القومي","رقم الموبايل","جهة العمل","نوع القرض","قيمة القرض","كود الفرع","اسم الفرع","الرقم الوظيفي","اسم الموظف","مصدر الطلب","صافي القرض"];
  const keys=["name","national","mobile","employer","loanType","amount","branchCode","branchName","employeeId","employeeName","source","net"];
