@@ -251,7 +251,8 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
 .history-empty{padding:14px;text-align:center;color:#68788a}
 @media(max-width:520px){.history-entry{align-items:flex-start;flex-direction:column}.history-entry .btn{width:100%}}
 @media print{#historyPanel{display:none!important}}
-</style><script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"><\/script>\n</head>
+</style><script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
 <body>
 <header class="report-header">
  <div class="report-brand">
@@ -385,5 +386,16 @@ $("cardCount").addEventListener("input",()=>{$("cardCount").value=normalizeNumer
  ["salesName","reportDate","salesId","cardCount"].forEach(id=>$(id).addEventListener("change",()=>{if(id==="reportDate")updateSummary();persist()}));
 window.addEventListener("beforeprint",()=>{document.querySelectorAll("#clients input, #clients select").forEach(el=>{const span=document.createElement("span");span.className="print-value";span.textContent=el.value||"—";el.replaceWith(span)})});
 window.addEventListener("afterprint",()=>{if(printRestore){$("reportDate").value=printRestore.reportDate||"";$("cardCount").value=printRestore.cardCount||0;clients=Array.isArray(printRestore.clients)?printRestore.clients:[];printRestore=null}render();});
+function load(){
+ try{
+  const saved=JSON.parse(localStorage.getItem("salesReportStandalone")||"null");
+  if(saved){
+   $("salesName").value="محمود محمد رزق";$("salesId").value="479511";
+   $("reportDate").value=saved.reportDate||"";
+   $("cardCount").value=saved.cardCount||0;
+   clients=Array.isArray(saved.clients)?saved.clients.map(x=>({...x,...fixedClientData})):[];
+  }
+ }catch(e){clients=[]}
+}
 load();if(!$("reportDate").value)$("reportDate").value=new Date().toISOString().slice(0,10);render();persist();
 </script></body></html>
