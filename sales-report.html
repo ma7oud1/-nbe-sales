@@ -231,6 +231,20 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
  .report-logo{transform:translateX(-3px)!important}
 }
 
+
+/* Full National Bank of Egypt logo - keep emblem and complete wordmark visible */
+@media screen {
+ .report-brand{flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:10px!important}
+ .report-logo{width:190px!important;height:76px!important;max-width:85vw!important;object-fit:contain!important;object-position:center!important;padding:4px!important;background:#fff!important;border:0!important;border-radius:8px!important;transform:translateX(-4px)!important}
+}
+@media(max-width:520px){
+ .report-logo{width:170px!important;height:68px!important;max-width:85vw!important}
+}
+@media print {
+ .report-brand{flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important}
+ .report-logo{width:145px!important;height:55px!important;max-width:100%!important;object-fit:contain!important;object-position:center!important;padding:2px!important;background:#fff!important;border:0!important;border-radius:4px!important;transform:translateX(-3px)!important}
+}
+
 </style></head>
 <body>
 <header class="report-header">
