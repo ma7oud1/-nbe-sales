@@ -178,6 +178,25 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
  .report-phones span{font-size:7px!important;color:#12345a!important;border:1px solid #dce3ea!important;background:#f7f9fb!important;padding:2px 7px!important}
  .report-phones span:before{display:none!important}
 }
+
+/* Clean centered logo layout */
+@media screen{
+ .report-header{background:linear-gradient(125deg,#0b2038 0%,#123b63 58%,#245b88 100%)!important;box-shadow:none!important}
+ .report-header:before,.report-header:after{display:none!important}
+ .report-brand{flex-direction:column!important;gap:10px!important;margin:0 auto!important}
+ .report-logo{display:block!important;margin:0 auto!important;width:76px!important;height:76px!important;border-radius:12px!important;box-shadow:none!important;border:1px solid #ffffff55!important}
+ .report-heading:before{display:none!important;content:none!important}
+ .report-heading{align-items:center!important}
+ .report-heading h1{margin-top:2px!important}
+ .report-phones span:before{display:none!important;content:none!important}
+}
+@media print{
+ .report-header:before,.report-header:after{display:none!important}
+ .report-brand{flex-direction:column!important;gap:4px!important}
+ .report-logo{display:block!important;margin:0 auto!important;width:42px!important;height:42px!important;object-fit:cover!important;object-position:right center!important}
+ .report-heading:before{display:none!important;content:none!important}
+ .report-phones span:before{display:none!important;content:none!important}
+}
 </style></head>
 <body>
 <header class="report-header">
