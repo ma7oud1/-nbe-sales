@@ -351,11 +351,16 @@ async function shareWhatsApp(){
  btn.disabled=true;btn.textContent="جاري تجهيز صورة التقرير...";
  try{
   if(typeof html2canvas!=="function")throw new Error("تعذر تحميل أداة إنشاء الصورة. تحقق من الاتصال بالإنترنت.");
-  const canvas=await html2canvas(document.querySelector("main"),{scale:2,backgroundColor:"#ffffff",useCORS:true,allowTaint:false,logging:false,windowWidth:Math.max(document.documentElement.clientWidth,1200),onclone(doc){
+  const canvas=await html2canvas(document.querySelector("main"),{scale:2,backgroundColor:"#ffffff",useCORS:true,allowTaint:false,logging:false,windowWidth:1200,onclone(doc){
+   // Apply the exact print-only CSS rules to the cloned report.
+   let printCss="";
+   try{for(const sheet of Array.from(doc.styleSheets)){for(const rule of Array.from(sheet.cssRules||[])){if(rule.type===CSSRule.MEDIA_RULE&&/print/.test(rule.conditionText||rule.media.mediaText)){printCss+=Array.from(rule.cssRules).map(x=>x.cssText).join("\n")+"\n";}}}}catch(e){}
+   const style=doc.createElement("style");style.textContent=printCss+"\n.no-print{display:none!important}.table-wrap{overflow:visible!important;width:100%!important}";doc.head.appendChild(style);
    doc.querySelectorAll(".no-print").forEach(el=>el.style.display="none");
-   const wrap=doc.querySelector(".table-wrap");if(wrap){wrap.style.overflow="visible";wrap.style.width="100%"}
-   const table=doc.querySelector("table");if(table){table.style.width="100%";table.style.minWidth="1080px"}
-   doc.body.style.background="#ffffff";
+   // Print mode shows plain text values instead of editable form controls.
+   doc.querySelectorAll("#clients input,#clients select").forEach(el=>{const span=doc.createElement("span");span.className="print-value";span.textContent=el.value||"—";el.replaceWith(span)});
+   const main=doc.querySelector("main");if(main){main.style.maxWidth="none";main.style.width="100%";main.style.margin="0";main.style.padding="0"}
+   doc.body.style.background="#ffffff";doc.documentElement.style.background="#ffffff";
   }});
   const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/png"));
   if(!blob)throw new Error("لم نتمكن من إنشاء الصورة");
