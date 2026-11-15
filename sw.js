@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "nbe-sales-v146";
+const CACHE_NAME = "nbe-sales-v147";
 
 const FILES_TO_CACHE = [
   "/-nbe-sales/",
@@ -9,6 +9,8 @@ const FILES_TO_CACHE = [
   "/-nbe-sales/certificates.html",
   "/-nbe-sales/certificates-i18n.js",
   "/-nbe-sales/manifest.json",
+  "/-nbe-sales/icons/icon-192.png",
+  "/-nbe-sales/icons/icon-512.png",
   "/-nbe-sales/crm.js",
 ];
 
