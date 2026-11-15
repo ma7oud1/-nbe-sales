@@ -245,7 +245,13 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
  .report-logo{width:145px!important;height:55px!important;max-width:100%!important;object-fit:contain!important;object-position:center!important;padding:2px!important;background:#fff!important;border:0!important;border-radius:4px!important;transform:translateX(-3px)!important}
 }
 
-\n.date-display-wrap{position:relative;height:44px;display:flex;align-items:center;padding:0 12px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#64748b;font-size:15px;direction:ltr;text-align:center}.date-display-wrap #reportDate{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}.date-display-wrap #reportDateDisplay{width:100%;pointer-events:none}.date-display-wrap:focus-within{outline:2px solid #1b6b50;outline-offset:1px}\n@media print{.date-display-wrap{border:0;padding:0;height:auto;color:#111;background:transparent}.date-display-wrap #reportDate{display:none}}\n</style></head>
+\n.date-display-wrap{position:relative;height:44px;display:flex;align-items:center;padding:0 12px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#64748b;font-size:15px;direction:ltr;text-align:center}.date-display-wrap #reportDate{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}.date-display-wrap #reportDateDisplay{width:100%;pointer-events:none}.date-display-wrap:focus-within{outline:2px solid #1b6b50;outline-offset:1px}\n@media print{.date-display-wrap{border:0;padding:0;height:auto;color:#111;background:transparent}.date-display-wrap #reportDate{display:none}}\n
+.history-entry{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid #e1e8ef;border-radius:10px;margin:8px 0;background:#f8fafc}
+.history-entry .meta{display:flex;flex-direction:column;gap:5px}.history-entry small{color:#68788a}
+.history-empty{padding:14px;text-align:center;color:#68788a}
+@media(max-width:520px){.history-entry{align-items:flex-start;flex-direction:column}.history-entry .btn{width:100%}}
+@media print{#historyPanel{display:none!important}}
+</style></head>
 <body>
 <header class="report-header">
  <div class="report-brand">
@@ -280,10 +286,12 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
 <div class="toolbar no-print">
 <button class="btn primary" id="addBtn">＋ إضافة عميل</button>
 <button class="btn gold" id="printBtn">طباعة التقرير</button>
+<button class="btn secondary" id="historyBtn">التقارير السابقة</button>
 <button class="btn secondary" id="saveBtn">حفظ البيانات</button>
 <button class="btn secondary" id="exportBtn">تصدير CSV</button>
 <button class="btn danger" id="clearBtn">مسح كل البيانات</button>
 </div>
+<section class="panel no-print" id="historyPanel" hidden><h2>أرشيف التقارير السابقة</h2><div id="historyList"></div></section>
 <div class="table-wrap"><table>
 <thead><tr><th>م</th><th>اسم العميل</th><th>الرقم القومي</th><th>رقم الموبايل</th><th>جهة العمل</th><th>نوع القرض</th><th>قيمة القرض</th><th>كود الفرع</th><th>اسم الفرع</th><th>مصدر الطلب</th><th>صافي القرض</th><th class="no-print">حذف</th></tr></thead>
 <tbody id="clients"></tbody></table></div>
@@ -293,7 +301,7 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
 <script>
 const $=id=>document.getElementById(id);
 const fields=[["name","اسم العميل","text"],["national","الرقم القومي","text"],["mobile","رقم الموبايل","tel"],["employer","جهة العمل","text"],["loanType","نوع القرض","select"],["amount","قيمة القرض","number"],["branchCode","كود الفرع","text"],["branchName","اسم الفرع","text"],["source","مصدر الطلب","text"],["net","صافي القرض","number"]];
-let clients=[];
+let clients=[];let printRestore=null;
 const fixedClientData={branchCode:"394",branchName:"رشيد",employeeId:"479511",employeeName:"محمود محمد رزق"};
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function normalizeNumeric(value,mode="integer"){
@@ -329,7 +337,10 @@ function updateSummary(){
  $("sClients").textContent=clients.filter(x=>String(x.name||"").trim()).length.toLocaleString("en-US");
 }
 function snapshot(){clients=clients.map(x=>({...x,...fixedClientData}));return {salesName:"محمود محمد رزق",reportDate:$("reportDate").value,salesId:"479511",cardCount:$("cardCount").value,clients}}
-function persist(){try{localStorage.setItem("salesReportStandalone",JSON.stringify(snapshot()))}catch(e){}}
+function persist(saveHistory=true){try{const snap=snapshot();localStorage.setItem("salesReportStandalone",JSON.stringify(snap));if(saveHistory&&snap.reportDate){const history=JSON.parse(localStorage.getItem("salesReportHistory")||"{}");history[snap.reportDate]=snap;localStorage.setItem("salesReportHistory",JSON.stringify(history))}}catch(e){}} 
+function renderHistory(){const list=$("historyList");let history={};try{history=JSON.parse(localStorage.getItem("salesReportHistory")||"{}")||{}}catch(e){}const dates=Object.keys(history).filter(d=>history[d]).sort().reverse();if(!dates.length){list.innerHTML='<div class="history-empty">لا توجد تقارير محفوظة حتى الآن. يتم حفظ كل تقرير تلقائيا عند تسجيل أو تعديل بياناته.</div>';return}list.innerHTML=dates.map(d=>{const x=history[d],count=(x.clients||[]).filter(v=>String(v.name||"").trim()).length;const pretty=d.split("-").reverse().join("/");return '<div class="history-entry"><div class="meta"><strong>'+pretty+'</strong><small>عدد العملاء: '+count+' | عدد الكروت: '+esc(x.cardCount||0)+'</small></div><button class="btn gold" data-history-print="'+d+'">عرض وطباعة التقرير</button></div>'}).join("")}
+function printHistory(date){let history={};try{history=JSON.parse(localStorage.getItem("salesReportHistory")||"{}")}catch(e){}const old=history[date];if(!old)return;printRestore=snapshot();$("reportDate").value=old.reportDate||date;$("cardCount").value=old.cardCount||0;clients=Array.isArray(old.clients)?old.clients.map(x=>({...x,...fixedClientData})):[];render();window.print()}
+
 function csv(){
  const headers=["م","اسم العميل","الرقم القومي","رقم الموبايل","جهة العمل","نوع القرض","قيمة القرض","كود الفرع","اسم الفرع","مصدر الطلب","صافي القرض"];
  const keys=["name","national","mobile","employer","loanType","amount","branchCode","branchName","source","net"];
@@ -337,11 +348,11 @@ function csv(){
  const data="\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");
  const a=document.createElement("a"),url=URL.createObjectURL(new Blob([data],{type:"text/csv;charset=utf-8"}));a.href=url;a.download="sales-report.csv";a.click();URL.revokeObjectURL(url);
 }
-$("addBtn").onclick=addClient;$("printBtn").onclick=()=>window.print();$("saveBtn").onclick=()=>{persist();alert("تم حفظ البيانات على هذا الجهاز")};$("exportBtn").onclick=csv;
+$("addBtn").onclick=addClient;$("printBtn").onclick=()=>window.print();$("historyBtn").onclick=()=>{const p=$("historyPanel");p.hidden=!p.hidden;if(!p.hidden)renderHistory()};$("historyList").addEventListener("click",e=>{const b=e.target.closest("[data-history-print]");if(b)printHistory(b.dataset.historyPrint)});$("saveBtn").onclick=()=>{persist();renderHistory();alert("تم حفظ البيانات على هذا الجهاز")};$("exportBtn").onclick=csv;
 $("clearBtn").onclick=()=>{if(confirm("هل تريد مسح كل بيانات التقرير والعملاء؟")){clients=[];$("salesName").value="محمود محمد رزق";$("salesId").value="479511";$("cardCount").value=0;render();persist()}};
 $("cardCount").addEventListener("input",()=>{$("cardCount").value=normalizeNumeric($("cardCount").value,"integer");updateSummary();persist()});
  ["salesName","reportDate","salesId","cardCount"].forEach(id=>$(id).addEventListener("change",()=>{if(id==="reportDate")updateSummary();persist()}));
 window.addEventListener("beforeprint",()=>{document.querySelectorAll("#clients input, #clients select").forEach(el=>{const span=document.createElement("span");span.className="print-value";span.textContent=el.value||"—";el.replaceWith(span)})});
-window.addEventListener("afterprint",()=>render());
-load();if(!$("reportDate").value)$("reportDate").value=new Date().toISOString().slice(0,10);syncReportDate();render();persist();
+window.addEventListener("afterprint",()=>{if(printRestore){$("reportDate").value=printRestore.reportDate||"";$("cardCount").value=printRestore.cardCount||0;clients=Array.isArray(printRestore.clients)?printRestore.clients:[];printRestore=null}render();});
+load();if(!$("reportDate").value)$("reportDate").value=new Date().toISOString().slice(0,10);render();persist();
 </script></body></html>
