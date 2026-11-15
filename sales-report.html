@@ -349,7 +349,7 @@ function csv(){
  const a=document.createElement("a"),url=URL.createObjectURL(new Blob([data],{type:"text/csv;charset=utf-8"}));a.href=url;a.download="sales-report.csv";a.click();URL.revokeObjectURL(url);
 }
 $("addBtn").onclick=addClient;$("printBtn").onclick=()=>window.print();$("historyBtn").onclick=()=>{const p=$("historyPanel");p.hidden=!p.hidden;if(!p.hidden)renderHistory()};$("historyList").addEventListener("click",e=>{const b=e.target.closest("[data-history-print]");if(b)printHistory(b.dataset.historyPrint)});$("saveBtn").onclick=()=>{persist();renderHistory();alert("تم حفظ البيانات على هذا الجهاز")};$("exportBtn").onclick=csv;
-$("clearBtn").onclick=()=>{if(confirm("هل تريد مسح كل بيانات التقرير والعملاء؟")){clients=[];$("salesName").value="محمود محمد رزق";$("salesId").value="479511";$("cardCount").value=0;render();persist()}};
+$("clearBtn").onclick=()=>{if(confirm("هل تريد مسح كل بيانات التقرير والعملاء؟")){clients=[];$("salesName").value="محمود محمد رزق";$("salesId").value="479511";$("cardCount").value=0;render();persist(false)}};
 $("cardCount").addEventListener("input",()=>{$("cardCount").value=normalizeNumeric($("cardCount").value,"integer");updateSummary();persist()});
  ["salesName","reportDate","salesId","cardCount"].forEach(id=>$(id).addEventListener("change",()=>{if(id==="reportDate")updateSummary();persist()}));
 window.addEventListener("beforeprint",()=>{document.querySelectorAll("#clients input, #clients select").forEach(el=>{const span=document.createElement("span");span.className="print-value";span.textContent=el.value||"—";el.replaceWith(span)})});
