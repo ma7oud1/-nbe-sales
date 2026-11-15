@@ -179,6 +179,16 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
  .report-phones span:before{display:none!important}
 }
 
+
+/* Fine horizontal alignment for the centered emblem */
+@media screen{
+ .report-brand{width:100%!important;align-items:center!important;justify-content:center!important}
+ .report-logo{position:relative!important;left:8px!important;margin-inline:auto!important;object-position:center center!important}
+}
+@media print{
+ .report-brand{width:100%!important;align-items:center!important;justify-content:center!important}
+ .report-logo{position:relative!important;left:5px!important;margin-inline:auto!important;object-position:center center!important}
+}
 /* Clean centered logo layout */
 @media screen{
  .report-header{background:linear-gradient(125deg,#0b2038 0%,#123b63 58%,#245b88 100%)!important;box-shadow:none!important}
