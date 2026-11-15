@@ -263,7 +263,7 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
 <h2>بيانات التقرير</h2>
 <div class="grid">
 <div class="field"><label>اسم السيلز</label><input id="salesName" value="محمود محمد رزق" readonly></div>
-<div class="field"><label>تاريخ التقرير</label><div class="date-display-wrap"><span id="reportDateDisplay">../../....</span><input id="reportDate" type="date" aria-label="اختيار تاريخ التقرير"></div></div>
+<div class="field"><label>تاريخ التقرير</label><input id="reportDate" type="date"></div>
 <div class="field"><label>الرقم الوظيفي للسيلز</label><input id="salesId" value="479511" readonly></div>
 <div class="field"><label>عدد الكروت</label><input id="cardCount" type="text" inputmode="numeric" data-numeric="integer" autocomplete="off" value="0"></div>
 </div></section>
@@ -330,7 +330,6 @@ function updateSummary(){
 }
 function snapshot(){clients=clients.map(x=>({...x,...fixedClientData}));return {salesName:"محمود محمد رزق",reportDate:$("reportDate").value,salesId:"479511",cardCount:$("cardCount").value,clients}}
 function persist(){try{localStorage.setItem("salesReportStandalone",JSON.stringify(snapshot()))}catch(e){}}
-function syncReportDate(){const v=$("reportDate").value;$("reportDateDisplay").textContent=v?v.split("-").reverse().join("/"):"../../...."}\nfunction load(){try{const d=JSON.parse(localStorage.getItem("salesReportStandalone")||"null");if(d){$("salesName").value="محمود محمد رزق";$("reportDate").value=d.reportDate||new Date().toISOString().slice(0,10);$("salesId").value="479511";$("cardCount").value=d.cardCount||0;clients=Array.isArray(d.clients)?d.clients.map(x=>({...x,...fixedClientData})):[]}}catch(e){}syncReportDate()}
 function csv(){
  const headers=["م","اسم العميل","الرقم القومي","رقم الموبايل","جهة العمل","نوع القرض","قيمة القرض","كود الفرع","اسم الفرع","مصدر الطلب","صافي القرض"];
  const keys=["name","national","mobile","employer","loanType","amount","branchCode","branchName","source","net"];
@@ -341,7 +340,7 @@ function csv(){
 $("addBtn").onclick=addClient;$("printBtn").onclick=()=>window.print();$("saveBtn").onclick=()=>{persist();alert("تم حفظ البيانات على هذا الجهاز")};$("exportBtn").onclick=csv;
 $("clearBtn").onclick=()=>{if(confirm("هل تريد مسح كل بيانات التقرير والعملاء؟")){clients=[];$("salesName").value="محمود محمد رزق";$("salesId").value="479511";$("cardCount").value=0;render();persist()}};
 $("cardCount").addEventListener("input",()=>{$("cardCount").value=normalizeNumeric($("cardCount").value,"integer");updateSummary();persist()});
- ["salesName","reportDate","salesId","cardCount"].forEach(id=>$(id).addEventListener("change",()=>{if(id==="reportDate")syncReportDate();updateSummary();persist()}));
+ ["salesName","reportDate","salesId","cardCount"].forEach(id=>$(id).addEventListener("change",()=>{if(id==="reportDate")updateSummary();persist()}));
 window.addEventListener("beforeprint",()=>{document.querySelectorAll("#clients input, #clients select").forEach(el=>{const span=document.createElement("span");span.className="print-value";span.textContent=el.value||"—";el.replaceWith(span)})});
 window.addEventListener("afterprint",()=>render());
 load();if(!$("reportDate").value)$("reportDate").value=new Date().toISOString().slice(0,10);syncReportDate();render();persist();
