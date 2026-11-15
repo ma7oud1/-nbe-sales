@@ -65,14 +65,14 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
 <button class="btn danger" id="clearBtn">مسح كل البيانات</button>
 </div>
 <div class="table-wrap"><table>
-<thead><tr><th>م</th><th>اسم العميل</th><th>الرقم القومي</th><th>رقم الموبايل</th><th>جهة العمل</th><th>نوع القرض</th><th>قيمة القرض</th><th>كود الفرع</th><th>اسم الفرع</th><th>الرقم الوظيفي</th><th>اسم الموظف</th><th>مصدر الطلب</th><th>صافي القرض</th><th class="no-print">حذف</th></tr></thead>
+<thead><tr><th>م</th><th>اسم العميل</th><th>الرقم القومي</th><th>رقم الموبايل</th><th>جهة العمل</th><th>نوع القرض</th><th>قيمة القرض</th><th>كود الفرع</th><th>اسم الفرع</th><th>مصدر الطلب</th><th>صافي القرض</th><th class="no-print">حذف</th></tr></thead>
 <tbody id="clients"></tbody></table></div>
 <p class="note">يتم حفظ البيانات على هذا الجهاز والمتصفح فقط. استخدم تصدير CSV للاحتفاظ بنسخة خارجية. لا تدخل بيانات عملاء حقيقية على جهاز غير معتمد أو غير مؤمن.</p>
 </section>
 </main>
 <script>
 const $=id=>document.getElementById(id);
-const fields=[["name","اسم العميل","text"],["national","الرقم القومي","text"],["mobile","رقم الموبايل","tel"],["employer","جهة العمل","text"],["loanType","نوع القرض","select"],["amount","قيمة القرض","number"],["branchCode","كود الفرع","text"],["branchName","اسم الفرع","text"],["employeeId","الرقم الوظيفي","text"],["employeeName","اسم الموظف","text"],["source","مصدر الطلب","text"],["net","صافي القرض","number"]];
+const fields=[["name","اسم العميل","text"],["national","الرقم القومي","text"],["mobile","رقم الموبايل","tel"],["employer","جهة العمل","text"],["loanType","نوع القرض","select"],["amount","قيمة القرض","number"],["branchCode","كود الفرع","text"],["branchName","اسم الفرع","text"],["source","مصدر الطلب","text"],["net","صافي القرض","number"]];
 let clients=[];
 const fixedClientData={branchCode:"394",branchName:"رشيد",employeeId:"479511",employeeName:"محمود محمد رزق"};
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -102,8 +102,8 @@ function snapshot(){clients=clients.map(x=>({...x,...fixedClientData}));return {
 function persist(){try{localStorage.setItem("salesReportStandalone",JSON.stringify(snapshot()))}catch(e){}}
 function load(){try{const d=JSON.parse(localStorage.getItem("salesReportStandalone")||"null");if(d){$("salesName").value="محمود محمد رزق";$("reportDate").value=d.reportDate||new Date().toISOString().slice(0,10);$("salesId").value="479511";$("cardCount").value=d.cardCount||0;clients=Array.isArray(d.clients)?d.clients.map(x=>({...x,...fixedClientData})):[]}}catch(e){}}
 function csv(){
- const headers=["م","اسم العميل","الرقم القومي","رقم الموبايل","جهة العمل","نوع القرض","قيمة القرض","كود الفرع","اسم الفرع","الرقم الوظيفي","اسم الموظف","مصدر الطلب","صافي القرض"];
- const keys=["name","national","mobile","employer","loanType","amount","branchCode","branchName","employeeId","employeeName","source","net"];
+ const headers=["م","اسم العميل","الرقم القومي","رقم الموبايل","جهة العمل","نوع القرض","قيمة القرض","كود الفرع","اسم الفرع","مصدر الطلب","صافي القرض"];
+ const keys=["name","national","mobile","employer","loanType","amount","branchCode","branchName","source","net"];
  const rows=[["بيانات التقرير", $("salesName").value,$("reportDate").value],headers,...clients.map((x,i)=>[i+1,...keys.map(k=>x[k]||"")])];
  const data="\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");
  const a=document.createElement("a"),url=URL.createObjectURL(new Blob([data],{type:"text/csv;charset=utf-8"}));a.href=url;a.download="sales-report.csv";a.click();URL.revokeObjectURL(url);
