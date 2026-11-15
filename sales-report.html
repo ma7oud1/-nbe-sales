@@ -131,6 +131,12 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
  .report-heading p{font-size:11px!important;color:#12345a!important;margin:4px 0!important}
  .report-heading small{font-size:9px!important;color:#526477!important}
 }
+
+.report-phones{display:flex;flex-wrap:wrap;gap:6px 15px;margin-top:7px;direction:ltr;justify-content:flex-start;color:#f0d99f;font-size:12px;font-weight:800;letter-spacing:.35px;font-variant-numeric:tabular-nums}
+.report-phones span{white-space:nowrap}
+@media print{.report-phones{color:#12345a!important;font-size:9px!important;margin-top:4px!important;gap:4px 12px!important}}
+@media(max-width:520px){.report-phones{font-size:10px;gap:4px 9px}}
+
 </style></head>
 <body>
 <header class="report-header">
@@ -140,6 +146,7 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
    <h1>البنك الأهلي المصري</h1>
    <p>SALES REPORT | تقرير المبيعات</p>
    <small>نموذج تسجيل ومتابعة الكروت والقروض</small>
+   <div class="report-phones" dir="ltr"><span>01144729175</span><span>01555051532</span></div>
   </div>
  </div>
 </header>
