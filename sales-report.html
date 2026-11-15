@@ -289,7 +289,7 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
 <button class="btn secondary" id="historyBtn">التقارير السابقة</button>
 <button class="btn secondary" id="saveBtn">مشاركة التقرير واتساب</button>
 <button class="btn secondary" id="exportBtn">تصدير CSV</button>
-<button class="btn danger" id="clearBtn">مسح كل البيانات</button>
+
 </div>
 <section class="panel no-print" id="historyPanel" hidden><h2>أرشيف التقارير السابقة</h2><div id="historyList"></div></section>
 <div class="table-wrap"><table>
@@ -360,7 +360,7 @@ function csv(){
  const a=document.createElement("a"),url=URL.createObjectURL(new Blob([data],{type:"text/csv;charset=utf-8"}));a.href=url;a.download="sales-report.csv";a.click();URL.revokeObjectURL(url);
 }
 $("addBtn").onclick=addClient;$("printBtn").onclick=()=>window.print();$("historyBtn").onclick=()=>{const p=$("historyPanel");p.hidden=!p.hidden;if(!p.hidden)renderHistory()};$("historyList").addEventListener("click",e=>{const b=e.target.closest("[data-history-print]");if(b)printHistory(b.dataset.historyPrint)});$("saveBtn").onclick=shareWhatsApp;$("exportBtn").onclick=csv;
-$("clearBtn").onclick=()=>{if(confirm("هل تريد مسح كل بيانات التقرير والعملاء؟")){clients=[];$("salesName").value="محمود محمد رزق";$("salesId").value="479511";$("cardCount").value=0;render();persist(false)}};
+
 $("cardCount").addEventListener("input",()=>{$("cardCount").value=normalizeNumeric($("cardCount").value,"integer");updateSummary();persist()});
  ["salesName","reportDate","salesId","cardCount"].forEach(id=>$(id).addEventListener("change",()=>{if(id==="reportDate")updateSummary();persist()}));
 window.addEventListener("beforeprint",()=>{document.querySelectorAll("#clients input, #clients select").forEach(el=>{const span=document.createElement("span");span.className="print-value";span.textContent=el.value||"—";el.replaceWith(span)})});
