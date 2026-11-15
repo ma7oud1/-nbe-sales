@@ -20,29 +20,38 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
 @media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.summary{grid-template-columns:repeat(2,1fr)}header h1{font-size:20px}}
 @media print{
  @page{size:A4 landscape;margin:5mm}
- table{width:100%;table-layout:fixed;font-size:7px}
- th{padding:4px 2px;white-space:normal}
- td{padding:3px 2px;white-space:normal;overflow-wrap:anywhere}
- td span.print-value{display:block;white-space:normal;overflow-wrap:anywhere;word-break:break-word;line-height:1.15}
- table{table-layout:fixed;width:100%;font-size:6.5px}
- th{white-space:normal;overflow-wrap:anywhere}
- td{white-space:normal;overflow-wrap:anywhere;word-break:break-word}
- th:nth-child(1),td:nth-child(1){width:3%} th:nth-child(2),td:nth-child(2){width:12%}
- th:nth-child(3),td:nth-child(3){width:9%} th:nth-child(4),td:nth-child(4){width:8%}
- th:nth-child(5),td:nth-child(5){width:12%} th:nth-child(6),td:nth-child(6){width:8%}
- th:nth-child(7),td:nth-child(7){width:8%} th:nth-child(8),td:nth-child(8){width:6%}
- th:nth-child(9),td:nth-child(9){width:7%} th:nth-child(10),td:nth-child(10){width:10%}
- th:nth-child(11),td:nth-child(11){width:8%} th:nth-child(12),td:nth-child(12){width:4%}
+ *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+ body{background:#fff!important;font-size:9px}
+ header{background:#fff!important;color:#12345a!important;border-bottom:2px solid #c8a45d;padding:8px}
+ header p{color:#526477}
+ .no-print,.toolbar,.note,.row-actions{display:none!important}
+ main{max-width:none;margin:0;padding:0}
+ .panel{box-shadow:none;border:1px solid #bbb;border-radius:0;padding:8px;margin:6px 0;break-inside:avoid}
+ .panel h2{font-size:11px;margin-bottom:6px;padding-bottom:5px}
+ .grid{gap:5px}.field label{font-size:8px}
+ .field input,.field select{border:0;padding:2px;font-size:9px}
+ .summary{gap:5px}.stat{padding:5px;border:1px solid #bbb}
+ .stat span{font-size:8px}.stat strong{font-size:13px;margin-top:2px}
+ .table-wrap{overflow:visible;border:0;border-radius:0}
+ table{width:100%;min-width:0;table-layout:fixed;border-collapse:collapse;font-size:7.2px}
+ thead{display:table-header-group}
+ tr{break-inside:avoid;page-break-inside:avoid}
+ th{padding:5px 3px;white-space:normal;overflow-wrap:anywhere;font-size:7.2px}
+ td{padding:4px 3px;white-space:normal;overflow:visible;overflow-wrap:anywhere;vertical-align:middle;line-height:1.35}
+ td span.print-value{display:block!important;width:100%;max-width:100%;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere!important;word-break:break-word!important;line-height:1.35}
  td input,td select{display:none!important}
- td:nth-child(8){width:5%}td:nth-child(9){width:7%}td:nth-child(10){width:7%}td:nth-child(11){width:13%}
-
- body{background:#fff;font-size:9px}header{background:#fff!important;color:#12345a!important;border-bottom:2px solid #c8a45d;padding:8px}
- header p{color:#526477}.no-print,.toolbar,.note,.row-actions{display:none!important}
- main{max-width:none;margin:0;padding:0}.panel{box-shadow:none;border:1px solid #bbb;border-radius:0;padding:8px;margin:6px 0;break-inside:avoid}
- .panel h2{font-size:11px;margin-bottom:6px;padding-bottom:5px}.grid{gap:5px}.field label{font-size:8px}.field input,.field select{border:0;padding:2px;font-size:9px}
- .summary{gap:5px}.stat{padding:5px;border:1px solid #bbb}.stat span{font-size:8px}.stat strong{font-size:13px;margin-top:2px}
- table{min-width:0;font-size:8px}th{padding:5px 3px}td{padding:3px 2px}td input,td select{border:0;padding:1px;font-size:8px;min-width:0}
- td .rowbtn{display:none}
+ th:nth-child(1),td:nth-child(1){width:3%}
+ th:nth-child(2),td:nth-child(2){width:14%}
+ th:nth-child(3),td:nth-child(3){width:11%}
+ th:nth-child(4),td:nth-child(4){width:9%}
+ th:nth-child(5),td:nth-child(5){width:13%}
+ th:nth-child(6),td:nth-child(6){width:8%}
+ th:nth-child(7),td:nth-child(7){width:8%}
+ th:nth-child(8),td:nth-child(8){width:6%}
+ th:nth-child(9),td:nth-child(9){width:7%}
+ th:nth-child(10),td:nth-child(10){width:10%}
+ th:nth-child(11),td:nth-child(11){width:11%}
+ td .rowbtn{display:none!important}
 }
 
 /* Premium banking interface refresh */
