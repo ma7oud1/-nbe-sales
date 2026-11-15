@@ -19,7 +19,14 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
 .note{color:var(--muted);font-size:11px;margin:10px 0 0}
 @media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.summary{grid-template-columns:repeat(2,1fr)}header h1{font-size:20px}}
 @media print{
- @page{size:A4 landscape;margin:8mm}
+ @page{size:A4 landscape;margin:5mm}
+ table{width:100%;table-layout:fixed;font-size:7px}
+ th{padding:4px 2px;white-space:normal}
+ td{padding:3px 2px;white-space:normal;overflow-wrap:anywhere}
+ td span.print-value{display:block;white-space:normal;overflow-wrap:anywhere;word-break:break-word;line-height:1.25}
+ td input,td select{display:none!important}
+ td:nth-child(8){width:5%}td:nth-child(9){width:7%}td:nth-child(10){width:7%}td:nth-child(11){width:13%}
+
  body{background:#fff;font-size:9px}header{background:#fff!important;color:#12345a!important;border-bottom:2px solid #c8a45d;padding:8px}
  header p{color:#526477}.no-print,.toolbar,.note,.row-actions{display:none!important}
  main{max-width:none;margin:0;padding:0}.panel{box-shadow:none;border:1px solid #bbb;border-radius:0;padding:8px;margin:6px 0;break-inside:avoid}
@@ -104,5 +111,7 @@ function csv(){
 $("addBtn").onclick=addClient;$("printBtn").onclick=()=>window.print();$("saveBtn").onclick=()=>{persist();alert("تم حفظ البيانات على هذا الجهاز")};$("exportBtn").onclick=csv;
 $("clearBtn").onclick=()=>{if(confirm("هل تريد مسح كل بيانات التقرير والعملاء؟")){clients=[];$("salesName").value="محمود محمد رزق";$("salesId").value="479511";$("cardCount").value=0;render();persist()}};
 ["salesName","reportDate","salesId","cardCount"].forEach(id=>$(id).addEventListener("change",()=>{updateSummary();persist()}));
+window.addEventListener("beforeprint",()=>{document.querySelectorAll("#clients input, #clients select").forEach(el=>{const span=document.createElement("span");span.className="print-value";span.textContent=el.value||"—";el.replaceWith(span)})});
+window.addEventListener("afterprint",()=>render());
 load();if(!$("reportDate").value)$("reportDate").value=new Date().toISOString().slice(0,10);render();persist();
 </script></body></html>
