@@ -287,7 +287,7 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
 <button class="btn primary" id="addBtn">＋ إضافة عميل</button>
 <button class="btn gold" id="printBtn">طباعة التقرير</button>
 <button class="btn secondary" id="historyBtn">التقارير السابقة</button>
-<button class="btn secondary" id="saveBtn">حفظ البيانات</button>
+<button class="btn secondary" id="saveBtn">مشاركة التقرير واتساب</button>
 <button class="btn secondary" id="exportBtn">تصدير CSV</button>
 <button class="btn danger" id="clearBtn">مسح كل البيانات</button>
 </div>
@@ -325,7 +325,10 @@ function render(){
   body.appendChild(tr);
  });
  body.querySelectorAll('input[data-numeric]').forEach(el=>el.addEventListener("input",()=>{el.value=normalizeNumeric(el.value,el.dataset.numeric)}));
- body.querySelectorAll("input,select").forEach(el=>el.addEventListener("change",e=>{const i=+e.target.dataset.i,k=e.target.dataset.k;if(Number.isInteger(i)&&clients[i])clients[i][k]=e.target.value;updateSummary();persist()}));
+ body.querySelectorAll("input,select").forEach(el=>{
+  const sync=e=>{const i=+e.target.dataset.i,k=e.target.dataset.k;if(Number.isInteger(i)&&clients[i])clients[i][k]=e.target.value;updateSummary();persist()};
+  el.addEventListener("input",sync);el.addEventListener("change",sync);
+ });
  body.querySelectorAll("[data-del]").forEach(el=>el.addEventListener("click",()=>{clients.splice(+el.dataset.del,1);render();persist()}));
  updateSummary();
 }
@@ -341,6 +344,14 @@ function persist(saveHistory=true){try{const snap=snapshot();localStorage.setIte
 function renderHistory(){const list=$("historyList");let history={};try{history=JSON.parse(localStorage.getItem("salesReportHistory")||"{}")||{}}catch(e){}const dates=Object.keys(history).filter(d=>history[d]).sort().reverse();if(!dates.length){list.innerHTML='<div class="history-empty">لا توجد تقارير محفوظة حتى الآن. يتم حفظ كل تقرير تلقائيا عند تسجيل أو تعديل بياناته.</div>';return}list.innerHTML=dates.map(d=>{const x=history[d],count=(x.clients||[]).filter(v=>String(v.name||"").trim()).length;const pretty=d.split("-").reverse().join("/");return '<div class="history-entry"><div class="meta"><strong>'+pretty+'</strong><small>عدد العملاء: '+count+' | عدد الكروت: '+esc(x.cardCount||0)+'</small></div><button class="btn gold" data-history-print="'+d+'">عرض وطباعة التقرير</button></div>'}).join("")}
 function printHistory(date){let history={};try{history=JSON.parse(localStorage.getItem("salesReportHistory")||"{}")}catch(e){}const old=history[date];if(!old)return;printRestore=snapshot();$("reportDate").value=old.reportDate||date;$("cardCount").value=old.cardCount||0;clients=Array.isArray(old.clients)?old.clients.map(x=>({...x,...fixedClientData})):[];render();window.print()}
 
+function shareWhatsApp(){
+ const snap=snapshot();persist();
+ const date=snap.reportDate? snap.reportDate.split("-").reverse().join("/") : "غير محدد";
+ const lines=["*SALES REPORT | تقرير المبيعات*","البنك الأهلي المصري - فرع رشيد","اسم السيلز: محمود محمد رزق","الرقم الوظيفي: 479511","تاريخ التقرير: "+date,"عدد الكروت: "+(snap.cardCount||0),"عدد القروض: "+clients.filter(x=>x.loanType).length,"إجمالي العملاء: "+clients.filter(x=>String(x.name||"").trim()).length,"صافي القروض: "+clients.reduce((a,x)=>a+(Number(x.net)||0),0).toLocaleString("en-US"),"","*تفاصيل العملاء*"];
+ clients.forEach((x,i)=>{lines.push((i+1)+". "+(x.name||"بدون اسم"));if(x.mobile)lines.push("الموبايل: "+x.mobile);if(x.national)lines.push("الرقم القومي: "+x.national);if(x.employer)lines.push("جهة العمل: "+x.employer);if(x.loanType)lines.push("نوع القرض: "+x.loanType);if(x.amount)lines.push("قيمة القرض: "+x.amount);if(x.net)lines.push("صافي القرض: "+x.net);lines.push("")});
+ const url="https://wa.me/?text="+encodeURIComponent(lines.join("\\n"));
+ window.open(url,"_blank");
+}
 function csv(){
  const headers=["م","اسم العميل","الرقم القومي","رقم الموبايل","جهة العمل","نوع القرض","قيمة القرض","كود الفرع","اسم الفرع","مصدر الطلب","صافي القرض"];
  const keys=["name","national","mobile","employer","loanType","amount","branchCode","branchName","source","net"];
@@ -348,7 +359,7 @@ function csv(){
  const data="\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");
  const a=document.createElement("a"),url=URL.createObjectURL(new Blob([data],{type:"text/csv;charset=utf-8"}));a.href=url;a.download="sales-report.csv";a.click();URL.revokeObjectURL(url);
 }
-$("addBtn").onclick=addClient;$("printBtn").onclick=()=>window.print();$("historyBtn").onclick=()=>{const p=$("historyPanel");p.hidden=!p.hidden;if(!p.hidden)renderHistory()};$("historyList").addEventListener("click",e=>{const b=e.target.closest("[data-history-print]");if(b)printHistory(b.dataset.historyPrint)});$("saveBtn").onclick=()=>{persist();renderHistory();alert("تم حفظ البيانات على هذا الجهاز")};$("exportBtn").onclick=csv;
+$("addBtn").onclick=addClient;$("printBtn").onclick=()=>window.print();$("historyBtn").onclick=()=>{const p=$("historyPanel");p.hidden=!p.hidden;if(!p.hidden)renderHistory()};$("historyList").addEventListener("click",e=>{const b=e.target.closest("[data-history-print]");if(b)printHistory(b.dataset.historyPrint)});$("saveBtn").onclick=shareWhatsApp;$("exportBtn").onclick=csv;
 $("clearBtn").onclick=()=>{if(confirm("هل تريد مسح كل بيانات التقرير والعملاء؟")){clients=[];$("salesName").value="محمود محمد رزق";$("salesId").value="479511";$("cardCount").value=0;render();persist(false)}};
 $("cardCount").addEventListener("input",()=>{$("cardCount").value=normalizeNumeric($("cardCount").value,"integer");updateSummary();persist()});
  ["salesName","reportDate","salesId","cardCount"].forEach(id=>$(id).addEventListener("change",()=>{if(id==="reportDate")updateSummary();persist()}));
