@@ -114,9 +114,35 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
  .table-wrap{border-radius:9px}
 }
 
+
+/* NBE logo and report masthead */
+.report-header{display:flex;align-items:center;justify-content:center;text-align:right}
+.report-brand{display:flex;align-items:center;justify-content:center;gap:16px;max-width:100%}
+.report-logo{width:76px;height:76px;object-fit:contain;background:#fff;border-radius:14px;padding:5px;box-shadow:0 5px 18px #071f1830;flex-shrink:0}
+.report-heading h1{margin:0;font-size:23px}
+.report-heading p{margin:7px 0 4px;font-weight:800;letter-spacing:.4px}
+.report-heading small{display:block;color:#e4edf5;font-size:11px}
+@media(max-width:520px){.report-brand{gap:11px}.report-logo{width:58px;height:58px}.report-heading h1{font-size:18px}.report-heading p{font-size:12px}.report-heading small{font-size:10px}}
+@media print{
+ .report-header{display:flex!important;justify-content:center!important;text-align:right!important;background:#fff!important;padding:6px 8px!important;border-bottom:2px solid #c8a45d!important}
+ .report-brand{gap:12px!important}
+ .report-logo{width:62px!important;height:62px!important;box-shadow:none!important;border:1px solid #ddd!important;padding:3px!important}
+ .report-heading h1{font-size:17px!important;color:#12345a!important}
+ .report-heading p{font-size:11px!important;color:#12345a!important;margin:4px 0!important}
+ .report-heading small{font-size:9px!important;color:#526477!important}
+}
 </style></head>
 <body>
-<header><h1>SALES REPORT | تقرير المبيعات</h1><p>نموذج تسجيل ومتابعة الكروت والقروض</p></header>
+<header class="report-header">
+ <div class="report-brand">
+  <img class="report-logo" src="https://commons.wikimedia.org/wiki/Special:FilePath/National_Bank_of_Egypt.svg" alt="شعار البنك الأهلي المصري" onerror="this.style.display='none'">
+  <div class="report-heading">
+   <h1>البنك الأهلي المصري</h1>
+   <p>SALES REPORT | تقرير المبيعات</p>
+   <small>نموذج تسجيل ومتابعة الكروت والقروض</small>
+  </div>
+ </div>
+</header>
 <main>
 <section class="panel">
 <h2>بيانات التقرير</h2>
