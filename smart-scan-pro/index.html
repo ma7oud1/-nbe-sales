@@ -65,7 +65,7 @@ $('photos').addEventListener('change',e=>{[...e.target.files].forEach(add);e.tar
 function add(blob){scans.push({blob,url:URL.createObjectURL(blob),rotation:0,filter:'original'});render()}
 async function autoCrop(i){
  if(!cvReady){msg('أداة القص الذكي لسه بتحمّل، جرّب بعد ثواني');return}
- const s=scans[i],img=new Image();img.src=s.url;
+ const s=scans[i],img=new Image();
  img.onload=async()=>{
   let src=null,gray=null,blur=null,edges=null,contours=null,hierarchy=null,kernel=null;
   try{
@@ -106,6 +106,7 @@ async function autoCrop(i){
   finally{[src,gray,blur,edges,contours,hierarchy,kernel].forEach(x=>{if(x&&x.delete)x.delete()})}
  };
  img.onerror=()=>msg('تعذر تحميل الصورة للقص');
+ img.src=s.url;
 }
 let cropIndex=-1,cropImage=null,cropPoints=[],dragPoint=-1;
 function orderCropPoints(pts){
