@@ -1,4 +1,4 @@
-const CACHE='smart-scan-pro-v2';
+const CACHE='smart-scan-pro-v3';
 const FILES=['./','./index.html','./manifest.webmanifest'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES))));
 self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
