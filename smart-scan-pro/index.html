@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10243a"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="SMART SCAN">
+<link rel="manifest" href="./manifest.webmanifest"><title>SMART SCAN PRO</title>
+<style>
+:root{--bg:#f2f5f8;--card:#fff;--ink:#14283d;--muted:#6b7b8d;--navy:#10243a;--blue:#1d5b91;--line:#e1e8ef;--gold:#d5a64b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif}
+header{background:linear-gradient(135deg,#10243a,#1d4568);color:white;padding:22px 18px 25px;border-radius:0 0 24px 24px}
+.brand{font-size:20px;font-weight:900}header p{font-size:12px;color:#c4d3df;margin:8px 0 0}main{max-width:760px;margin:auto;padding:16px 13px 50px}
+h2{font-size:15px;margin:20px 2px 10px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+button,.btn{font:inherit;border:0;border-radius:12px;padding:12px 14px;background:var(--navy);color:white;font-weight:700;cursor:pointer}
+.tile{background:white;color:var(--ink);text-align:right;min-height:108px;padding:15px;border-radius:16px;box-shadow:0 3px 13px #132b4110}
+.tile b{display:block;font-size:14px;margin-top:9px}.tile small{display:block;color:var(--muted);font-size:11px;margin-top:4px}.ico{font-size:25px}
+.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:12px}.row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.muted{font-size:12px;color:var(--muted)}.secondary{background:#eaf0f5;color:var(--ink)}.gold{background:var(--gold);color:#17283a}.danger{background:#fff0f0;color:#b93a42}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}input,select{font:inherit;border:1px solid var(--line);border-radius:10px;padding:10px;max-width:100%}input[type=file]{width:100%;font-size:12px}
+.hidden{display:none!important}#camera{width:100%;max-height:55vh;object-fit:contain;background:#101820;border-radius:12px;margin-top:10px}
+.preview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}.scan-card{border:1px solid var(--line);border-radius:12px;padding:8px;min-width:0}
+.scan-card img{width:100%;height:140px;object-fit:contain;background:#f2f5f8;border-radius:8px}.scan-card .row{margin-top:7px}.scan-card button{padding:8px 10px}
+.file-item{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:11px;padding:9px;margin-top:8px}.file-info{flex:1;min-width:0;overflow-wrap:anywhere;font-size:12px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#14283d;color:#fff;padding:11px 16px;border-radius:25px;font-size:12px;z-index:5;display:none;max-width:90%}
+footer{text-align:center;color:#8996a3;font-size:10px;padding:20px}
+@media(min-width:600px){.grid{grid-template-columns:repeat(4,1fr)}.tile{min-height:125px}}
+</style></head>
+<body>
+<header><div class="brand">SMART SCAN <span style="color:#e8c77d">PRO</span></div><p>ماسح المستندات والبطاقات ومحرر PDF</p></header>
+<main>
+<section id="home"><h2>ابدأ من هنا</h2><div class="grid">
+<button class="tile" onclick="openScanner('document')"><span class="ico">▤</span><b>اسكانر مستندات</b><small>تصوير وتحسين الأوراق</small></button>
+<button class="tile" onclick="openScanner('id')"><span class="ico">▣</span><b>اسكانر بطاقات</b><small>الوجه والظهر في PDF</small></button>
+<button class="tile" onclick="openPdf()"><span class="ico">📄</span><b>تعديل ودمج PDF</b><small>دمج ملفات PDF وحفظها</small></button>
+<button class="tile" onclick="showLibrary()"><span class="ico">📁</span><b>ملفاتي</b><small>الملفات المحفوظة محليًا</small></button>
+</div><h2>مساحة العمل</h2><div class="panel row"><div><b>ملفاتك على هذا الجهاز</b><div class="muted" id="count">جارٍ التحميل...</div></div><span style="font-size:25px">🔐</span></div>
+<div class="panel"><b>إضافة للشاشة الرئيسية</b><div class="muted" style="margin-top:5px">من Safari اضغط مشاركة ثم «إضافة إلى الشاشة الرئيسية» لتشغيله مثل التطبيق.</div></div></section>
+<section id="scanner" class="hidden"><div class="row"><div><b id="scanTitle">اسكانر المستندات</b><div class="muted">التقط صورة أو اخترها من الصور</div></div><button class="secondary" onclick="goHome()">رجوع</button></div>
+<div class="panel"><div id="idHint" class="muted hidden">صوّر الوجه الأمامي ثم الخلفي للبطاقة.</div>
+<video id="camera" class="hidden" autoplay playsinline></video><div class="actions"><button onclick="startCamera()">فتح الكاميرا</button><button class="secondary" onclick="capture()">التقاط</button><button class="secondary" onclick="stopCamera()">إغلاق الكاميرا</button></div>
+<div class="actions"><label class="btn secondary" for="photos">اختيار صور من الآيفون</label><input id="photos" type="file" accept="image/*" multiple class="hidden"></div>
+<div class="row" style="margin-top:14px"><b style="font-size:13px">تحسين الصور</b><span class="muted">اختر التأثير لكل صورة</span></div><div id="previews" class="preview-grid"></div>
+<div class="actions"><button class="gold" onclick="makePdf()">إنشاء PDF وحفظه</button><button class="secondary" onclick="clearScans()">مسح الصور</button></div></div></section>
+<section id="pdf" class="hidden"><div class="row"><b>دمج ملفات PDF</b><button class="secondary" onclick="goHome()">رجوع</button></div><div class="panel"><input id="pdfFiles" type="file" accept="application/pdf" multiple><p class="muted">اختر ملفين أو أكثر لدمجها في ملف واحد.</p><div id="pdfNames" class="muted"></div><div class="actions"><button onclick="mergePdf()">دمج وحفظ PDF</button></div></div></section>
+<section id="library" class="hidden"><div class="row"><b>ملفاتي المحفوظة</b><button class="secondary" onclick="goHome()">رجوع</button></div><div class="panel"><div id="files"></div><div class="actions"><button class="secondary" onclick="backup()">تصدير نسخة احتياطية</button></div></div></section>
+<footer>SMART SCAN PRO • بياناتك محفوظة محليًا على جهازك</footer></main><div id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script>
+let stream=null,scans=[],db;const $=id=>document.getElementById(id);
+const filters={original:'none',clear:'contrast(1.3) brightness(1.08)',bw:'grayscale(1) contrast(1.4)',gray:'grayscale(1)'};
+function msg(t){let x=$('toast');x.textContent=t;x.style.display='block';setTimeout(()=>x.style.display='none',2500)}
+function page(id){['home','scanner','pdf','library'].forEach(x=>$(x).classList.toggle('hidden',x!==id))}
+function goHome(){stopCamera();page('home');updateCount()}
+function openScanner(mode){scans=[];render();$('scanTitle').textContent=mode==='id'?'اسكانر البطاقات':'اسكانر المستندات';$('idHint').classList.toggle('hidden',mode!=='id');$('scanner').dataset.mode=mode;page('scanner')}
+function openPdf(){page('pdf')}
+function startCamera(){if(!navigator.mediaDevices?.getUserMedia){msg('افتح الموقع من Safari وتأكد من السماح بالكاميرا');return}navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false}).then(s=>{stream=s;$('camera').srcObject=s;$('camera').classList.remove('hidden')}).catch(e=>msg('تعذر فتح الكاميرا: '+e.message))}
+function stopCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}$('camera').classList.add('hidden')}
+function capture(){let v=$('camera');if(!stream||!v.videoWidth){msg('افتح الكاميرا أولًا');return}let c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);c.toBlob(b=>add(b),'image/jpeg',.92)}
+$('photos').addEventListener('change',e=>{[...e.target.files].forEach(add);e.target.value=''});
+function add(blob){scans.push({blob,url:URL.createObjectURL(blob),rotation:0,filter:'original'});render()}
+function render(){$('previews').innerHTML='';scans.forEach((s,i)=>{let d=document.createElement('div');d.className='scan-card';d.innerHTML='<img src="'+s.url+'" style="transform:rotate('+s.rotation+'deg);filter:'+filters[s.filter]+'"><div class="row"><small>صورة '+(i+1)+'</small><button class="secondary" onclick="rotate('+i+')">↻</button><button class="danger" onclick="removeScan('+i+')">حذف</button></div><select style="width:100%;margin-top:7px" onchange="setFilter('+i+',this.value)"><option value="original">أصلية</option><option value="clear">مستند واضح</option><option value="bw">أبيض وأسود</option><option value="gray">رمادي</option></select>';$('previews').appendChild(d);d.querySelector('select').value=s.filter})}
+function rotate(i){scans[i].rotation=(scans[i].rotation+90)%360;render()}
+function setFilter(i,f){scans[i].filter=f;render()}
+function removeScan(i){URL.revokeObjectURL(scans[i].url);scans.splice(i,1);render()}
+function clearScans(){scans.forEach(s=>URL.revokeObjectURL(s.url));scans=[];render()}
+async function imageBytes(s){let img=new Image();img.src=s.url;await img.decode();let c=document.createElement('canvas'),side=s.rotation%180!==0;c.width=side?img.height:img.width;c.height=side?img.width:img.height;let x=c.getContext('2d');x.translate(c.width/2,c.height/2);x.rotate(s.rotation*Math.PI/180);x.filter=filters[s.filter];x.drawImage(img,-img.width/2,-img.height/2);let b=await new Promise(r=>c.toBlob(r,'image/jpeg',.9));return new Uint8Array(await b.arrayBuffer())}
+async function makePdf(){if(!scans.length){msg('أضف صورًا أولًا');return}try{let doc=await PDFLib.PDFDocument.create(),mode=$('scanner').dataset.mode;if(mode==='id'&&scans.length>=2){let p=doc.addPage([595,842]);for(let i=0;i<2;i++){let im=await doc.embedJpg(await imageBytes(scans[i])),scale=Math.min(510/im.width,320/im.height);p.drawImage(im,{x:(595-im.width*scale)/2,y:i===0?470:90,width:im.width*scale,height:im.height*scale})}}else for(let s of scans){let im=await doc.embedJpg(await imageBytes(s)),p=doc.addPage([595,842]),scale=Math.min(555/im.width,800/im.height);p.drawImage(im,{x:(595-im.width*scale)/2,y:(842-im.height*scale)/2,width:im.width*scale,height:im.height*scale})}let blob=new Blob([await doc.save()],{type:'application/pdf'}),name=(mode==='id'?'ID-Card-':'Scan-')+Date.now()+'.pdf';await save(name,blob);shareOrDownload(blob,name);msg('تم إنشاء ملف PDF');clearScans();updateCount()}catch(e){console.error(e);msg('حدث خطأ أثناء إنشاء PDF')}}
+$('pdfFiles').addEventListener('change',e=>$('pdfNames').textContent=[...e.target.files].map(f=>f.name).join(' • '));
+async function mergePdf(){let fs=[...$('pdfFiles').files];if(!fs.length){msg('اختر ملفات PDF أولًا');return}try{let out=await PDFLib.PDFDocument.create();for(let f of fs){let src=await PDFLib.PDFDocument.load(await f.arrayBuffer()),pages=await out.copyPages(src,src.getPageIndices());pages.forEach(p=>out.addPage(p))}let blob=new Blob([await out.save()],{type:'application/pdf'}),name='Merged-PDF-'+Date.now()+'.pdf';await save(name,blob);shareOrDownload(blob,name);msg('تم دمج ملفات PDF');updateCount()}catch(e){msg('تعذر قراءة أحد الملفات')}}
+function openDb(){return new Promise((res,rej)=>{let r=indexedDB.open('SmartScanProDB',1);r.onupgradeneeded=()=>r.result.createObjectStore('docs',{keyPath:'id',autoIncrement:true});r.onsuccess=()=>{db=r.result;res()};r.onerror=()=>rej(r.error)})}
+function save(name,blob){return new Promise((res,rej)=>{let t=db.transaction('docs','readwrite');t.objectStore('docs').add({name,blob,created:Date.now()});t.oncomplete=res;t.onerror=()=>rej(t.error)})}
+function allFiles(){return new Promise((res,rej)=>{let r=db.transaction('docs').objectStore('docs').getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+function updateCount(){allFiles().then(a=>$('count').textContent=a.length+' ملف محفوظ على هذا الجهاز').catch(()=>{})}
+function shareOrDownload(blob,name){let u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),5000)}
+async function showLibrary(){page('library');let a=await allFiles();$('files').innerHTML='';if(!a.length){$('files').textContent='لا توجد ملفات محفوظة';return}a.reverse().forEach(f=>{let d=document.createElement('div');d.className='file-item';let n=document.createElement('div');n.className='file-info';n.textContent=f.name;let b=document.createElement('button');b.textContent='فتح';b.className='secondary';b.onclick=()=>shareOrDownload(f.blob,f.name);let del=document.createElement('button');del.textContent='حذف';del.className='danger';del.onclick=()=>{let t=db.transaction('docs','readwrite');t.objectStore('docs').delete(f.id);t.oncomplete=showLibrary};d.append(n,b,del);$('files').append(d)})}
+async function backup(){let a=await allFiles();if(!a.length){msg('لا توجد ملفات');return}let pack=[];for(let f of a){let data=await new Promise(r=>{let fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(f.blob)});pack.push({name:f.name,data})}let b=new Blob([JSON.stringify(pack)],{type:'application/json'});shareOrDownload(b,'SMART-SCAN-BACKUP.json')}
+(async()=>{try{await openDb();updateCount()}catch(e){msg('التخزين المحلي غير متاح')}if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})})();
+</script></body></html>
