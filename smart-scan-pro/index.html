@@ -63,50 +63,111 @@ function stopCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=
 function capture(){let v=$('camera');if(!stream||!v.videoWidth){msg('افتح الكاميرا أولًا');return}let c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);c.toBlob(b=>add(b),'image/jpeg',.92)}
 $('photos').addEventListener('change',e=>{[...e.target.files].forEach(add);e.target.value=''});
 function add(blob){scans.push({blob,url:URL.createObjectURL(blob),rotation:0,filter:'original'});render()}
+function detectBestCorners(canvas,cardMode){
+ let src=null,gray=null,blur=null,edges=null,work=null,kernel=null,contours=null,hierarchy=null;
+ const candidates=[];
+ try{
+  src=cv.imread(canvas);gray=new cv.Mat();blur=new cv.Mat();edges=new cv.Mat();
+  cv.cvtColor(src,gray,cv.COLOR_RGBA2GRAY);
+  cv.GaussianBlur(gray,blur,new cv.Size(5,5),0);
+  const W=src.cols,H=src.rows,imageArea=W*H,minArea=imageArea*(cardMode?.045:.055);
+  const passes=[
+   {lo:28,hi:85,k:5},
+   {lo:45,hi:135,k:7},
+   {lo:70,hi:190,k:9}
+  ];
+  const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+  const angle=(a,b,c)=>{let u={x:a.x-b.x,y:a.y-b.y},v={x:c.x-b.x,y:c.y-b.y};let d=Math.hypot(u.x,u.y)*Math.hypot(v.x,v.y);return d?Math.acos(Math.max(-1,Math.min(1,(u.x*v.x+u.y*v.y)/d)))*180/Math.PI:0};
+  const edgeSupport=(pts,map)=>{
+   let hits=0,total=0;
+   for(let e=0;e<4;e++){let a=pts[e],b=pts[(e+1)%4],len=dist(a,b),n=Math.max(12,Math.ceil(len/5));
+    for(let z=0;z<=n;z++){let t=z/n,x=Math.round(a.x+(b.x-a.x)*t),y=Math.round(a.y+(b.y-a.y)*t),found=false;
+     for(let dy=-3;dy<=3&&!found;dy++)for(let dx=-3;dx<=3;dx++){let xx=x+dx,yy=y+dy;if(xx>=0&&yy>=0&&xx<W&&yy<H&&map.ucharPtr(yy,xx)[0]>0){found=true;break}}
+     if(found)hits++;total++;
+    }
+   }
+   return total?hits/total:0;
+  };
+  const addCandidates=(map)=>{
+   contours=new cv.MatVector();hierarchy=new cv.Mat();
+   cv.findContours(map,contours,hierarchy,cv.RETR_LIST,cv.CHAIN_APPROX_SIMPLE);
+   for(let j=0;j<contours.size();j++){
+    let cnt=contours.get(j);
+    try{
+     const perimeter=cv.arcLength(cnt,true),area=Math.abs(cv.contourArea(cnt));
+     if(area<minArea||area>imageArea*.965||perimeter<100)continue;
+     for(const eps of [.012,.018,.025,.035,.045]){
+      let approx=new cv.Mat();
+      try{
+       cv.approxPolyDP(cnt,approx,eps*perimeter,true);
+       if(approx.rows!==4||!cv.isContourConvex(approx))continue;
+       let pts=[];for(let q=0;q<4;q++)pts.push({x:approx.intAt(q,0),y:approx.intAt(q,1)});
+       pts=orderCropPoints(pts);
+       const sides=pts.map((p,i)=>dist(p,pts[(i+1)%4]));
+       if(Math.min(...sides)<Math.min(W,H)*.035)continue;
+       const angles=pts.map((p,i)=>angle(pts[(i+3)%4],p,pts[(i+1)%4]));
+       if(angles.some(a=>a<24||a>156))continue;
+       const ratio=Math.max((sides[0]+sides[2])/2,(sides[1]+sides[3])/2)/Math.max(1,Math.min((sides[0]+sides[2])/2,(sides[1]+sides[3])/2));
+       if(cardMode&&(ratio<1.22||ratio>2.15))continue;
+       const support=edgeSupport(pts,edges);
+       const areaRatio=area/imageArea;
+       const ratioFit=cardMode?Math.exp(-1.7*Math.abs(Math.log(ratio/1.586))):1;
+       const score=areaRatio*(.35+.65*support)*ratioFit;
+       if(support>.10)candidates.push({pts,score,area,support});
+      }finally{approx.delete()}
+     }
+    }finally{cnt.delete()}
+   }
+   contours.delete();contours=null;hierarchy.delete();hierarchy=null;
+  };
+  for(const p of passes){
+   cv.Canny(blur,edges,p.lo,p.hi);
+   kernel=cv.getStructuringElement(cv.MORPH_RECT,new cv.Size(p.k,p.k));
+   work=new cv.Mat();cv.morphologyEx(edges,work,cv.MORPH_CLOSE,kernel);
+   addCandidates(work);work.delete();work=null;kernel.delete();kernel=null;
+  }
+  // Adaptive threshold pass helps with shadows, uneven lighting and low-contrast paper.
+  let adaptive=new cv.Mat();
+  try{
+   cv.adaptiveThreshold(blur,adaptive,255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY_INV,31,9);
+   kernel=cv.getStructuringElement(cv.MORPH_RECT,new cv.Size(5,5));
+   work=new cv.Mat();cv.morphologyEx(adaptive,work,cv.MORPH_CLOSE,kernel);
+   addCandidates(work);
+  }finally{adaptive.delete();if(work){work.delete();work=null}if(kernel){kernel.delete();kernel=null}}
+  if(!candidates.length)return null;
+  candidates.sort((a,b)=>b.score-a.score);
+  // Prefer the largest well-supported outline, not internal text boxes or photo details.
+  const top=candidates[0];
+  return top.pts;
+ }finally{[src,gray,blur,edges,work,kernel,contours,hierarchy].forEach(x=>{if(x&&x.delete)x.delete()})}
+}
 async function autoCrop(i){
  if(!cvReady){msg('أداة القص الذكي لسه بتحمّل، جرّب بعد ثواني');return}
  const s=scans[i],img=new Image();
  img.onload=async()=>{
-  let src=null,gray=null,blur=null,edges=null,contours=null,hierarchy=null,kernel=null;
   try{
-   const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;canvas.getContext('2d').drawImage(img,0,0);
-   src=cv.imread(canvas);gray=new cv.Mat();blur=new cv.Mat();edges=new cv.Mat();
-   cv.cvtColor(src,gray,cv.COLOR_RGBA2GRAY);cv.GaussianBlur(gray,blur,new cv.Size(5,5),0);
-   cv.Canny(blur,edges,45,140);kernel=cv.getStructuringElement(cv.MORPH_RECT,new cv.Size(7,7));cv.dilate(edges,edges,kernel);
-   contours=new cv.MatVector();hierarchy=new cv.Mat();cv.findContours(edges,contours,hierarchy,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_SIMPLE);
-   const cardMode=$('scanner').dataset.mode==='id',imageArea=src.cols*src.rows;let bestScore=0,bestPts=null;
-   for(let j=0;j<contours.size();j++){
-    const cnt=contours.get(j),approx=new cv.Mat();cv.approxPolyDP(cnt,approx,.025*cv.arcLength(cnt,true),true);
-    if(approx.rows===4){
-     const pts=[];for(let q=0;q<4;q++)pts.push({x:approx.intAt(q,0),y:approx.intAt(q,1)});
-     const ordered=orderCropPoints(pts),dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-     const width=(dist(ordered[0],ordered[1])+dist(ordered[3],ordered[2]))/2,height=(dist(ordered[0],ordered[3])+dist(ordered[1],ordered[2]))/2;
-     const area=Math.abs(cv.contourArea(approx)),ratio=Math.max(width,height)/Math.max(1,Math.min(width,height));
-     if(area>imageArea*(cardMode?.10:.08)){
-      const score=area*(cardMode?Math.exp(-2.2*Math.abs(Math.log(ratio/1.586))):1);
-      if(score>bestScore&&(!cardMode||(ratio>1.25&&ratio<2.05))){bestScore=score;bestPts=ordered}
-     }
-    }
-    cnt.delete();approx.delete();
-   }
-   if(!bestPts){msg(cardMode?'مش قادر أحدد حدود البطاقة؛ جرّب خلفية مختلفة أو استخدم القص اليدوي':'مش قادر أحدد حدود الورقة؛ استخدم القص اليدوي');return}
-   const [tl,tr,br,bl]=bestPts,dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+   const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+   canvas.getContext('2d').drawImage(img,0,0);
+   const cardMode=$('scanner').dataset.mode==='id',pts=detectBestCorners(canvas,cardMode);
+   if(!pts){msg('لم أجد حدودًا موثوقة للصورة. جرّب إضاءة أفضل أو القص اليدوي.');return}
+   const [tl,tr,br,bl]=pts,dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
    const w=Math.round(Math.max(dist(br,bl),dist(tr,tl))),h=Math.round(Math.max(dist(tr,br),dist(tl,bl)));
    if(w<80||h<50)throw Error('crop dimensions too small');
-   const outW=cardMode?1600:Math.max(1,w),outH=cardMode?1010:Math.max(1,h);
-   const from=cv.matFromArray(4,1,cv.CV_32FC2,[tl.x,tl.y,tr.x,tr.y,br.x,br.y,bl.x,bl.y]);
+   const src=cv.imread(canvas),from=cv.matFromArray(4,1,cv.CV_32FC2,[tl.x,tl.y,tr.x,tr.y,br.x,br.y,bl.x,bl.y]);
+   const outW=cardMode?2000:Math.max(1,w),outH=cardMode?1260:Math.max(1,h);
    const to=cv.matFromArray(4,1,cv.CV_32FC2,[0,0,outW-1,0,outW-1,outH-1,0,outH-1]);
    const M=cv.getPerspectiveTransform(from,to),out=new cv.Mat();
-   cv.warpPerspective(src,out,M,new cv.Size(outW,outH),cv.INTER_CUBIC,cv.BORDER_REPLICATE);
-   const result=document.createElement('canvas');cv.imshow(result,out);
-   const blob=await new Promise(resolve=>result.toBlob(resolve,'image/jpeg',.97));if(!blob)throw Error('image export failed');
-   URL.revokeObjectURL(s.url);s.blob=blob;s.url=URL.createObjectURL(blob);s.rotation=0;render();msg('تم قص البطاقة/المستند وضبط الزوايا');
-   [from,to,M,out].forEach(x=>x.delete());
-  }catch(e){console.error(e);msg('حصلت مشكلة في القص التلقائي')}
-  finally{[src,gray,blur,edges,contours,hierarchy,kernel].forEach(x=>{if(x&&x.delete)x.delete()})}
+   try{
+    cv.warpPerspective(src,out,M,new cv.Size(outW,outH),cv.INTER_CUBIC,cv.BORDER_REPLICATE);
+    const result=document.createElement('canvas');cv.imshow(result,out);
+    const blob=await new Promise(resolve=>result.toBlob(resolve,'image/jpeg',.98));
+    if(!blob)throw Error('image export failed');
+    URL.revokeObjectURL(s.url);s.blob=blob;s.url=URL.createObjectURL(blob);s.rotation=0;
+    render();msg('تم اكتشاف الحواف وتصحيح المنظور بدقة عالية');
+   }finally{[src,from,to,M,out].forEach(x=>x.delete())}
+  }catch(e){console.error(e);msg('تعذر إكمال القص التلقائي؛ جرّب القص اليدوي')}
  };
- img.onerror=()=>msg('تعذر تحميل الصورة للقص');
- img.src=s.url;
+ img.onerror=()=>msg('تعذر تحميل الصورة للقص');img.src=s.url;
 }
 let cropIndex=-1,cropImage=null,cropPoints=[],dragPoint=-1;
 function orderCropPoints(pts){
@@ -126,31 +187,7 @@ function drawCropOverlay(){let svg=$('cropSvg'),w=$('cropCanvas').width,h=$('cro
 function cropPointerDown(e){let t=e.target.closest('[data-point]');if(!t)return;dragPoint=Number(t.dataset.point);try{$('cropSvg').setPointerCapture(e.pointerId)}catch(_){}e.preventDefault()}
 function cropPointerMove(e){if(dragPoint<0)return;let r=$('cropSvg').getBoundingClientRect(),w=$('cropCanvas').width,h=$('cropCanvas').height;cropPoints[dragPoint]={x:Math.max(0,Math.min(w,(e.clientX-r.left)/r.width*w)),y:Math.max(0,Math.min(h,(e.clientY-r.top)/r.height*h))};drawCropOverlay();$('cropStatus').textContent='يتم ضبط الركن '+(dragPoint+1)+' — اتركه عند حافة الورقة.';e.preventDefault()}
 $('cropSvg').addEventListener('pointerdown',cropPointerDown);$('cropSvg').addEventListener('pointermove',cropPointerMove);$('cropSvg').addEventListener('pointerup',()=>dragPoint=-1);$('cropSvg').addEventListener('pointercancel',()=>dragPoint=-1);
-function detectCorners(canvas){
- let src=null,gray=null,blur=null,edges=null,contours=null,hierarchy=null,kernel=null;
- try{
-  src=cv.imread(canvas);gray=new cv.Mat();blur=new cv.Mat();edges=new cv.Mat();
-  cv.cvtColor(src,gray,cv.COLOR_RGBA2GRAY);cv.GaussianBlur(gray,blur,new cv.Size(5,5),0);
-  cv.Canny(blur,edges,45,140);kernel=cv.getStructuringElement(cv.MORPH_RECT,new cv.Size(7,7));cv.dilate(edges,edges,kernel);
-  contours=new cv.MatVector();hierarchy=new cv.Mat();cv.findContours(edges,contours,hierarchy,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_SIMPLE);
-  const cardMode=$('scanner').dataset.mode==='id',imageArea=src.cols*src.rows;let bestScore=0,best=null;
-  for(let j=0;j<contours.size();j++){
-   const cnt=contours.get(j),approx=new cv.Mat();cv.approxPolyDP(cnt,approx,.025*cv.arcLength(cnt,true),true);
-   if(approx.rows===4){
-    const pts=[];for(let q=0;q<4;q++)pts.push({x:approx.intAt(q,0),y:approx.intAt(q,1)});
-    const ordered=orderCropPoints(pts),dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-    const width=(dist(ordered[0],ordered[1])+dist(ordered[3],ordered[2]))/2,height=(dist(ordered[0],ordered[3])+dist(ordered[1],ordered[2]))/2;
-    const area=Math.abs(cv.contourArea(approx)),ratio=Math.max(width,height)/Math.max(1,Math.min(width,height));
-    if(area>imageArea*(cardMode?.10:.08)){
-     const score=area*(cardMode?Math.exp(-2.2*Math.abs(Math.log(ratio/1.586))):1);
-     if(score>bestScore&&(!cardMode||(ratio>1.25&&ratio<2.05))){bestScore=score;best=ordered}
-    }
-   }
-   cnt.delete();approx.delete();
-  }
-  return best;
- }finally{[src,gray,blur,edges,contours,hierarchy,kernel].forEach(x=>{if(x&&x.delete)x.delete()})}
-}
+function detectCorners(canvas){return detectBestCorners(canvas,$('scanner').dataset.mode==='id')}
 function suggestManualCorners(){if(!cvReady){msg('أداة الاكتشاف لسه بتحمّل، جرّب بعد ثواني');return}try{let pts=detectCorners($('cropCanvas'));if(!pts){$('cropStatus').textContent='لم يتم العثور على حدود واضحة. حرّك الزوايا يدويًا.';msg('مش قادر أحدد الحواف تلقائيًا؛ اضبطها يدويًا');return}cropPoints=pts;drawCropOverlay();$('cropStatus').textContent='تم تحديد الزوايا تلقائيًا — راجعها وعدّل أي ركن قبل الاعتماد.';msg('تم اقتراح حدود الورقة تلقائيًا')}catch(e){console.error(e);msg('تعذر اكتشاف الزوايا')}}
 async function applyManualCrop(){if(cropIndex<0||!cvReady){msg('أداة معالجة الصورة لسه بتحمّل');return}let src=null,out=null,from=null,to=null,M=null;try{let c=$('cropCanvas'),cardMode=$('scanner').dataset.mode==='id',[tl,tr,br,bl]=cropPoints;let width=Math.max(Math.hypot(br.x-bl.x,br.y-bl.y),Math.hypot(tr.x-tl.x,tr.y-tl.y)),height=Math.max(Math.hypot(tr.x-br.x,tr.y-br.y),Math.hypot(tl.x-bl.x,tl.y-bl.y));if(width<30||height<30)throw Error('crop too small');let ow=cardMode?1200:Math.round(width),oh=cardMode?757:Math.round(height);src=cv.imread(c);out=new cv.Mat();from=cv.matFromArray(4,1,cv.CV_32FC2,[tl.x,tl.y,tr.x,tr.y,br.x,br.y,bl.x,bl.y]);to=cv.matFromArray(4,1,cv.CV_32FC2,[0,0,ow-1,0,ow-1,oh-1,0,oh-1]);M=cv.getPerspectiveTransform(from,to);cv.warpPerspective(src,out,M,new cv.Size(ow,oh),cv.INTER_CUBIC,cv.BORDER_REPLICATE);let result=document.createElement('canvas');cv.imshow(result,out);if($('autoEnhance').checked&&!cardMode){let ctx=result.getContext('2d'),enh=document.createElement('canvas');enh.width=result.width;enh.height=result.height;let ex=enh.getContext('2d');ex.filter=cardMode?'contrast(1.05) brightness(1.025) saturate(1.04)':'contrast(1.1) brightness(1.035) saturate(1.02)';ex.drawImage(result,0,0);result=enh}let blob=await new Promise(resolve=>result.toBlob(resolve,'image/jpeg',.95));if(!blob)throw Error('image export failed');let item=scans[cropIndex];URL.revokeObjectURL(item.url);item.blob=blob;item.url=URL.createObjectURL(blob);item.rotation=0;closeCropEditor();render();msg('تم القص اليدوي وتحسين الصورة تلقائيًا')}catch(e){console.error(e);msg('تعذر تطبيق القص، حاول ضبط الزوايا مرة أخرى')}finally{[src,out,from,to,M].forEach(x=>{if(x&&x.delete)x.delete()})}}
 function render(){$('previews').innerHTML='';scans.forEach((s,i)=>{let d=document.createElement('div');d.className='scan-card';d.innerHTML='<img src="'+s.url+'" style="transform:rotate('+s.rotation+'deg);filter:'+filters[s.filter]+'"><div class="row"><small>صورة '+(i+1)+'</small><button class="secondary" onclick="rotate('+i+')">↻</button><button class="danger" onclick="removeScan('+i+')">حذف</button></div><button class="gold" style="width:100%;margin-top:7px;padding:11px" onclick="openManualCrop(' +i+ ')">✎ قص يدوي — حرّك الزوايا الأربع</button><button class="secondary" style="width:100%;margin-top:6px" onclick="autoCrop('+i+')">✂ قص تلقائي وضبط الزوايا</button><select style="width:100%;margin-top:7px" onchange="setFilter('+i+',this.value)"><option value="original">أصلية</option><option value="clear">مستند واضح</option><option value="bw">أبيض وأسود</option><option value="gray">رمادي</option></select>';$('previews').appendChild(d);d.querySelector('select').value=s.filter})}
