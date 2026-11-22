@@ -311,6 +311,7 @@ td input[data-k="branchCode"]{min-width:82px}td input[data-k="branchName"]{min-w
 </main>
 <script>
 const $=id=>document.getElementById(id);
+function todayLocal(){const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");}
 const fields=[["name","اسم العميل","text"],["national","الرقم القومي","text"],["mobile","رقم الموبايل","tel"],["employer","جهة العمل","text"],["loanType","نوع القرض","select"],["amount","قيمة القرض","number"],["branchCode","كود الفرع","text"],["branchName","اسم الفرع","text"],["source","مصدر الطلب","text"],["net","صافي القرض","number"]];
 let clients=[];let printRestore=null;
 const fixedClientData={branchCode:"394",branchName:"رشيد",employeeId:"479511",employeeName:"محمود محمد رزق"};
@@ -382,5 +383,5 @@ function load(){
 function updateHeaderClock(){const el=$("headerClock");if(!el)return;el.textContent=new Intl.DateTimeFormat("en-GB",{timeZone:"Africa/Cairo",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(new Date())}
 updateHeaderClock();
 setInterval(updateHeaderClock,1000);
-load();if(!$("reportDate").value)$("reportDate").value=new Date().toISOString().slice(0,10);render();persist();
+load();if(!$("reportDate").value)$("reportDate").value=todayLocal();render();persist();
 </script></body></html>
