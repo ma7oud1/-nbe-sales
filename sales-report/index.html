@@ -64,6 +64,7 @@ main{max-width:1200px;margin:20px auto;padding:0 14px}.panel{background:#fff;bor
 </main>
 <script>
 const $=id=>document.getElementById(id);
+function todayLocal(){const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");}
 const fields=[["name","اسم العميل","text"],["national","الرقم القومي","text"],["mobile","رقم الموبايل","tel"],["employer","جهة العمل","text"],["loanType","نوع القرض","select"],["amount","قيمة القرض","number"],["branchCode","كود الفرع","text"],["branchName","اسم الفرع","text"],["employeeId","الرقم الوظيفي","text"],["employeeName","اسم الموظف","text"],["source","مصدر الطلب","text"],["net","صافي القرض","number"]];
 let clients=[];
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -91,7 +92,7 @@ function updateSummary(){
 }
 function snapshot(){return {salesName:$("salesName").value,reportDate:$("reportDate").value,salesId:$("salesId").value,cardCount:$("cardCount").value,clients}}
 function persist(){try{localStorage.setItem("salesReportStandalone",JSON.stringify(snapshot()))}catch(e){}}
-function load(){try{const d=JSON.parse(localStorage.getItem("salesReportStandalone")||"null");if(d){$("salesName").value=d.salesName||"";$("reportDate").value=d.reportDate||new Date().toISOString().slice(0,10);$("salesId").value=d.salesId||"";$("cardCount").value=d.cardCount||0;clients=Array.isArray(d.clients)?d.clients:[]}}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem("salesReportStandalone")||"null");if(d){$("salesName").value=d.salesName||"";$("reportDate").value=d.reportDate||todayLocal();$("salesId").value=d.salesId||"";$("cardCount").value=d.cardCount||0;clients=Array.isArray(d.clients)?d.clients:[]}}catch(e){}}
 function csv(){
  const headers=["م","اسم العميل","الرقم القومي","رقم الموبايل","جهة العمل","نوع القرض","قيمة القرض","كود الفرع","اسم الفرع","الرقم الوظيفي","اسم الموظف","مصدر الطلب","صافي القرض"];
  const keys=["name","national","mobile","employer","loanType","amount","branchCode","branchName","employeeId","employeeName","source","net"];
@@ -102,5 +103,5 @@ function csv(){
 $("addBtn").onclick=addClient;$("printBtn").onclick=()=>window.print();$("saveBtn").onclick=()=>{persist();alert("تم حفظ البيانات على هذا الجهاز")};$("exportBtn").onclick=csv;
 $("clearBtn").onclick=()=>{if(confirm("هل تريد مسح كل بيانات التقرير والعملاء؟")){clients=[];$("salesName").value="";$("salesId").value="";$("cardCount").value=0;render();persist()}};
 ["salesName","reportDate","salesId","cardCount"].forEach(id=>$(id).addEventListener("change",()=>{updateSummary();persist()}));
-load();if(!$("reportDate").value)$("reportDate").value=new Date().toISOString().slice(0,10);render();persist();
+load();if(!$("reportDate").value)$("reportDate").value=todayLocal();render();persist();
 </script></body></html>
